@@ -28,5 +28,6 @@ private:
 	bool mKeyboardFocus;
 	bool mFullScreen;
 	bool mMinimised;
+	void updateSize();
 
 };

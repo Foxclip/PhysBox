@@ -44,8 +44,7 @@ void LWindow::handleEvent(SDL_Event& e) {
 		bool updateCaption = false;
 		switch(e.window.event) {
 		case SDL_WINDOWEVENT_SIZE_CHANGED:
-			mWidth = e.window.data1;
-			mHeight = e.window.data2;
+			updateSize();
 			SDL_RenderPresent(gRenderer);
 			break;
 		case SDL_WINDOWEVENT_EXPOSED:
@@ -72,9 +71,11 @@ void LWindow::handleEvent(SDL_Event& e) {
 			break;
 		case SDL_WINDOWEVENT_MAXIMIZED:
 			mMinimised = false;
+			updateSize();
 			break;
 		case SDL_WINDOWEVENT_RESTORED:
 			mMinimised = false;
+			updateSize();
 			break;
 		}
 	}
@@ -129,4 +130,11 @@ bool LWindow::isMinimised() {
 
 bool LWindow::isFullscreen() {
 	return mFullScreen;
+}
+
+void LWindow::updateSize() {
+	int w, h;
+	SDL_GetWindowSize(mWindow, &w, &h);
+	mWidth = w;
+	mHeight = h;
 }

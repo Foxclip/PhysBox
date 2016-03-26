@@ -1,6 +1,7 @@
 #pragma once
 
 #include "utils.h"
+#include "settings.h"
 
 class Object {
 
@@ -8,11 +9,13 @@ public:
 	Object();
 	virtual void move();
 	virtual void render() = 0;
-	Color color;
+	void calculateVerticalGravity();
 
 protected:
 	double x, y;
 	double speedX, speedY;
+	double damping;
+	Color color;
 
 };
 

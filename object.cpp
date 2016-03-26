@@ -6,6 +6,7 @@ Object::Object() {
 	y = 0;
 	speedX = 0;
 	speedY = 0;
+	damping = DAMPING;
 }
 
 void Object::move() {
@@ -13,7 +14,11 @@ void Object::move() {
 	y += speedY;
 }
 
-Ball::Ball(double x, double y, double radius, double speedX, double speedY, Color color): Object() {
+void Object::calculateVerticalGravity() {
+	speedY += gravityVerticalForce;
+}
+
+Ball::Ball(double x, double y, double radius, double speedX, double speedY, Color color) {
 	this->x = x;
 	this->y = y;
 	this->radius = radius;
@@ -28,19 +33,19 @@ void Ball::move() {
 
 	if(x < radius) {
 		x = radius;
-		speedX = -speedX;
+		speedX = -speedX * damping;
 	}
 	if(x > gWindow.getWidth() - radius) {
 		x = gWindow.getWidth() - radius;
-		speedX = -speedX;
+		speedX = -speedX * damping;
 	}
 	if(y < radius) {
 		y = radius;
-		speedY = -speedY;
+		speedY = -speedY * damping;
 	}
 	if(y > gWindow.getHeight() - radius) {
 		y = gWindow.getHeight() - radius;
-		speedY = -speedY;
+		speedY = -speedY * damping;
 	}
 
 }
