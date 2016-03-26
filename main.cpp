@@ -5,8 +5,10 @@
 #include <string>
 #include <algorithm>
 #include <sstream>
+#include <vector>
 #include "lwindow.h"
 #include "globals.h"
+#include "object.h"
 
 bool initSDL();
 bool loadMedia();
@@ -22,6 +24,7 @@ bool gQuit = false;
 SDL_Renderer* gRenderer = NULL;
 TTF_Font* gFont;
 LWindow gWindow;
+std::vector<Object*> objects;
 
 int main(int argc, char* args[]) {
 	if(!initSDL()) {
@@ -29,7 +32,6 @@ int main(int argc, char* args[]) {
 	} else if(!loadMedia()) {
 		printf("Failed to load media\n");
 	} else {
-
 		mainLoop();
 	}
 	close();
@@ -75,6 +77,8 @@ void close() {
 }
 
 void init() {
+	objects.push_back(new Ball(50, 50, 30, 5, 5, { 255, 0, 0 }));
+	objects.push_back(new Ball(150, 150, 20, 5, 0, { 0, 0, 255 }));
 }
 
 void mainLoop() {
@@ -89,9 +93,10 @@ void mainLoop() {
 void render() {
 	if(gWindow.isMinimised())
 		return;
-	SDL_SetRenderDrawColor(gRenderer, 255, 255, 255, 255);
+	SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
 	SDL_RenderClear(gRenderer);
-
+	for(int i = 0; i < (int)objects.size(); i++)
+		objects.at(i)->render();
 	SDL_RenderPresent(gRenderer);
 }
 
@@ -117,4 +122,6 @@ void handleKeyboard(SDL_Event e) {
 }
 
 void processPhysics() {
+	for(int i = 0; i < (int)objects.size(); i++)
+		objects.at(i)->move();
 }
