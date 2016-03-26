@@ -2,6 +2,9 @@
 #include "globals.h"
 #include <sstream>
 
+const int DEFAULT_WINDOW_WIDTH = 640;
+const int DEFAULT_WIINDOW_HEIGHT = 480;
+
 LWindow::LWindow() {
 	mWindow = NULL;
 	mMouseFocus = false;
@@ -18,13 +21,13 @@ LWindow::~LWindow() {
 
 bool LWindow::init() {
 	mWindow = SDL_CreateWindow("Window!", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-		SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+		DEFAULT_WINDOW_WIDTH, DEFAULT_WIINDOW_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 	if(!mWindow)
 		return false;
 	mMouseFocus = true;
 	mKeyboardFocus = true;
-	mWidth = SCREEN_WIDTH;
-	mHeight = SCREEN_HEIGHT;
+	mWidth = DEFAULT_WINDOW_WIDTH;
+	mHeight = DEFAULT_WIINDOW_HEIGHT;
 	return true;
 }
 

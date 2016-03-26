@@ -22,6 +22,29 @@ Ball::Ball(double x, double y, double radius, double speedX, double speedY, Colo
 	this->color = color;
 }
 
+void Ball::move() {
+
+	Object::move();
+
+	if(x < radius) {
+		x = radius;
+		speedX = -speedX;
+	}
+	if(x > gWindow.getWidth() - radius) {
+		x = gWindow.getWidth() - radius;
+		speedX = -speedX;
+	}
+	if(y < radius) {
+		y = radius;
+		speedY = -speedY;
+	}
+	if(y > gWindow.getHeight() - radius) {
+		y = gWindow.getHeight() - radius;
+		speedY = -speedY;
+	}
+
+}
+
 void Ball::render() {
 	SDL_SetRenderDrawColor(gRenderer, color.red, color.green, color.blue, 255);
 	for(int yCoord = -(int)radius; yCoord <= (int)radius; yCoord++)

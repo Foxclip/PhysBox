@@ -6,7 +6,7 @@ class Object {
 
 public:
 	Object();
-	void move();
+	virtual void move();
 	virtual void render() = 0;
 	Color color;
 
@@ -19,6 +19,7 @@ protected:
 class Ball: public Object {
 public:
 	Ball(double x, double y, double radius, double speedX, double speedY, Color color);
+	void move();
 	void render();
 
 private:
