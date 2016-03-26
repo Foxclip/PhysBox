@@ -23,6 +23,7 @@ void render();
 void handleEvents();
 void handleKeyboard(SDL_Event e);
 void processPhysics();
+void drawText(int x, int y, const char* str, Color color, TTF_Font* font);
 void updateFpsCount();
 void generateObjects();
 void deleteAllObjects();
@@ -138,9 +139,7 @@ void render() {
 	SDL_RenderClear(gRenderer);
 	for(int i = 0; i < (int)objects.size(); i++)
 		objects.at(i)->render();
-	LTexture fpsText;
-	fpsText.loadFromRenderedText(std::to_string(fps).c_str(), { 255, 255, 0 }, smallFont, false);
-	fpsText.render(0, 0);
+	drawText(0, 0, std::to_string(fps).c_str(), { 255, 255, 0 }, smallFont);
 	if(pause)
 		pauseTexture.render((gWindow.getWidth() - pauseTexture.getWidth()) / 2, (gWindow.getHeight() - pauseTexture.getHeight()) / 2);
 	SDL_RenderPresent(gRenderer);
@@ -181,6 +180,12 @@ void processPhysics() {
 			objects.at(i)->calculateVerticalGravity();
 	for(int i = 0; i < (int)objects.size(); i++)
 		objects.at(i)->move();
+}
+
+void drawText(int x, int y, const char* str, Color color, TTF_Font* font) {
+	LTexture textTexture;
+	textTexture.loadFromRenderedText(str, { color.red, color.green, color.blue, 255 }, smallFont, false);
+	textTexture.render(x, y);
 }
 
 void updateFpsCount() {
