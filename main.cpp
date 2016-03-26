@@ -56,6 +56,10 @@ bool initSDL() {
 		printf("TTF init error: %s\n", TTF_GetError());
 		return false;
 	}
+
+	gWindow.maximize();
+	gWindow.setFullScreen(true);
+
 	return true;
 }
 
@@ -77,8 +81,10 @@ void close() {
 }
 
 void init() {
+
 	objects.push_back(new Ball(50, 50, 30, 5, 5, { 255, 0, 0 }));
 	objects.push_back(new Ball(150, 150, 20, 5, 0, { 0, 0, 255 }));
+
 }
 
 void mainLoop() {
