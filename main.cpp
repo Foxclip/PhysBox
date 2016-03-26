@@ -23,15 +23,20 @@ void render();
 void handleEvents();
 void handleKeyboard(SDL_Event e);
 void processPhysics();
+void updateFpsCount();
 void generateObjects();
 void deleteAllObjects();
 
 bool gQuit = false;
 SDL_Renderer* gRenderer = NULL;
-TTF_Font* gFont;
+TTF_Font* bigFont;
+TTF_Font* smallFont;
 LWindow gWindow;
 LTexture pauseTexture;
 std::vector<Object*> objects;
+int fpsCount = 0;
+int fps = 0;
+int lastFpsTime = 0;
 
 int main(int argc, char* args[]) {
 	if(!initSDL()) {
@@ -76,13 +81,18 @@ bool initSDL() {
 }
 
 bool loadMedia() {
-	gFont = TTF_OpenFont("arial.ttf", 28);
-	if(!gFont) {
+	bigFont = TTF_OpenFont("arial.ttf", 28);
+	if(!bigFont) {
+		printf("Font loading error: %s\n", TTF_GetError());
+		return false;
+	}
+	smallFont = TTF_OpenFont("arial.ttf", 15);
+	if(!smallFont) {
 		printf("Font loading error: %s\n", TTF_GetError());
 		return false;
 	}
 	pauseTexture = LTexture();
-	pauseTexture.loadFromRenderedText("PAUSE", { 255, 255, 0 });
+	pauseTexture.loadFromRenderedText("PAUSE", { 255, 255, 0 }, bigFont);
 	return true;
 }
 
@@ -92,7 +102,7 @@ void close() {
 
 	SDL_DestroyRenderer(gRenderer);
 	gRenderer = NULL;
-	gFont = NULL;
+	bigFont = NULL;
 	TTF_Quit();
 	SDL_Quit();
 }
@@ -111,9 +121,13 @@ void init() {
 void mainLoop() {
 	init();
 	while(!gQuit) {
+
 		handleEvents();
 		processPhysics();
 		render();
+
+		updateFpsCount();
+
 	}
 }
 
@@ -124,6 +138,9 @@ void render() {
 	SDL_RenderClear(gRenderer);
 	for(int i = 0; i < (int)objects.size(); i++)
 		objects.at(i)->render();
+	LTexture fpsText;
+	fpsText.loadFromRenderedText(std::to_string(fps).c_str(), { 255, 255, 0 }, smallFont, false);
+	fpsText.render(0, 0);
 	if(pause)
 		pauseTexture.render((gWindow.getWidth() - pauseTexture.getWidth()) / 2, (gWindow.getHeight() - pauseTexture.getHeight()) / 2);
 	SDL_RenderPresent(gRenderer);
@@ -151,6 +168,8 @@ void handleKeyboard(SDL_Event e) {
 			gQuit = true; break;
 		case SDLK_SPACE:
 			pause = !pause; break;
+		case SDLK_r:
+			generateObjects(); break;
 		}
 	}
 }
@@ -162,6 +181,16 @@ void processPhysics() {
 			objects.at(i)->calculateVerticalGravity();
 	for(int i = 0; i < (int)objects.size(); i++)
 		objects.at(i)->move();
+}
+
+void updateFpsCount() {
+	int currentTime = SDL_GetTicks();
+	fpsCount++;
+	if(currentTime - lastFpsTime > 1000) {
+		fps = fpsCount;
+		fpsCount = 0;
+		lastFpsTime = currentTime;
+	}
 }
 
 void generateObjects() {

@@ -45,13 +45,13 @@ bool LTexture::loadFromFile(std::string path) {
 	return true;
 }
 
-bool LTexture::loadFromRenderedText(std::string textureText, SDL_Color textColor, bool antialiasing) {
+bool LTexture::loadFromRenderedText(std::string textureText, SDL_Color textColor, TTF_Font* font, bool antialiasing) {
 	free();
 	SDL_Surface* textSurface;
 	if(antialiasing)
-		textSurface = TTF_RenderText_Blended(gFont, textureText.c_str(), textColor);
+		textSurface = TTF_RenderText_Blended(font, textureText.c_str(), textColor);
 	else
-		textSurface = TTF_RenderText_Solid(gFont, textureText.c_str(), textColor);
+		textSurface = TTF_RenderText_Solid(font, textureText.c_str(), textColor);
 	if(textSurface == NULL) {
 		printf("Text loading error: %s\n", TTF_GetError());
 		return false;
