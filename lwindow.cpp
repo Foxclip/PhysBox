@@ -45,10 +45,10 @@ void LWindow::handleEvent(SDL_Event& e) {
 		switch(e.window.event) {
 		case SDL_WINDOWEVENT_SIZE_CHANGED:
 			updateSize();
-			SDL_RenderPresent(gRenderer);
+			SDL_RenderPresent(mainRenderer);
 			break;
 		case SDL_WINDOWEVENT_EXPOSED:
-			SDL_RenderPresent(gRenderer);
+			SDL_RenderPresent(mainRenderer);
 			break;
 		case SDL_WINDOWEVENT_ENTER:
 			mMouseFocus = true;

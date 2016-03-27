@@ -35,25 +35,25 @@ void Ball::move() {
 		x = radius;
 		speedX = -speedX * damping;
 	}
-	if(x > gWindow.getWidth() - radius) {
-		x = gWindow.getWidth() - radius;
+	if(x > mainWindow.getWidth() - radius) {
+		x = mainWindow.getWidth() - radius;
 		speedX = -speedX * damping;
 	}
 	if(y < radius) {
 		y = radius;
 		speedY = -speedY * damping;
 	}
-	if(y > gWindow.getHeight() - radius) {
-		y = gWindow.getHeight() - radius;
+	if(y > mainWindow.getHeight() - radius) {
+		y = mainWindow.getHeight() - radius;
 		speedY = -speedY * damping;
 	}
 
 }
 
 void Ball::render() {
-	SDL_SetRenderDrawColor(gRenderer, color.red, color.green, color.blue, 255);
+	SDL_SetRenderDrawColor(mainRenderer, color.red, color.green, color.blue, 255);
 	for(int yCoord = -(int)radius; yCoord <= (int)radius; yCoord++)
 		for(int xCoord = -(int)radius; xCoord <= (int)radius; xCoord++)
 			if((xCoord*xCoord + yCoord*yCoord) <= radius*radius)
-				SDL_RenderDrawPoint(gRenderer, (int)(x + xCoord), (int)(y + yCoord));
+				SDL_RenderDrawPoint(mainRenderer, (int)(x + xCoord), (int)(y + yCoord));
 }

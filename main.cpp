@@ -23,17 +23,18 @@ void render();
 void handleEvents();
 void handleKeyboard(SDL_Event e);
 void processPhysics();
-void drawText(int x, int y, const char* str, Color color, TTF_Font* font);
+void drawText(int x, int y, std::string str, Color color, Font& font);
+int getStringWidth(const char* str, Font& font);
+Color getBoolColor(bool var);
 void updateFpsCount();
 void generateObjects();
 void deleteAllObjects();
 
 bool gQuit = false;
-SDL_Renderer* gRenderer = NULL;
-TTF_Font* bigFont;
-TTF_Font* smallFont;
-LWindow gWindow;
-LTexture pauseTexture;
+SDL_Renderer* mainRenderer = NULL;
+Font bigFont;
+Font smallFont;
+LWindow mainWindow;
 std::vector<Object*> objects;
 int fpsCount = 0;
 int fps = 0;
@@ -56,12 +57,12 @@ bool initSDL() {
 		printf("Init error: %s\n", SDL_GetError());
 		return false;
 	}
-	if(!gWindow.init()) {
+	if(!mainWindow.init()) {
 		printf("Window creation error: %s\n", SDL_GetError());
 		return false;
 	}
-	gRenderer = gWindow.createRenderer();
-	if(gRenderer == NULL) {
+	mainRenderer = mainWindow.createRenderer();
+	if(mainRenderer == NULL) {
 		printf("Renderer creation error: %s\n", SDL_GetError());
 		return false;
 	}
@@ -75,25 +76,15 @@ bool initSDL() {
 		return false;
 	}
 
-	gWindow.maximize();
+	mainWindow.maximize();
 	//gWindow.setFullScreen(true);
 
 	return true;
 }
 
 bool loadMedia() {
-	bigFont = TTF_OpenFont("arial.ttf", 28);
-	if(!bigFont) {
-		printf("Font loading error: %s\n", TTF_GetError());
-		return false;
-	}
-	smallFont = TTF_OpenFont("arial.ttf", 15);
-	if(!smallFont) {
-		printf("Font loading error: %s\n", TTF_GetError());
-		return false;
-	}
-	pauseTexture = LTexture();
-	pauseTexture.loadFromRenderedText("PAUSE", { 255, 255, 0 }, bigFont);
+	bigFont.loadFont("arial.ttf", 28);
+	smallFont.loadFont("arial.ttf", 15);
 	return true;
 }
 
@@ -101,17 +92,16 @@ void close() {
 
 	deleteAllObjects();
 
-	SDL_DestroyRenderer(gRenderer);
-	gRenderer = NULL;
-	bigFont = NULL;
+	SDL_DestroyRenderer(mainRenderer);
+	mainRenderer = NULL;
 	TTF_Quit();
 	SDL_Quit();
+
 }
 
 void init() {
 
 	srand(SDL_GetTicks());
-
 	//objects.push_back(new Ball(50, 50, 30, 5, 5, { 255, 0, 0 }));
 	//objects.push_back(new Ball(150, 150, 20, 5, 0, { 0, 0, 255 }));
 
@@ -133,16 +123,24 @@ void mainLoop() {
 }
 
 void render() {
-	if(gWindow.isMinimised())
+
+	if(mainWindow.isMinimised())
 		return;
-	SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
-	SDL_RenderClear(gRenderer);
+
+	SDL_SetRenderDrawColor(mainRenderer, 0, 0, 0, 255);
+	SDL_RenderClear(mainRenderer);
+
 	for(int i = 0; i < (int)objects.size(); i++)
 		objects.at(i)->render();
-	drawText(0, 0, std::to_string(fps).c_str(), { 255, 255, 0 }, smallFont);
+
+	drawText(0, 0, std::to_string(fps), { 255, 255, 0 }, smallFont);
+	drawText(mainWindow.getWidth() - getStringWidth("Springs", smallFont), 0,
+		"Springs", getBoolColor(springsEnabled), smallFont);
 	if(pause)
-		pauseTexture.render((gWindow.getWidth() - pauseTexture.getWidth()) / 2, (gWindow.getHeight() - pauseTexture.getHeight()) / 2);
-	SDL_RenderPresent(gRenderer);
+		drawText((mainWindow.getWidth() - getStringWidth("PAUSE", bigFont)) / 2,
+			(mainWindow.getHeight() - bigFont.getSize()) / 2, "PAUSE", { 255, 255, 0 }, bigFont);
+	SDL_RenderPresent(mainRenderer);
+
 }
 
 void handleEvents() {
@@ -155,7 +153,7 @@ void handleEvents() {
 		case SDL_KEYUP:
 			handleKeyboard(e); break;
 		case SDL_WINDOWEVENT:
-			gWindow.handleEvent(e); break;
+			mainWindow.handleEvent(e); break;
 		}
 	}
 }
@@ -182,10 +180,23 @@ void processPhysics() {
 		objects.at(i)->move();
 }
 
-void drawText(int x, int y, const char* str, Color color, TTF_Font* font) {
+void drawText(int x, int y, std::string str, Color color, Font& font) {
 	LTexture textTexture;
-	textTexture.loadFromRenderedText(str, { color.red, color.green, color.blue, 255 }, smallFont, false);
+	textTexture.loadFromRenderedText(str, { color.red, color.green, color.blue, 255 }, font.getSDLFont(), false);
 	textTexture.render(x, y);
+}
+
+int getStringWidth(const char* str, Font& font) {
+	int w;
+	TTF_SizeText(font.getSDLFont(), str, &w, NULL);
+	return w;
+}
+
+Color getBoolColor(bool var) {
+	if(var)
+		return { 0, 255, 0 };
+	else
+		return { 255, 0, 0 };
 }
 
 void updateFpsCount() {
@@ -204,8 +215,8 @@ void generateObjects() {
 
 	for(int i = 0; i < 10; i++)
 		objects.push_back(new Ball(
-			randomBetween(0, gWindow.getWidth()),
-			randomBetween(0, gWindow.getHeight()),
+			randomBetween(0, mainWindow.getWidth()),
+			randomBetween(0, mainWindow.getHeight()),
 			10,
 			randomBetween(-10, 10),
 			randomBetween(-10, 10),

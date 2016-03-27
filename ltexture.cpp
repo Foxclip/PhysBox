@@ -22,12 +22,12 @@ bool LTexture::loadFromFile(std::string path) {
 		printf("Image (%s) loading error: %s\n", path.c_str(), IMG_GetError());	
 		return false;
 	}
-	SDL_Surface* formattedSurface = SDL_ConvertSurface(loadedSurface, SDL_GetWindowSurface(gWindow.getSDLWindow())->format, NULL);
+	SDL_Surface* formattedSurface = SDL_ConvertSurface(loadedSurface, SDL_GetWindowSurface(mainWindow.getSDLWindow())->format, NULL);
 	if(formattedSurface == NULL) {
 		printf("Surface conversion error: %s\n", SDL_GetError());
 		return false;
 	}
-	SDL_Texture* newTexture = SDL_CreateTexture(gRenderer, SDL_GetWindowPixelFormat(gWindow.getSDLWindow()),
+	SDL_Texture* newTexture = SDL_CreateTexture(mainRenderer, SDL_GetWindowPixelFormat(mainWindow.getSDLWindow()),
 		SDL_TEXTUREACCESS_STREAMING, formattedSurface->w, formattedSurface->h);
 	if(newTexture == NULL) {
 		printf("Texture creation error: %s SDL error: %s\n", path.c_str(), SDL_GetError());
@@ -56,7 +56,7 @@ bool LTexture::loadFromRenderedText(std::string textureText, SDL_Color textColor
 		printf("Text loading error: %s\n", TTF_GetError());
 		return false;
 	}
-	SDL_Texture* newTexture = SDL_CreateTextureFromSurface(gRenderer, textSurface);
+	SDL_Texture* newTexture = SDL_CreateTextureFromSurface(mainRenderer, textSurface);
 	if(newTexture == NULL) {
 		printf("Text texture creation error: %s\n", SDL_GetError());
 		return false;
@@ -69,7 +69,7 @@ bool LTexture::loadFromRenderedText(std::string textureText, SDL_Color textColor
 }
 
 bool LTexture::createBlank(int width, int height, SDL_TextureAccess access) {
-	mTexture = SDL_CreateTexture(gRenderer, SDL_PIXELFORMAT_RGBA8888, access, width, height);
+	mTexture = SDL_CreateTexture(mainRenderer, SDL_PIXELFORMAT_RGBA8888, access, width, height);
 	if(mTexture == NULL) {
 		printf("Blank texture error: %s\n", SDL_GetError());
 		return false;
@@ -106,11 +106,11 @@ void LTexture::render(int x, int y, SDL_Rect* clip, double angle, SDL_Point* cen
 		renderQuad.w = clip->w;
 		renderQuad.h = clip->h;
 	}
-	SDL_RenderCopyEx(gRenderer, mTexture, clip, &renderQuad, angle, center, flip);
+	SDL_RenderCopyEx(mainRenderer, mTexture, clip, &renderQuad, angle, center, flip);
 }
 
 void LTexture::setAsRenderTarget() {
-	SDL_SetRenderTarget(gRenderer, mTexture);
+	SDL_SetRenderTarget(mainRenderer, mTexture);
 }
 
 int LTexture::getWidth() {

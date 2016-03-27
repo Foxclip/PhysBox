@@ -2,7 +2,7 @@
 
 static bool collisionsEnabled = true;
 static bool gravityRadialEnabled = true;
-static bool gravityVerticalEnabled = true;
+static bool gravityVerticalEnabled = false;
 static bool backgroundFrictionEnabled = true;
 static bool springsEnabled = true;
 
@@ -16,7 +16,7 @@ static double springMaxDistance = 25;
 static double springMaxConnections = 600000;
 static double backgroundFrictionForce = 1;
 static double cubucPixelMass = 0.001;
-static const double DAMPING = 0.5;
+static const double DAMPING = 1;
 
 static bool variableTimestep = true;
 static double simulationSpeedExponent = -3;
