@@ -14,17 +14,26 @@ void Object::move() {
 	y += speedY;
 }
 
+void Object::render() {
+	texture.render((int)x - texture.getWidth()/2, (int)y - texture.getHeight()/2);
+}
+
 void Object::calculateVerticalGravity() {
 	speedY += gravityVerticalForce;
 }
 
 Ball::Ball(double x, double y, double radius, double speedX, double speedY, Color color) {
+	
 	this->x = x;
 	this->y = y;
 	this->radius = radius;
 	this->speedX = speedX;
 	this->speedY = speedY;
 	this->color = color;
+
+	texture.createBlank(((int)radius)*2, ((int)radius)*2, SDL_TEXTUREACCESS_TARGET);
+	renderToTexture();
+
 }
 
 void Ball::move() {
@@ -50,10 +59,14 @@ void Ball::move() {
 
 }
 
-void Ball::render() {
-	SDL_SetRenderDrawColor(mainRenderer, color.red, color.green, color.blue, 255);
+void Ball::renderToTexture() {
+	texture.setAsRenderTarget();
+	SDL_SetRenderDrawColor(mainWindow.getRenderer(), 0, 0, 0, 0);
+	SDL_RenderClear(mainWindow.getRenderer());
+	SDL_SetRenderDrawColor(mainWindow.getRenderer(), color.red, color.green, color.blue, 255);
 	for(int yCoord = -(int)radius; yCoord <= (int)radius; yCoord++)
 		for(int xCoord = -(int)radius; xCoord <= (int)radius; xCoord++)
 			if((xCoord*xCoord + yCoord*yCoord) <= radius*radius)
-				SDL_RenderDrawPoint(mainRenderer, (int)(x + xCoord), (int)(y + yCoord));
+				SDL_RenderDrawPoint(mainWindow.getRenderer(), (int)(xCoord + radius), (int)(yCoord + radius));
+	SDL_SetRenderTarget(mainWindow.getRenderer(), NULL);
 }

@@ -7,6 +7,7 @@ const int DEFAULT_WIINDOW_HEIGHT = 480;
 
 LWindow::LWindow() {
 	mWindow = NULL;
+	mRenderer = NULL;
 	mMouseFocus = false;
 	mKeyboardFocus = false;
 	mFullScreen = false;
@@ -20,9 +21,12 @@ LWindow::~LWindow() {
 }
 
 bool LWindow::init() {
-	mWindow = SDL_CreateWindow("Window!", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+	mWindow = SDL_CreateWindow("PhysBox", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
 		DEFAULT_WINDOW_WIDTH, DEFAULT_WIINDOW_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 	if(!mWindow)
+		return false;
+	mRenderer = SDL_CreateRenderer(mWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+	if(!mRenderer)
 		return false;
 	mMouseFocus = true;
 	mKeyboardFocus = true;
@@ -31,12 +35,12 @@ bool LWindow::init() {
 	return true;
 }
 
-SDL_Renderer* LWindow::createRenderer() {
-	return SDL_CreateRenderer(mWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-}
-
 SDL_Window* LWindow::getSDLWindow() {
 	return mWindow;
+}
+
+SDL_Renderer* LWindow::getRenderer() {
+	return mRenderer;
 }
 
 void LWindow::handleEvent(SDL_Event& e) {
@@ -45,10 +49,10 @@ void LWindow::handleEvent(SDL_Event& e) {
 		switch(e.window.event) {
 		case SDL_WINDOWEVENT_SIZE_CHANGED:
 			updateSize();
-			SDL_RenderPresent(mainRenderer);
+			SDL_RenderPresent(mRenderer);
 			break;
 		case SDL_WINDOWEVENT_EXPOSED:
-			SDL_RenderPresent(mainRenderer);
+			SDL_RenderPresent(mRenderer);
 			break;
 		case SDL_WINDOWEVENT_ENTER:
 			mMouseFocus = true;
@@ -96,16 +100,17 @@ void LWindow::setFullScreen(bool fullscreen) {
 		SDL_SetWindowFullscreen(mWindow, SDL_FALSE);
 		mFullScreen = false;
 	}
+	updateSize();
 }
 
 
 void LWindow::free() {
-	if(mWindow) {
-		SDL_DestroyWindow(mWindow);
-		mWindow = NULL;
-		mWidth = 0;
-		mHeight = 0;
-	}
+	SDL_DestroyWindow(mWindow);
+	SDL_DestroyRenderer(mRenderer);
+	mWindow = NULL;
+	mRenderer = NULL;
+	mWidth = 0;
+	mHeight = 0;
 }
 
 int LWindow::getWidth() {
@@ -134,7 +139,7 @@ bool LWindow::isFullscreen() {
 
 void LWindow::updateSize() {
 	int w, h;
-	SDL_GetWindowSize(mWindow, &w, &h);
+	SDL_GetRendererOutputSize(mRenderer, &w, &h);
 	mWidth = w;
 	mHeight = h;
 }

@@ -31,7 +31,6 @@ void generateObjects();
 void deleteAllObjects();
 
 bool gQuit = false;
-SDL_Renderer* mainRenderer = NULL;
 Font bigFont;
 Font smallFont;
 LWindow mainWindow;
@@ -57,15 +56,6 @@ bool initSDL() {
 		printf("Init error: %s\n", SDL_GetError());
 		return false;
 	}
-	if(!mainWindow.init()) {
-		printf("Window creation error: %s\n", SDL_GetError());
-		return false;
-	}
-	mainRenderer = mainWindow.createRenderer();
-	if(mainRenderer == NULL) {
-		printf("Renderer creation error: %s\n", SDL_GetError());
-		return false;
-	}
 	int imgFlags = IMG_INIT_PNG;
 	if(!(IMG_Init(imgFlags) & imgFlags)) {
 		printf("SDL image init error: %s\n", IMG_GetError());
@@ -75,10 +65,6 @@ bool initSDL() {
 		printf("TTF init error: %s\n", TTF_GetError());
 		return false;
 	}
-
-	mainWindow.maximize();
-	//gWindow.setFullScreen(true);
-
 	return true;
 }
 
@@ -92,8 +78,6 @@ void close() {
 
 	deleteAllObjects();
 
-	SDL_DestroyRenderer(mainRenderer);
-	mainRenderer = NULL;
 	TTF_Quit();
 	SDL_Quit();
 
@@ -101,7 +85,12 @@ void close() {
 
 void init() {
 
+	mainWindow.init();
+	mainWindow.maximize();
+	mainWindow.setFullScreen(true);
+
 	srand(SDL_GetTicks());
+
 	//objects.push_back(new Ball(50, 50, 30, 5, 5, { 255, 0, 0 }));
 	//objects.push_back(new Ball(150, 150, 20, 5, 0, { 0, 0, 255 }));
 
@@ -110,7 +99,9 @@ void init() {
 }
 
 void mainLoop() {
+
 	init();
+
 	while(!gQuit) {
 
 		handleEvents();
@@ -127,8 +118,8 @@ void render() {
 	if(mainWindow.isMinimised())
 		return;
 
-	SDL_SetRenderDrawColor(mainRenderer, 0, 0, 0, 255);
-	SDL_RenderClear(mainRenderer);
+	SDL_SetRenderDrawColor(mainWindow.getRenderer(), 0, 0, 0, 255);
+	SDL_RenderClear(mainWindow.getRenderer());
 
 	for(int i = 0; i < (int)objects.size(); i++)
 		objects.at(i)->render();
@@ -139,7 +130,7 @@ void render() {
 	if(pause)
 		drawText((mainWindow.getWidth() - getStringWidth("PAUSE", bigFont)) / 2,
 			(mainWindow.getHeight() - bigFont.getSize()) / 2, "PAUSE", { 255, 255, 0 }, bigFont);
-	SDL_RenderPresent(mainRenderer);
+	SDL_RenderPresent(mainWindow.getRenderer());
 
 }
 
@@ -213,7 +204,12 @@ void generateObjects() {
 
 	deleteAllObjects();
 
-	for(int i = 0; i < 10; i++)
+	
+	drawText((mainWindow.getWidth() - getStringWidth("GENERATING...", bigFont)) / 2,
+		(mainWindow.getHeight() - bigFont.getSize()) / 2, "GENERATING...", { 255, 255, 0 }, bigFont);
+	SDL_RenderPresent(mainWindow.getRenderer());
+
+	for(int i = 0; i < 1000; i++)
 		objects.push_back(new Ball(
 			randomBetween(0, mainWindow.getWidth()),
 			randomBetween(0, mainWindow.getHeight()),

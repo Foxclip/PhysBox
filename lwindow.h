@@ -7,8 +7,8 @@ public:
 	LWindow();
 	~LWindow();
 	bool init();
-	SDL_Renderer* createRenderer();
 	SDL_Window* getSDLWindow();
+	SDL_Renderer* getRenderer();
 	void handleEvent(SDL_Event& e);
 	void maximize();
 	void setFullScreen(bool fullscreen);
@@ -22,6 +22,7 @@ public:
 
 private:
 	SDL_Window* mWindow;
+	SDL_Renderer* mRenderer;
 	int mWidth;
 	int mHeight;
 	bool mMouseFocus;
