@@ -20,4 +20,4 @@ static const double DAMPING = 1;
 
 static bool variableTimestep = true;
 static double simulationSpeedExponent = -3;
-static bool pause = false;
+static bool pause = true;

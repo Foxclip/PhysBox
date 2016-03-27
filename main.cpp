@@ -24,7 +24,7 @@ void handleEvents();
 void handleKeyboard(SDL_Event e);
 void processPhysics();
 void drawText(int x, int y, std::string str, Color color, Font& font);
-int getStringWidth(const char* str, Font& font);
+int getStringWidth(std::string, Font& font);
 Color getBoolColor(bool var);
 void updateFpsCount();
 void generateObjects();
@@ -125,11 +125,22 @@ void render() {
 		objects.at(i)->render();
 
 	drawText(0, 0, std::to_string(fps), { 255, 255, 0 }, smallFont);
-	drawText(mainWindow.getWidth() - getStringWidth("Springs", smallFont), 0,
-		"Springs", getBoolColor(springsEnabled), smallFont);
+
+	drawText(mainWindow.getWidth() - getStringWidth("Collisions (1)", smallFont), 0,
+		"Collisions (1)", getBoolColor(collisionsEnabled), smallFont);
+	drawText(mainWindow.getWidth() - getStringWidth("Gravity radial (2)", smallFont), smallFont.getSize(),
+		"Gravity radial (2)", getBoolColor(gravityRadialEnabled), smallFont);
+	drawText(mainWindow.getWidth() - getStringWidth("Gravity vertical (3)", smallFont), smallFont.getSize()*2,
+		"Gravity vertical (3)", getBoolColor(gravityVerticalEnabled), smallFont);
+	drawText(mainWindow.getWidth() - getStringWidth("Background friction (4)", smallFont), smallFont.getSize()*3,
+		"Background friction (4)", getBoolColor(backgroundFrictionEnabled), smallFont);
+	drawText(mainWindow.getWidth() - getStringWidth("Springs (5)", smallFont), smallFont.getSize()*4,
+		"Springs (5)", getBoolColor(springsEnabled), smallFont);
+
 	if(pause)
 		drawText((mainWindow.getWidth() - getStringWidth("PAUSE", bigFont)) / 2,
 			(mainWindow.getHeight() - bigFont.getSize()) / 2, "PAUSE", { 255, 255, 0 }, bigFont);
+
 	SDL_RenderPresent(mainWindow.getRenderer());
 
 }
@@ -152,12 +163,14 @@ void handleEvents() {
 void handleKeyboard(SDL_Event e) {
 	if(e.type == SDL_KEYDOWN) {
 		switch(e.key.keysym.sym) {
-		case SDLK_ESCAPE:
-			gQuit = true; break;
-		case SDLK_SPACE:
-			pause = !pause; break;
-		case SDLK_r:
-			generateObjects(); break;
+		case SDLK_ESCAPE: gQuit = true; break;
+		case SDLK_SPACE: pause = !pause; break;
+		case SDLK_r: generateObjects(); break;
+		case SDLK_1: collisionsEnabled = !collisionsEnabled; break;
+		case SDLK_2: gravityRadialEnabled = !gravityRadialEnabled; break;
+		case SDLK_3: gravityVerticalEnabled = !gravityVerticalEnabled; break;
+		case SDLK_4: backgroundFrictionEnabled = !backgroundFrictionEnabled; break;
+		case SDLK_5: springsEnabled = !springsEnabled; break;
 		}
 	}
 }
@@ -177,9 +190,9 @@ void drawText(int x, int y, std::string str, Color color, Font& font) {
 	textTexture.render(x, y);
 }
 
-int getStringWidth(const char* str, Font& font) {
+int getStringWidth(std::string str, Font& font) {
 	int w;
-	TTF_SizeText(font.getSDLFont(), str, &w, NULL);
+	TTF_SizeText(font.getSDLFont(), str.c_str(), &w, NULL);
 	return w;
 }
 
