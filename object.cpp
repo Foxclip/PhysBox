@@ -18,11 +18,26 @@ void Object::render() {
 	texture.render((int)x - texture.getWidth()/2, (int)y - texture.getHeight()/2);
 }
 
-void Object::calculateVerticalGravity() {
-	speedY += gravityVerticalForce;
+void Object::calculateVerticalGravity(double delta) {
+	speedY += gravityVerticalForce * delta;
 }
 
-Ball::Ball(double x, double y, double radius, double speedX, double speedY, Color color) {
+void Object::calculateGravity(Object* anotherObject, double delta) {
+	double distance = utils::distance(x, anotherObject->x, y, anotherObject->y);
+	if(distance == 0)
+		return;
+	double force = gravityRadialForce * getMass() * anotherObject->getMass() / pow(distance, 2);
+	double forceX = (anotherObject->x - x) / distance * force;
+	double forceY = (anotherObject->y - y) / distance * force;
+	speedX += forceX / getMass() * delta;
+	speedY += forceY / getMass() * delta;
+}
+
+double Object::getMass() {
+	return mass;
+}
+
+Ball::Ball(double x, double y, double radius, double speedX, double speedY, utils::Color color) {
 	
 	this->x = x;
 	this->y = y;
@@ -33,6 +48,7 @@ Ball::Ball(double x, double y, double radius, double speedX, double speedY, Colo
 
 	texture.createBlank(((int)radius)*2, ((int)radius)*2, SDL_TEXTUREACCESS_TARGET);
 	renderToTexture();
+	recalculateMass();
 
 }
 
@@ -70,4 +86,8 @@ void Ball::renderToTexture() {
 			if((xCoord*xCoord + yCoord*yCoord) <= radius*radius)
 				SDL_RenderDrawPoint(mainWindow.getRenderer(), (int)(xCoord + radius), (int)(yCoord + radius));
 	SDL_SetRenderTarget(mainWindow.getRenderer(), NULL);
+}
+
+void Ball::recalculateMass() {
+	mass = M_PI * pow(radius, 2);
 }

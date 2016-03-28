@@ -3,25 +3,30 @@
 #include <SDL_ttf.h>
 #include <string>
 
-typedef struct Color {
-	unsigned char red, green, blue;
-} Color;
+namespace utils {
 
-class Font {
-public:
-	Font();
-	~Font();
-	bool loadFont(std::string path, int size);
-	TTF_Font* getSDLFont();
-	int getSize();
-	void free();
+	typedef struct Color {
+		unsigned char red, green, blue;
+	} Color;
 
-private:
-	TTF_Font* mFont;
-	int mSize;
+	class Font {
+	public:
+		Font();
+		~Font();
+		bool loadFont(std::string path, int size);
+		TTF_Font* getSDLFont();
+		int getSize();
+		void free();
 
-};
+	private:
+		TTF_Font* mFont;
+		int mSize;
 
-double randomBetween(double min, double max);
-double random();
-Color randomColor();
+	};
+
+	double randomBetween(double min, double max);
+	double random();
+	Color randomColor();
+	double distance(double x1, double x2, double y1, double y2);
+
+}

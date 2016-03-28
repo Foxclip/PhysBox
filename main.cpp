@@ -23,21 +23,23 @@ void render();
 void handleEvents();
 void handleKeyboard(SDL_Event e);
 void processPhysics();
-void drawText(int x, int y, std::string str, Color color, Font& font);
-int getStringWidth(std::string, Font& font);
-Color getBoolColor(bool var);
+void drawText(int x, int y, std::string str, utils::Color color, utils::Font& font);
+int getStringWidth(std::string, utils::Font& font);
+utils::Color getBoolColor(bool var);
 void updateFpsCount();
 void generateObjects();
+void changeSimulationSpeed(int change);
 void deleteAllObjects();
 
 bool gQuit = false;
-Font bigFont;
-Font smallFont;
+utils::Font bigFont;
+utils::Font smallFont;
 LWindow mainWindow;
 std::vector<Object*> objects;
 int fpsCount = 0;
 int fps = 0;
 int lastFpsTime = 0;
+double simulationSpeed = pow(SIMULATION_SPEED_BASE, simulationSpeedExponent);
 
 int main(int argc, char* args[]) {
 	if(!initSDL()) {
@@ -92,9 +94,6 @@ void init() {
 
 	srand(SDL_GetTicks());
 
-	//objects.push_back(new Ball(50, 50, 30, 5, 5, { 255, 0, 0 }));
-	//objects.push_back(new Ball(150, 150, 20, 5, 0, { 0, 0, 255 }));
-
 	generateObjects();
 
 }
@@ -138,7 +137,7 @@ void render() {
 	drawText(mainWindow.getWidth() - getStringWidth("Springs (5)", smallFont), smallFont.getSize()*4,
 		"Springs (5)", getBoolColor(springsEnabled), smallFont);
 
-	std::string str = "Simulation speed: " + std::to_string(std::pow(SIMULATION_SPEED_BASE, simulationSpeedExponent)) +
+	std::string str = "Simulation speed: " + std::to_string(simulationSpeed) +
 		" (" + std::to_string((int)simulationSpeedExponent) + ")";
 	drawText(mainWindow.getWidth() - getStringWidth(str, smallFont), smallFont.getSize()*7, str, { 255, 255, 0 }, smallFont);
 
@@ -176,34 +175,45 @@ void handleKeyboard(SDL_Event e) {
 			case SDL_SCANCODE_3: gravityVerticalEnabled = !gravityVerticalEnabled; break;
 			case SDL_SCANCODE_4: backgroundFrictionEnabled = !backgroundFrictionEnabled; break;
 			case SDL_SCANCODE_5: springsEnabled = !springsEnabled; break;
-			case SDL_SCANCODE_KP_PLUS: simulationSpeedExponent++; break;
-			case SDL_SCANCODE_KP_MINUS: simulationSpeedExponent--; break;
+			case SDL_SCANCODE_KP_PLUS: changeSimulationSpeed(1); break;
+			case SDL_SCANCODE_KP_MINUS: changeSimulationSpeed(-1); break;
 		}
 	}
 }
 
 void processPhysics() {
 	if(pause) return;
-	if(gravityVerticalEnabled)
-		for(int i = 0; i < (int)objects.size(); i++)
-			objects.at(i)->calculateVerticalGravity();
-	for(int i = 0; i < (int)objects.size(); i++)
-		objects.at(i)->move(std::pow(SIMULATION_SPEED_BASE, simulationSpeedExponent));
+	if(gravityVerticalEnabled) {
+		for(int i = 0; i < (int)objects.size(); i++) {
+			objects.at(i)->calculateVerticalGravity(simulationSpeed);
+		}
+	}
+	if(gravityRadialEnabled) {
+		for(int i = 0; i < (int)objects.size(); i++) {
+			for(int j = 0; j < (int)objects.size(); j++) {
+				if(i == j) continue;
+				objects.at(i)->calculateGravity(objects.at(j), simulationSpeed);
+			}
+		}
+	}
+	for(int i = 0; i < (int)objects.size(); i++) {
+		objects.at(i)->move(simulationSpeed);
+	}
 }
 
-void drawText(int x, int y, std::string str, Color color, Font& font) {
+void drawText(int x, int y, std::string str, utils::Color color, utils::Font& font) {
 	LTexture textTexture;
 	textTexture.loadFromRenderedText(str, { color.red, color.green, color.blue, 255 }, font.getSDLFont(), false);
 	textTexture.render(x, y);
 }
 
-int getStringWidth(std::string str, Font& font) {
+int getStringWidth(std::string str, utils::Font& font) {
 	int w;
 	TTF_SizeText(font.getSDLFont(), str.c_str(), &w, NULL);
 	return w;
 }
 
-Color getBoolColor(bool var) {
+utils::Color getBoolColor(bool var) {
 	if(var)
 		return { 0, 255, 0 };
 	else
@@ -230,16 +240,24 @@ void generateObjects() {
 		(mainWindow.getHeight() - bigFont.getSize()) / 2, "GENERATING...", { 255, 255, 0 }, bigFont);
 	SDL_RenderPresent(mainWindow.getRenderer());
 
-	for(int i = 0; i < 1000; i++)
+	for(int i = 0; i < 100; i++)
 		objects.push_back(new Ball(
-			randomBetween(0, mainWindow.getWidth()),
-			randomBetween(0, mainWindow.getHeight()),
+			utils::randomBetween(0, mainWindow.getWidth()),
+			utils::randomBetween(0, mainWindow.getHeight()),
 			10,
-			randomBetween(-10, 10),
-			randomBetween(-10, 10),
-			randomColor()
+			utils::randomBetween(-1, 1),
+			utils::randomBetween(-1, 1),
+			utils::randomColor()
 			));
 
+	//objects.push_back(new Ball(800, 400, 50, 0, 0, { 255, 0, 0 }));
+	//objects.push_back(new Ball(800, 200, 10, 1, 0, { 0, 0, 255 }));
+
+}
+
+void changeSimulationSpeed(int change) {
+	simulationSpeedExponent += change;
+	simulationSpeed = pow(SIMULATION_SPEED_BASE, simulationSpeedExponent);
 }
 
 void deleteAllObjects() {
