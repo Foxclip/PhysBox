@@ -7,6 +7,7 @@ class LTexture {
 	public:
 		LTexture();
 		~LTexture();
+		SDL_Texture* getSDLTexture();
 		bool loadFromFile(std::string path);
 		bool loadFromRenderedText(std::string textureText, SDL_Color textColor, TTF_Font* font, bool antialiasing = true);
 		bool createBlank(int width, int height, SDL_TextureAccess access = SDL_TEXTUREACCESS_STREAMING);

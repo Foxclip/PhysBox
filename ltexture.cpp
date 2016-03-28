@@ -15,6 +15,10 @@ LTexture::~LTexture() {
 	free();
 }
 
+SDL_Texture * LTexture::getSDLTexture() {
+	return mTexture;
+}
+
 bool LTexture::loadFromFile(std::string path) {
 	free();
 	SDL_Surface* loadedSurface = IMG_Load(path.c_str());

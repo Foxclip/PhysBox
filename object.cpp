@@ -61,6 +61,7 @@ void Ball::move(double delta) {
 
 void Ball::renderToTexture() {
 	texture.setAsRenderTarget();
+	SDL_SetTextureBlendMode(texture.getSDLTexture(), SDL_BLENDMODE_BLEND);
 	SDL_SetRenderDrawColor(mainWindow.getRenderer(), 0, 0, 0, 0);
 	SDL_RenderClear(mainWindow.getRenderer());
 	SDL_SetRenderDrawColor(mainWindow.getRenderer(), color.red, color.green, color.blue, 255);
