@@ -125,7 +125,7 @@ void render() {
 	for(int i = 0; i < (int)objects.size(); i++)
 		objects.at(i)->render();
 
-	drawText(0, 0, std::to_string(fps), { 255, 255, 0 }, smallFont);
+	drawText(0, 0, "fps: " + std::to_string(fps), { 255, 255, 0 }, smallFont);
 
 	drawText(mainWindow.getWidth() - getStringWidth("Collisions (1)", smallFont), 0,
 		"Collisions (1)", getBoolColor(collisionsEnabled), smallFont);
@@ -224,7 +224,8 @@ void generateObjects() {
 
 	deleteAllObjects();
 
-	
+	SDL_SetRenderDrawColor(mainWindow.getRenderer(), 0, 0, 0, 255);
+	SDL_RenderClear(mainWindow.getRenderer());
 	drawText((mainWindow.getWidth() - getStringWidth("GENERATING...", bigFont)) / 2,
 		(mainWindow.getHeight() - bigFont.getSize()) / 2, "GENERATING...", { 255, 255, 0 }, bigFont);
 	SDL_RenderPresent(mainWindow.getRenderer());
