@@ -8,7 +8,7 @@ class Object {
 
 public:
 	Object();
-	virtual void move();
+	virtual void move(double delta);
 	void render();
 	void calculateVerticalGravity();
 
@@ -25,7 +25,7 @@ protected:
 class Ball: public Object {
 public:
 	Ball(double x, double y, double radius, double speedX, double speedY, Color color);
-	void move();
+	void move(double delta);
 	void renderToTexture();
 
 private:

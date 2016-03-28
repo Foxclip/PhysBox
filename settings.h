@@ -19,5 +19,6 @@ static double cubucPixelMass = 0.001;
 static const double DAMPING = 1;
 
 static bool variableTimestep = true;
-static double simulationSpeedExponent = -3;
+static const double SIMULATION_SPEED_BASE = 10;
+static double simulationSpeedExponent = 0;
 static bool pause = true;

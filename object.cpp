@@ -9,9 +9,9 @@ Object::Object() {
 	damping = DAMPING;
 }
 
-void Object::move() {
-	x += speedX;
-	y += speedY;
+void Object::move(double delta) {
+	x += speedX * delta;
+	y += speedY * delta;
 }
 
 void Object::render() {
@@ -36,9 +36,9 @@ Ball::Ball(double x, double y, double radius, double speedX, double speedY, Colo
 
 }
 
-void Ball::move() {
+void Ball::move(double delta) {
 
-	Object::move();
+	Object::move(delta);
 
 	if(x < radius) {
 		x = radius;

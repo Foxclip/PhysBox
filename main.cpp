@@ -79,6 +79,7 @@ void close() {
 	deleteAllObjects();
 
 	TTF_Quit();
+	IMG_Quit();
 	SDL_Quit();
 
 }
@@ -137,6 +138,10 @@ void render() {
 	drawText(mainWindow.getWidth() - getStringWidth("Springs (5)", smallFont), smallFont.getSize()*4,
 		"Springs (5)", getBoolColor(springsEnabled), smallFont);
 
+	std::string str = "Simulation speed: " + std::to_string(std::pow(SIMULATION_SPEED_BASE, simulationSpeedExponent)) +
+		" (" + std::to_string((int)simulationSpeedExponent) + ")";
+	drawText(mainWindow.getWidth() - getStringWidth(str, smallFont), smallFont.getSize()*7, str, { 255, 255, 0 }, smallFont);
+
 	if(pause)
 		drawText((mainWindow.getWidth() - getStringWidth("PAUSE", bigFont)) / 2,
 			(mainWindow.getHeight() - bigFont.getSize()) / 2, "PAUSE", { 255, 255, 0 }, bigFont);
@@ -162,15 +167,17 @@ void handleEvents() {
 
 void handleKeyboard(SDL_Event e) {
 	if(e.type == SDL_KEYDOWN) {
-		switch(e.key.keysym.sym) {
-		case SDLK_ESCAPE: gQuit = true; break;
-		case SDLK_SPACE: pause = !pause; break;
-		case SDLK_r: generateObjects(); break;
-		case SDLK_1: collisionsEnabled = !collisionsEnabled; break;
-		case SDLK_2: gravityRadialEnabled = !gravityRadialEnabled; break;
-		case SDLK_3: gravityVerticalEnabled = !gravityVerticalEnabled; break;
-		case SDLK_4: backgroundFrictionEnabled = !backgroundFrictionEnabled; break;
-		case SDLK_5: springsEnabled = !springsEnabled; break;
+		switch(e.key.keysym.scancode) {
+			case SDL_SCANCODE_ESCAPE: gQuit = true; break;
+			case SDL_SCANCODE_SPACE: pause = !pause; break;
+			case SDL_SCANCODE_R: generateObjects(); break;
+			case SDL_SCANCODE_1: collisionsEnabled = !collisionsEnabled; break;
+			case SDL_SCANCODE_2: gravityRadialEnabled = !gravityRadialEnabled; break;
+			case SDL_SCANCODE_3: gravityVerticalEnabled = !gravityVerticalEnabled; break;
+			case SDL_SCANCODE_4: backgroundFrictionEnabled = !backgroundFrictionEnabled; break;
+			case SDL_SCANCODE_5: springsEnabled = !springsEnabled; break;
+			case SDL_SCANCODE_KP_PLUS: simulationSpeedExponent++; break;
+			case SDL_SCANCODE_KP_MINUS: simulationSpeedExponent--; break;
 		}
 	}
 }
@@ -181,7 +188,7 @@ void processPhysics() {
 		for(int i = 0; i < (int)objects.size(); i++)
 			objects.at(i)->calculateVerticalGravity();
 	for(int i = 0; i < (int)objects.size(); i++)
-		objects.at(i)->move();
+		objects.at(i)->move(std::pow(SIMULATION_SPEED_BASE, simulationSpeedExponent));
 }
 
 void drawText(int x, int y, std::string str, Color color, Font& font) {
