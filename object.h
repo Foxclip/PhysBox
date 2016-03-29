@@ -3,19 +3,23 @@
 #include "utils.h"
 #include "settings.h"
 #include "ltexture.h"
+#include <vector>
 
 class Object {
 
 public:
+	double x, y;
+	std::vector<Object*> springConnections;
+	int incomingSpringConnections = 0;
 	Object();
 	virtual void move(double delta);
 	void render();
 	void calculateVerticalGravity(double delta);
 	void calculateGravity(Object* anotherObject, double delta);
+	void calculateSprings(Object* anotherObject, double delta);
 	double getMass();
 
 protected:
-	double x, y;
 	double speedX, speedY;
 	double mass;
 	double damping;

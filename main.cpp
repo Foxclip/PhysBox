@@ -28,6 +28,7 @@ int getStringWidth(std::string, utils::Font& font);
 utils::Color getBoolColor(bool var);
 void updateFpsCount();
 void generateObjects();
+void initializeSprings();
 void changeSimulationSpeed(int change);
 void deleteAllObjects();
 
@@ -90,7 +91,7 @@ void init() {
 
 	mainWindow.init();
 	mainWindow.maximize();
-	mainWindow.setFullScreen(true);
+	//mainWindow.setFullScreen(true);
 
 	srand(SDL_GetTicks());
 
@@ -120,6 +121,18 @@ void render() {
 
 	SDL_SetRenderDrawColor(mainWindow.getRenderer(), 0, 0, 0, 255);
 	SDL_RenderClear(mainWindow.getRenderer());
+
+	SDL_SetRenderDrawColor(mainWindow.getRenderer(), 255, 255, 0, 255);
+	for(int i = 0; i < (int)objects.size(); i++) {
+		Object* object1 = objects.at(i);
+		for(int j = 0; j < (int)objects.size(); j++) {
+			Object* object2 = objects.at(j);
+			if(std::find(object1->springConnections.begin(), object1->springConnections.end(),
+				object2) != object1->springConnections.end()) {
+				SDL_RenderDrawLine(mainWindow.getRenderer(), (int)object1->x, (int)object1->y, (int)object2->x, (int)object2->y);
+			}
+		}
+	}
 
 	for(int i = 0; i < (int)objects.size(); i++)
 		objects.at(i)->render();
@@ -196,6 +209,30 @@ void processPhysics() {
 			}
 		}
 	}
+	if(springsEnabled) {
+		for(int i = 0; i < (int)objects.size(); i++) {
+			Object* object1 = objects.at(i);
+			if(object1->springConnections.size() >= springMaxConnections) continue;
+			for(int j = 0; j < (int)objects.size(); j++) {
+				Object* object2 = objects.at(j);
+				if(i == j) continue;
+				if(object1->springConnections.size() >= springMaxConnections) break;
+				if(object2->incomingSpringConnections >= springMaxConnections) continue;
+				if(std::find(object1->springConnections.begin(), object1->springConnections.end(),
+					object2) != object1->springConnections.end()) continue;
+				if(utils::distance(object1->x, object2->x, object1->y, object2->y) < springMaxDistance) {
+					object1->springConnections.push_back(object2);
+					object2->incomingSpringConnections++;
+				}
+			}
+		}
+		for(int i = 0; i < (int)objects.size(); i++) {
+			Object* object = objects.at(i);
+			for(int j = object->springConnections.size() - 1; j >= 0; j--) {
+				object->calculateSprings(object->springConnections.at(j), simulationSpeed);
+			}
+		}
+	}
 	for(int i = 0; i < (int)objects.size(); i++) {
 		objects.at(i)->move(simulationSpeed);
 	}
@@ -250,9 +287,25 @@ void generateObjects() {
 			utils::randomColor()
 			));
 
+	//initializeSprings();
+
 	//objects.push_back(new Ball(800, 400, 50, 0, 0, { 255, 0, 0 }));
 	//objects.push_back(new Ball(800, 200, 10, 1, 0, { 0, 0, 255 }));
 
+}
+
+void initializeSprings() {
+	for(int i = 0; i < (int)objects.size(); i++) {
+		Object* object1 = objects.at(i);
+		for(int j = 0; j < (int)objects.size(); j++) {
+			Object* object2 = objects.at(j);
+			if(object1 == object2) continue;
+			double distance = utils::distance(object1->x, object2->x, object1->y, object2->y);
+			if(distance <= springInitialDistance) {
+				object1->springConnections.push_back(object2);
+			}
+		}
+	}
 }
 
 void changeSimulationSpeed(int change) {

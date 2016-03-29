@@ -1,5 +1,6 @@
 #include "object.h"
 #include "globals.h"
+#include <algorithm>
 
 Object::Object() {
 	x = 0;
@@ -29,6 +30,35 @@ void Object::calculateGravity(Object* anotherObject, double delta) {
 	double force = gravityRadialForce * getMass() * anotherObject->getMass() / pow(distance, 2);
 	double forceX = (anotherObject->x - x) / distance * force;
 	double forceY = (anotherObject->y - y) / distance * force;
+	speedX += forceX / getMass() * delta;
+	speedY += forceY / getMass() * delta;
+}
+
+void Object::calculateSprings(Object* anotherObject, double delta) {
+	double distance = utils::distance(x, anotherObject->x, y, anotherObject->y);
+	if(distance == 0) return;
+	if(distance > springMaxDistance) {
+		springConnections.erase(std::remove(springConnections.begin(), springConnections.end(), anotherObject), springConnections.end());
+		anotherObject->incomingSpringConnections--;
+		return;
+	}
+	double offset = distance - springDistance;
+	double relativeSpeedX = anotherObject->speedX - speedX;
+	double relativeSpeedY = anotherObject->speedY - speedY;
+	double relativeSpeed = sqrt(pow(relativeSpeedX, 2) + pow(relativeSpeedY, 2));
+	double dampingForce = relativeSpeed * springDamping;
+	double dampingForceX, dampingForceY;
+	if(relativeSpeed != 0) {
+		dampingForceX = relativeSpeedX / relativeSpeed * dampingForce;
+		dampingForceY = relativeSpeedY / relativeSpeed * dampingForce;
+	} else {
+		dampingForceX = 0;
+		dampingForceY = 0;
+	}
+	double force;
+	force = offset * springForce - dampingForce;
+	double forceX = (anotherObject->x - x) / distance * force + dampingForceX;
+	double forceY = (anotherObject->y - y) / distance * force + dampingForceY;
 	speedX += forceX / getMass() * delta;
 	speedY += forceY / getMass() * delta;
 }
