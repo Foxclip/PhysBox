@@ -28,7 +28,6 @@ int getStringWidth(std::string, utils::Font& font);
 utils::Color getBoolColor(bool var);
 void updateFpsCount();
 void generateObjects();
-void initializeSprings();
 void changeSimulationSpeed(int change);
 void deleteAllObjects();
 
@@ -91,7 +90,7 @@ void init() {
 
 	mainWindow.init();
 	mainWindow.maximize();
-	//mainWindow.setFullScreen(true);
+	mainWindow.setFullScreen(true);
 
 	srand(SDL_GetTicks());
 
@@ -299,26 +298,9 @@ void generateObjects() {
 			utils::randomColor()
 			));
 
-	//initializeSprings();
-
 	//objects.push_back(new Ball(800, 400, 50, 0, 0, { 255, 0, 0 }));
 	//objects.push_back(new Ball(800, 200, 10, 1, 0, { 0, 0, 255 }));
 
-}
-
-//TODO delete this
-void initializeSprings() {
-	for(int i = 0; i < (int)objects.size(); i++) {
-		Object* object1 = objects.at(i);
-		for(int j = 0; j < (int)objects.size(); j++) {
-			Object* object2 = objects.at(j);
-			if(object1 == object2) continue;
-			double distance = utils::distance(object1->x, object2->x, object1->y, object2->y);
-			if(distance <= springInitialDistance) {
-				object1->springConnections.push_back(object2);
-			}
-		}
-	}
 }
 
 void changeSimulationSpeed(int change) {
