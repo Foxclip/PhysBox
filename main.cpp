@@ -198,6 +198,14 @@ void handleKeyboard(SDL_Event e) {
 
 void processPhysics() {
 	if(pause) return;
+	if(collisionsEnabled) {
+		for(int i = 0; i < (int)objects.size(); i++) {
+			for(int j = 0; j < (int)objects.size(); j++) {
+				if(i == j) continue;
+				object_utils::collide(objects.at(i), objects.at(j), simulationSpeed);
+			}
+		}
+	}
 	if(gravityVerticalEnabled) {
 		for(int i = 0; i < (int)objects.size(); i++) {
 			objects.at(i)->calculateVerticalGravity(simulationSpeed);
@@ -279,6 +287,8 @@ void generateObjects() {
 		(mainWindow.getHeight() - bigFont.getSize()) / 2, "GENERATING...", { 255, 255, 0 }, bigFont);
 	SDL_RenderPresent(mainWindow.getRenderer());
 
+	objects.push_back(new Ball(mainWindow.getWidth()/2, mainWindow.getHeight()/2, 50, 0, 0, { 255, 0, 0 }));
+
 	for(int i = 0; i < INITIAL_BALLS_NUMBER; i++)
 		objects.push_back(new Ball(
 			utils::randomBetween(0, mainWindow.getWidth()),
@@ -296,6 +306,7 @@ void generateObjects() {
 
 }
 
+//TODO delete this
 void initializeSprings() {
 	for(int i = 0; i < (int)objects.size(); i++) {
 		Object* object1 = objects.at(i);
