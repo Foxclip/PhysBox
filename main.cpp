@@ -122,14 +122,16 @@ void render() {
 	SDL_SetRenderDrawColor(mainWindow.getRenderer(), 0, 0, 0, 255);
 	SDL_RenderClear(mainWindow.getRenderer());
 
-	SDL_SetRenderDrawColor(mainWindow.getRenderer(), 255, 255, 0, 255);
-	for(int i = 0; i < (int)objects.size(); i++) {
-		Object* object1 = objects.at(i);
-		for(int j = 0; j < (int)objects.size(); j++) {
-			Object* object2 = objects.at(j);
-			if(std::find(object1->springConnections.begin(), object1->springConnections.end(),
-				object2) != object1->springConnections.end()) {
-				SDL_RenderDrawLine(mainWindow.getRenderer(), (int)object1->x, (int)object1->y, (int)object2->x, (int)object2->y);
+	if(springsEnabled) {
+		SDL_SetRenderDrawColor(mainWindow.getRenderer(), 255, 255, 0, 255);
+		for(int i = 0; i < (int)objects.size(); i++) {
+			Object* object1 = objects.at(i);
+			for(int j = 0; j < (int)objects.size(); j++) {
+				Object* object2 = objects.at(j);
+				if(std::find(object1->springConnections.begin(), object1->springConnections.end(),
+					object2) != object1->springConnections.end()) {
+					SDL_RenderDrawLine(mainWindow.getRenderer(), (int)object1->x, (int)object1->y, (int)object2->x, (int)object2->y);
+				}
 			}
 		}
 	}
