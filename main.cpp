@@ -279,7 +279,7 @@ void generateObjects() {
 		(mainWindow.getHeight() - bigFont.getSize()) / 2, "GENERATING...", { 255, 255, 0 }, bigFont);
 	SDL_RenderPresent(mainWindow.getRenderer());
 
-	for(int i = 0; i < 100; i++)
+	for(int i = 0; i < INITIAL_BALLS_NUMBER; i++)
 		objects.push_back(new Ball(
 			utils::randomBetween(0, mainWindow.getWidth()),
 			utils::randomBetween(0, mainWindow.getHeight()),
