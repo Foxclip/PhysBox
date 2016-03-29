@@ -90,6 +90,7 @@ void LWindow::maximize() {
 		SDL_MaximizeWindow(mWindow);
 		mMinimised = false;
 	}
+	updateSize();
 }
 
 void LWindow::setFullScreen(bool fullscreen) {
