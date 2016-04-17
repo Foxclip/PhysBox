@@ -131,6 +131,7 @@
     <ClCompile Include="lwindow.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="object.cpp" />
+    <ClCompile Include="simulation.cpp" />
     <ClCompile Include="utils.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -139,6 +140,7 @@
     <ClInclude Include="lwindow.h" />
     <ClInclude Include="object.h" />
     <ClInclude Include="settings.h" />
+    <ClInclude Include="simulation.h" />
     <ClInclude Include="utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
