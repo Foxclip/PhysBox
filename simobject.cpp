@@ -2,17 +2,9 @@
 #include "globals.h"
 #include <algorithm>
 
-SimObject::SimObject() {
-	x = 0;
-	y = 0;
-	speedX = 0;
-	speedY = 0;
-	damping = DAMPING;
-}
-
 void SimObject::move(double delta) {
-	x += speedX * delta;
-	y += speedY * delta;
+	x += velX * delta;
+	y += velY * delta;
 }
 
 void SimObject::render() {
@@ -20,23 +12,23 @@ void SimObject::render() {
 }
 
 void SimObject::calculateBackgroudFriction(double delta) {
-	double speed = sqrt(pow(speedX, 2) + pow(speedY, 2));
+	double speed = sqrt(pow(velX, 2) + pow(velY, 2));
 	if(speed == 0)
 		return;
-	double forceX = -speedX / speed * backgroundFrictionForce;
-	double forceY = -speedY / speed * backgroundFrictionForce;
-	double oldSpeedX = speedX;
-	double oldSpeedY = speedY;
-	speedX += forceX / getMass() * delta;
-	speedY += forceY / getMass() * delta;
-	if(speedX * oldSpeedX < 0)
-		speedX = 0;
-	if(speedY * oldSpeedY < 0)
-		speedY = 0;
+	double forceX = -velX / speed * backgroundFrictionForce;
+	double forceY = -velY / speed * backgroundFrictionForce;
+	double oldSpeedX = velX;
+	double oldSpeedY = velY;
+	velX += forceX / getMass() * delta;
+	velY += forceY / getMass() * delta;
+	if(velX * oldSpeedX < 0)
+		velX = 0;
+	if(velY * oldSpeedY < 0)
+		velY = 0;
 }
 
 void SimObject::calculateVerticalGravity(double delta) {
-	speedY += gravityVerticalForce * delta;
+	velY += gravityVerticalForce * delta;
 }
 
 void SimObject::calculateGravity(SimObject* anotherObject, double delta) {
@@ -46,8 +38,8 @@ void SimObject::calculateGravity(SimObject* anotherObject, double delta) {
 	double force = gravityRadialForce * getMass() * anotherObject->getMass() / pow(distance, 2);
 	double forceX = (anotherObject->x - x) / distance * force;
 	double forceY = (anotherObject->y - y) / distance * force;
-	speedX += forceX / getMass() * delta;
-	speedY += forceY / getMass() * delta;
+	velX += forceX / getMass() * delta;
+	velY += forceY / getMass() * delta;
 }
 
 void SimObject::calculateSprings(SimObject* anotherObject, double delta) {
@@ -55,12 +47,12 @@ void SimObject::calculateSprings(SimObject* anotherObject, double delta) {
 	if(distance == 0) return;
 	if(distance > springMaxDistance) {
 		springConnections.erase(std::remove(springConnections.begin(), springConnections.end(), anotherObject), springConnections.end());
-		anotherObject->incomingSpringConnections--;
+		anotherObject->incomingSpringConnectionsCount--;
 		return;
 	}
 	double offset = distance - springDistance;
-	double relativeSpeedX = anotherObject->speedX - speedX;
-	double relativeSpeedY = anotherObject->speedY - speedY;
+	double relativeSpeedX = anotherObject->velX - velX;
+	double relativeSpeedY = anotherObject->velY - velY;
 	double relativeSpeed = sqrt(pow(relativeSpeedX, 2) + pow(relativeSpeedY, 2));
 	double dampingForce = relativeSpeed * springDamping;
 	double dampingForceX, dampingForceY;
@@ -75,8 +67,8 @@ void SimObject::calculateSprings(SimObject* anotherObject, double delta) {
 	force = offset * springForce - dampingForce;
 	double forceX = (anotherObject->x - x) / distance * force + dampingForceX;
 	double forceY = (anotherObject->y - y) / distance * force + dampingForceY;
-	speedX += forceX / getMass() * delta;
-	speedY += forceY / getMass() * delta;
+	velX += forceX / getMass() * delta;
+	velY += forceY / getMass() * delta;
 }
 
 double SimObject::getMass() {
@@ -92,8 +84,8 @@ Ball::Ball(double x, double y, double radius, double speedX, double speedY, util
 	this->x = x;
 	this->y = y;
 	this->radius = radius;
-	this->speedX = speedX;
-	this->speedY = speedY;
+	this->velX = speedX;
+	this->velY = speedY;
 	this->color = color;
 	objectType = OBJECT_TYPE_BALL;
 
@@ -109,19 +101,19 @@ void Ball::move(double delta) {
 
 	if(x < radius) {
 		x = radius;
-		speedX = -speedX * damping;
+		velX = -velX * damping;
 	}
 	if(x > mainWindow.getWidth() - radius) {
 		x = mainWindow.getWidth() - radius;
-		speedX = -speedX * damping;
+		velX = -velX * damping;
 	}
 	if(y < radius) {
 		y = radius;
-		speedY = -speedY * damping;
+		velY = -velY * damping;
 	}
 	if(y > mainWindow.getHeight() - radius) {
 		y = mainWindow.getHeight() - radius;
-		speedY = -speedY * damping;
+		velY = -velY * damping;
 	}
 
 }
@@ -143,27 +135,27 @@ void Ball::recalculateMass() {
 	mass = M_PI * pow(radius, 2);
 }
 
-double object_utils::partiallyElasticCollision(double v1, double v2, double m1, double m2, double restitution) {
+double Ball::partiallyElasticCollision(double v1, double v2, double m1, double m2, double restitution) {
 	return (restitution*m2*(v2-v1)+m1*v1+m2*v2)/(m1+m2);
 }
 
-void object_utils::collide(SimObject* object1, SimObject* object2, double delta) {
+void Ball::collide(SimObject* object1, SimObject* object2, double delta) {
 	if(object1->getObjectType() == OBJECT_TYPE_BALL && object2->getObjectType() == OBJECT_TYPE_BALL)
 		collideBalls((Ball*)object1, (Ball*)object2, delta);
 }
 
-void object_utils::collideBalls(Ball* b1, Ball* b2, double delta) {
+void Ball::collideBalls(Ball* b1, Ball* b2, double delta) {
 	checkAndFixOverlap(b1, b2);
 	if(checkCollision(b1, b2, delta))
 		recalculateSpeedsAfterCollision(b1, b2);
 }
 
-bool object_utils::checkCollision(Ball* b1, Ball* b2, double delta) {
+bool Ball::checkCollision(Ball* b1, Ball* b2, double delta) {
 	double collisionDistanceSquared = pow(b1->radius + b2->radius, 2);
 	double distX = b2->x - b1->x;
 	double distY = b2->y - b1->y;
-	double relativeSpeedX = (b2->speedX - b1->speedX)*delta;
-	double relativeSpeedY = (b2->speedY - b1->speedY)*delta;
+	double relativeSpeedX = (b2->velX - b1->velX)*delta;
+	double relativeSpeedY = (b2->velY - b1->velY)*delta;
 	double distanceSquared = pow(distX, 2) + pow(distY, 2);
 	double distToCollisionSquared = distanceSquared - collisionDistanceSquared;
 	double relativeSpeedSquared = pow(relativeSpeedX, 2) + pow(relativeSpeedY, 2);
@@ -177,19 +169,19 @@ bool object_utils::checkCollision(Ball* b1, Ball* b2, double delta) {
 	double t = std::min(t1, t2);
 	if(t < 0) return false;
 	if(t > 1) return false;
-	b1->x += t*b1->speedX*delta;
-	b1->y += t*b1->speedY*delta;
-	b2->x += t*b2->speedX*delta;
-	b2->y += t*b2->speedY*delta;
+	b1->x += t*b1->velX*delta;
+	b1->y += t*b1->velY*delta;
+	b2->x += t*b2->velX*delta;
+	b2->y += t*b2->velY*delta;
 	return true;
 }
 
-void object_utils::recalculateSpeedsAfterCollision(Ball* b1, Ball* b2) {
-	double b1Speed = sqrt(pow(b1->speedX, 2) + pow(b1->speedY, 2));
-	double b2Speed = sqrt(pow(b2->speedX, 2) + pow(b2->speedY, 2));
+void Ball::recalculateSpeedsAfterCollision(Ball* b1, Ball* b2) {
+	double b1Speed = sqrt(pow(b1->velX, 2) + pow(b1->velY, 2));
+	double b2Speed = sqrt(pow(b2->velX, 2) + pow(b2->velY, 2));
 	double collisionAngle = atan2(b2->x - b1->x, b1->y - b2->y) - M_PI/2;
-	double b1SpeedAngle = atan2(b1->speedX, -b1->speedY) - M_PI/2;
-	double b2SpeedAngle = atan2(b2->speedX, -b2->speedY) + M_PI/2;
+	double b1SpeedAngle = atan2(b1->velX, -b1->velY) - M_PI/2;
+	double b2SpeedAngle = atan2(b2->velX, -b2->velY) + M_PI/2;
 	double b1SpeedXRot = b1Speed * cos(b1SpeedAngle - collisionAngle);
 	double b1SpeedYRot = b1Speed * sin(b1SpeedAngle - collisionAngle);
 	double b2SpeedXRot = -b2Speed * cos(b2SpeedAngle - collisionAngle);
@@ -198,13 +190,13 @@ void object_utils::recalculateSpeedsAfterCollision(Ball* b1, Ball* b2) {
 		b2SpeedXRot, b1->getMass(), b2->getMass(), b1->damping*b2->damping);
 	double b2NewSpeedXRot = partiallyElasticCollision(b2SpeedXRot,
 		b1SpeedXRot, b2->getMass(), b1->getMass(), b1->damping*b2->damping);
-	b1->speedX = b1NewSpeedXRot * cos(collisionAngle) + b1SpeedYRot * cos(collisionAngle + M_PI/2);
-	b1->speedY = b1NewSpeedXRot * sin(collisionAngle) + b1SpeedYRot * sin(collisionAngle + M_PI/2);
-	b2->speedX = b2NewSpeedXRot * cos(collisionAngle) + b2SpeedYRot * cos(collisionAngle + M_PI/2);
-	b2->speedY = b2NewSpeedXRot * sin(collisionAngle) + b2SpeedYRot * sin(collisionAngle + M_PI/2);
+	b1->velX = b1NewSpeedXRot * cos(collisionAngle) + b1SpeedYRot * cos(collisionAngle + M_PI/2);
+	b1->velY = b1NewSpeedXRot * sin(collisionAngle) + b1SpeedYRot * sin(collisionAngle + M_PI/2);
+	b2->velX = b2NewSpeedXRot * cos(collisionAngle) + b2SpeedYRot * cos(collisionAngle + M_PI/2);
+	b2->velY = b2NewSpeedXRot * sin(collisionAngle) + b2SpeedYRot * sin(collisionAngle + M_PI/2);
 }
 
-void object_utils::checkAndFixOverlap(Ball* b1, Ball* b2) {
+void Ball::checkAndFixOverlap(Ball* b1, Ball* b2) {
 	double distance = utils::distance(b1->x, b2->x, b1->y, b2->y);
 	if(distance == 0) return;
 	double overlap = b1->radius + b2->radius - distance;

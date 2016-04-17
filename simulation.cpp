@@ -161,7 +161,7 @@ void processPhysics() {
 		for(SimObject* object1: objects) {
 			for(SimObject* object2: objects) {
 				if(object1 == object2) continue;
-				object_utils::collide(object1, object2, simulationSpeed);
+				Ball::collide(object1, object2, simulationSpeed);
 			}
 		}
 	}
@@ -184,12 +184,12 @@ void processPhysics() {
 			for(SimObject* object2: objects) {
 				if(object1 == object2) continue;
 				if(object1->springConnections.size() >= springMaxConnections) break;
-				if(object2->incomingSpringConnections >= springMaxConnections) continue;
+				if(object2->incomingSpringConnectionsCount >= springMaxConnections) continue;
 				if(std::find(object1->springConnections.begin(), object1->springConnections.end(),
 					object2) != object1->springConnections.end()) continue;
 				if(utils::distance(object1->x, object2->x, object1->y, object2->y) < springMaxDistance) {
 					object1->springConnections.push_back(object2);
-					object2->incomingSpringConnections++;
+					object2->incomingSpringConnectionsCount++;
 				}
 			}
 		}

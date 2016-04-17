@@ -16,7 +16,7 @@ static double springMaxDistance = springDistance * 1.25;
 static double springMaxConnections = 60000;
 static double backgroundFrictionForce = 1;
 static double cubucPixelMass = 0.001;
-static const double DAMPING = 0.5;
+static const double DEFAULT_DAMPING = 0.5;
 static const double INITIAL_BALLS_NUMBER = 500;
 
 static bool variableTimestep = true;

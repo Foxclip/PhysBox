@@ -12,12 +12,11 @@ enum ObjectType {
 class SimObject {
 
 public:
-	double x, y;
-	double speedX, speedY;
-	double damping;
+	double x = 0, y = 0;
+	double velX = 0, velY = 0;
+	double damping = DEFAULT_DAMPING;
 	std::vector<SimObject*> springConnections;
-	int incomingSpringConnections = 0;
-	SimObject();
+	int incomingSpringConnectionsCount = 0;
 	virtual void move(double delta);
 	void render();
 	void calculateBackgroudFriction(double delta);
@@ -44,16 +43,11 @@ public:
 	void move(double delta);
 	void renderToTexture();
 	void recalculateMass();
+	static double partiallyElasticCollision(double v1, double v2, double m1, double m2, double restitution);
+	static void collide(SimObject* object1, SimObject* object2, double delta);
+	static void collideBalls(Ball* b1, Ball* b2, double delta);
+	static bool checkCollision(Ball* b1, Ball* b2, double delta);
+	static void recalculateSpeedsAfterCollision(Ball* b1, Ball* b2);
+	static void checkAndFixOverlap(Ball* b1, Ball* b2);
 
 };
-
-namespace object_utils {
-
-	double partiallyElasticCollision(double v1, double v2, double m1, double m2, double restitution);
-	void collide(SimObject* object1, SimObject* object2, double delta);
-	void collideBalls(Ball* b1, Ball* b2, double delta);
-	bool checkCollision(Ball* b1, Ball* b2, double delta);
-	void recalculateSpeedsAfterCollision(Ball* b1, Ball* b2);
-	void checkAndFixOverlap(Ball* b1, Ball* b2);
-
-}
