@@ -13,7 +13,7 @@
 #include "lwindow.h"
 #include "ltexture.h"
 #include "globals.h"
-#include "object.h"
+#include "simobject.h"
 #include "utils.h"
 
 void runSimulation();

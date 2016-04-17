@@ -9,21 +9,21 @@ enum ObjectType {
 	OBJECT_TYPE_BALL
 };
 
-class Object {
+class SimObject {
 
 public:
 	double x, y;
 	double speedX, speedY;
 	double damping;
-	std::vector<Object*> springConnections;
+	std::vector<SimObject*> springConnections;
 	int incomingSpringConnections = 0;
-	Object();
+	SimObject();
 	virtual void move(double delta);
 	void render();
 	void calculateBackgroudFriction(double delta);
 	void calculateVerticalGravity(double delta);
-	void calculateGravity(Object* anotherObject, double delta);
-	void calculateSprings(Object* anotherObject, double delta);
+	void calculateGravity(SimObject* anotherObject, double delta);
+	void calculateSprings(SimObject* anotherObject, double delta);
 	double getMass();
 	ObjectType getObjectType();
 
@@ -37,7 +37,7 @@ protected:
 
 };
 
-class Ball: public Object {
+class Ball: public SimObject {
 public:
 	double radius;
 	Ball(double x, double y, double radius, double speedX, double speedY, utils::Color color);
@@ -50,7 +50,7 @@ public:
 namespace object_utils {
 
 	double partiallyElasticCollision(double v1, double v2, double m1, double m2, double restitution);
-	void collide(Object* object1, Object* object2, double delta);
+	void collide(SimObject* object1, SimObject* object2, double delta);
 	void collideBalls(Ball* b1, Ball* b2, double delta);
 	bool checkCollision(Ball* b1, Ball* b2, double delta);
 	void recalculateSpeedsAfterCollision(Ball* b1, Ball* b2);

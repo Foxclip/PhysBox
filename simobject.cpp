@@ -1,8 +1,8 @@
-#include "object.h"
+#include "simobject.h"
 #include "globals.h"
 #include <algorithm>
 
-Object::Object() {
+SimObject::SimObject() {
 	x = 0;
 	y = 0;
 	speedX = 0;
@@ -10,16 +10,16 @@ Object::Object() {
 	damping = DAMPING;
 }
 
-void Object::move(double delta) {
+void SimObject::move(double delta) {
 	x += speedX * delta;
 	y += speedY * delta;
 }
 
-void Object::render() {
+void SimObject::render() {
 	texture.render((int)x - texture.getWidth()/2, (int)y - texture.getHeight()/2);
 }
 
-void Object::calculateBackgroudFriction(double delta) {
+void SimObject::calculateBackgroudFriction(double delta) {
 	double speed = sqrt(pow(speedX, 2) + pow(speedY, 2));
 	if(speed == 0)
 		return;
@@ -35,11 +35,11 @@ void Object::calculateBackgroudFriction(double delta) {
 		speedY = 0;
 }
 
-void Object::calculateVerticalGravity(double delta) {
+void SimObject::calculateVerticalGravity(double delta) {
 	speedY += gravityVerticalForce * delta;
 }
 
-void Object::calculateGravity(Object* anotherObject, double delta) {
+void SimObject::calculateGravity(SimObject* anotherObject, double delta) {
 	double distance = utils::distance(x, anotherObject->x, y, anotherObject->y);
 	if(distance == 0)
 		return;
@@ -50,7 +50,7 @@ void Object::calculateGravity(Object* anotherObject, double delta) {
 	speedY += forceY / getMass() * delta;
 }
 
-void Object::calculateSprings(Object* anotherObject, double delta) {
+void SimObject::calculateSprings(SimObject* anotherObject, double delta) {
 	double distance = utils::distance(x, anotherObject->x, y, anotherObject->y);
 	if(distance == 0) return;
 	if(distance > springMaxDistance) {
@@ -79,11 +79,11 @@ void Object::calculateSprings(Object* anotherObject, double delta) {
 	speedY += forceY / getMass() * delta;
 }
 
-double Object::getMass() {
+double SimObject::getMass() {
 	return mass;
 }
 
-ObjectType Object::getObjectType() {
+ObjectType SimObject::getObjectType() {
 	return objectType;
 }
 
@@ -105,7 +105,7 @@ Ball::Ball(double x, double y, double radius, double speedX, double speedY, util
 
 void Ball::move(double delta) {
 
-	Object::move(delta);
+	SimObject::move(delta);
 
 	if(x < radius) {
 		x = radius;
@@ -147,7 +147,7 @@ double object_utils::partiallyElasticCollision(double v1, double v2, double m1, 
 	return (restitution*m2*(v2-v1)+m1*v1+m2*v2)/(m1+m2);
 }
 
-void object_utils::collide(Object* object1, Object* object2, double delta) {
+void object_utils::collide(SimObject* object1, SimObject* object2, double delta) {
 	if(object1->getObjectType() == OBJECT_TYPE_BALL && object2->getObjectType() == OBJECT_TYPE_BALL)
 		collideBalls((Ball*)object1, (Ball*)object2, delta);
 }

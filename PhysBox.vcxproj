@@ -130,7 +130,7 @@
     <ClCompile Include="ltexture.cpp" />
     <ClCompile Include="lwindow.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="object.cpp" />
+    <ClCompile Include="simobject.cpp" />
     <ClCompile Include="simulation.cpp" />
     <ClCompile Include="utils.cpp" />
   </ItemGroup>
@@ -138,8 +138,8 @@
     <ClInclude Include="globals.h" />
     <ClInclude Include="ltexture.h" />
     <ClInclude Include="lwindow.h" />
-    <ClInclude Include="object.h" />
     <ClInclude Include="settings.h" />
+    <ClInclude Include="simobject.h" />
     <ClInclude Include="simulation.h" />
     <ClInclude Include="utils.h" />
   </ItemGroup>

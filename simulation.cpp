@@ -4,7 +4,7 @@ bool gQuit = false;
 utils::Font bigFont;
 utils::Font smallFont;
 LWindow mainWindow;
-std::vector<Object*> objects;
+std::vector<SimObject*> objects;
 int fpsCount = 0;
 int fps = 0;
 int lastFpsTime = 0;
@@ -89,8 +89,8 @@ void render() {
 
 	if(springsEnabled) {
 		SDL_SetRenderDrawColor(mainWindow.getRenderer(), 255, 255, 0, 255);
-		for(Object* object1: objects) {
-			for(Object* object2: objects) {
+		for(SimObject* object1: objects) {
+			for(SimObject* object2: objects) {
 				if(std::find(object1->springConnections.begin(), object1->springConnections.end(),
 					object2) != object1->springConnections.end()) {
 					SDL_RenderDrawLine(mainWindow.getRenderer(), (int)object1->x, (int)object1->y, (int)object2->x, (int)object2->y);
@@ -99,7 +99,7 @@ void render() {
 		}
 	}
 
-	for(Object* object: objects)
+	for(SimObject* object: objects)
 		object->render();
 
 	drawText(0, 0, "fps: " + std::to_string(fps), { 255, 255, 0 }, smallFont);
@@ -158,30 +158,30 @@ void handleKeyboard(SDL_Event e) {
 void processPhysics() {
 	if(pause) return;
 	if(collisionsEnabled) {
-		for(Object* object1: objects) {
-			for(Object* object2: objects) {
+		for(SimObject* object1: objects) {
+			for(SimObject* object2: objects) {
 				if(object1 == object2) continue;
 				object_utils::collide(object1, object2, simulationSpeed);
 			}
 		}
 	}
 	if(gravityVerticalEnabled) {
-		for(Object* object: objects) {
+		for(SimObject* object: objects) {
 			object->calculateVerticalGravity(simulationSpeed);
 		}
 	}
 	if(gravityRadialEnabled) {
-		for(Object* object1: objects) {
-			for(Object* object2: objects) {
+		for(SimObject* object1: objects) {
+			for(SimObject* object2: objects) {
 				if(object1 == object2) continue;
 				object1->calculateGravity(object2, simulationSpeed);
 			}
 		}
 	}
 	if(springsEnabled) {
-		for(Object* object1: objects) {
+		for(SimObject* object1: objects) {
 			if(object1->springConnections.size() >= springMaxConnections) continue;
-			for(Object* object2: objects) {
+			for(SimObject* object2: objects) {
 				if(object1 == object2) continue;
 				if(object1->springConnections.size() >= springMaxConnections) break;
 				if(object2->incomingSpringConnections >= springMaxConnections) continue;
@@ -193,18 +193,18 @@ void processPhysics() {
 				}
 			}
 		}
-		for(Object* object: objects) {
+		for(SimObject* object: objects) {
 			for(int j = object->springConnections.size() - 1; j >= 0; j--) {
 				object->calculateSprings(object->springConnections.at(j), simulationSpeed);
 			}
 		}
 	}
 	if(backgroundFrictionEnabled) {
-		for(Object* object: objects) {
+		for(SimObject* object: objects) {
 			object->calculateBackgroudFriction(simulationSpeed);
 		}
 	}
-	for(Object* object: objects) {
+	for(SimObject* object: objects) {
 		object->move(simulationSpeed);
 	}
 }
@@ -271,7 +271,7 @@ void changeSimulationSpeed(int change) {
 }
 
 void deleteAllObjects() {
-	for(Object* object: objects)
+	for(SimObject* object: objects)
 		delete object;
 	objects.clear();
 }
