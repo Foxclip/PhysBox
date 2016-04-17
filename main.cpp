@@ -123,10 +123,8 @@ void render() {
 
 	if(springsEnabled) {
 		SDL_SetRenderDrawColor(mainWindow.getRenderer(), 255, 255, 0, 255);
-		for(int i = 0; i < (int)objects.size(); i++) {
-			Object* object1 = objects.at(i);
-			for(int j = 0; j < (int)objects.size(); j++) {
-				Object* object2 = objects.at(j);
+		for(Object* object1: objects) {
+			for(Object* object2: objects) {
 				if(std::find(object1->springConnections.begin(), object1->springConnections.end(),
 					object2) != object1->springConnections.end()) {
 					SDL_RenderDrawLine(mainWindow.getRenderer(), (int)object1->x, (int)object1->y, (int)object2->x, (int)object2->y);
@@ -135,8 +133,8 @@ void render() {
 		}
 	}
 
-	for(int i = 0; i < (int)objects.size(); i++)
-		objects.at(i)->render();
+	for(Object* object: objects)
+		object->render();
 
 	drawText(0, 0, "fps: " + std::to_string(fps), { 255, 255, 0 }, smallFont);
 
@@ -198,33 +196,31 @@ void handleKeyboard(SDL_Event e) {
 void processPhysics() {
 	if(pause) return;
 	if(collisionsEnabled) {
-		for(int i = 0; i < (int)objects.size(); i++) {
-			for(int j = 0; j < (int)objects.size(); j++) {
-				if(i == j) continue;
-				object_utils::collide(objects.at(i), objects.at(j), simulationSpeed);
+		for(Object* object1: objects) {
+			for(Object* object2: objects) {
+				if(object1 == object2) continue;
+				object_utils::collide(object1, object2, simulationSpeed);
 			}
 		}
 	}
 	if(gravityVerticalEnabled) {
-		for(int i = 0; i < (int)objects.size(); i++) {
-			objects.at(i)->calculateVerticalGravity(simulationSpeed);
+		for(Object* object: objects) {
+			object->calculateVerticalGravity(simulationSpeed);
 		}
 	}
 	if(gravityRadialEnabled) {
-		for(int i = 0; i < (int)objects.size(); i++) {
-			for(int j = 0; j < (int)objects.size(); j++) {
-				if(i == j) continue;
-				objects.at(i)->calculateGravity(objects.at(j), simulationSpeed);
+		for(Object* object1: objects) {
+			for(Object* object2: objects) {
+				if(object1 == object2) continue;
+				object1->calculateGravity(object2, simulationSpeed);
 			}
 		}
 	}
 	if(springsEnabled) {
-		for(int i = 0; i < (int)objects.size(); i++) {
-			Object* object1 = objects.at(i);
+		for(Object* object1: objects) {
 			if(object1->springConnections.size() >= springMaxConnections) continue;
-			for(int j = 0; j < (int)objects.size(); j++) {
-				Object* object2 = objects.at(j);
-				if(i == j) continue;
+			for(Object* object2: objects) {
+				if(object1 == object2) continue;
 				if(object1->springConnections.size() >= springMaxConnections) break;
 				if(object2->incomingSpringConnections >= springMaxConnections) continue;
 				if(std::find(object1->springConnections.begin(), object1->springConnections.end(),
@@ -235,8 +231,7 @@ void processPhysics() {
 				}
 			}
 		}
-		for(int i = 0; i < (int)objects.size(); i++) {
-			Object* object = objects.at(i);
+		for(Object* object: objects) {
 			for(int j = object->springConnections.size() - 1; j >= 0; j--) {
 				object->calculateSprings(object->springConnections.at(j), simulationSpeed);
 			}
@@ -247,8 +242,8 @@ void processPhysics() {
 			object->calculateBackgroudFriction(simulationSpeed);
 		}
 	}
-	for(int i = 0; i < (int)objects.size(); i++) {
-		objects.at(i)->move(simulationSpeed);
+	for(Object* object: objects) {
+		object->move(simulationSpeed);
 	}
 }
 
@@ -314,7 +309,7 @@ void changeSimulationSpeed(int change) {
 }
 
 void deleteAllObjects() {
-	for(int i = 0; i < (int)objects.size(); i++)
-		delete objects.at(i);
+	for(Object* object: objects)
+		delete object;
 	objects.clear();
 }
