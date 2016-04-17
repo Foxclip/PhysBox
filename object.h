@@ -20,6 +20,7 @@ public:
 	Object();
 	virtual void move(double delta);
 	void render();
+	void calculateBackgroudFriction(double delta);
 	void calculateVerticalGravity(double delta);
 	void calculateGravity(Object* anotherObject, double delta);
 	void calculateSprings(Object* anotherObject, double delta);

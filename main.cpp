@@ -242,6 +242,11 @@ void processPhysics() {
 			}
 		}
 	}
+	if(backgroundFrictionEnabled) {
+		for(Object* object: objects) {
+			object->calculateBackgroudFriction(simulationSpeed);
+		}
+	}
 	for(int i = 0; i < (int)objects.size(); i++) {
 		objects.at(i)->move(simulationSpeed);
 	}

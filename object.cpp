@@ -19,6 +19,22 @@ void Object::render() {
 	texture.render((int)x - texture.getWidth()/2, (int)y - texture.getHeight()/2);
 }
 
+void Object::calculateBackgroudFriction(double delta) {
+	double speed = sqrt(pow(speedX, 2) + pow(speedY, 2));
+	if(speed == 0)
+		return;
+	double forceX = -speedX / speed * backgroundFrictionForce;
+	double forceY = -speedY / speed * backgroundFrictionForce;
+	double oldSpeedX = speedX;
+	double oldSpeedY = speedY;
+	speedX += forceX / getMass() * delta;
+	speedY += forceY / getMass() * delta;
+	if(speedX * oldSpeedX < 0)
+		speedX = 0;
+	if(speedY * oldSpeedY < 0)
+		speedY = 0;
+}
+
 void Object::calculateVerticalGravity(double delta) {
 	speedY += gravityVerticalForce * delta;
 }
