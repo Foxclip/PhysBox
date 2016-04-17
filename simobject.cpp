@@ -81,13 +81,13 @@ ObjectType SimObject::getObjectType() {
 
 Ball::Ball(double x, double y, double radius, double speedX, double speedY, utils::Color color) {
 	
-	this->x = x;
-	this->y = y;
-	this->radius = radius;
-	this->velX = speedX;
-	this->velY = speedY;
-	this->color = color;
-	objectType = OBJECT_TYPE_BALL;
+	this->x			= x;
+	this->y			= y;
+	this->radius	= radius;
+	this->velX		= speedX;
+	this->velY		= speedY;
+	this->color		= color;
+	objectType		= OBJECT_TYPE_BALL;
 
 	texture.createBlank(((int)radius)*2, ((int)radius)*2, SDL_TEXTUREACCESS_TARGET);
 	renderToTexture();

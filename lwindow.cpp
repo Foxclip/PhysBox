@@ -6,14 +6,14 @@ const int DEFAULT_WINDOW_WIDTH = 640;
 const int DEFAULT_WIINDOW_HEIGHT = 480;
 
 LWindow::LWindow() {
-	mWindow = NULL;
-	mRenderer = NULL;
-	mMouseFocus = false;
-	mKeyboardFocus = false;
-	mFullScreen = false;
-	mMinimised = false;
-	mWidth = 0;
-	mHeight = 0;
+	mWindow			= NULL;
+	mRenderer		= NULL;
+	mMouseFocus		= false;
+	mKeyboardFocus	= false;
+	mFullScreen		= false;
+	mMinimised		= false;
+	mWidth			= 0;
+	mHeight			= 0;
 }
 
 LWindow::~LWindow() {
