@@ -60,8 +60,6 @@ void init() {
 	mainWindow.maximize();
 	mainWindow.setFullScreen(true);
 
-	srand(SDL_GetTicks());
-
 	generateObjects();
 
 }
@@ -133,13 +131,9 @@ void handleEvents() {
 	SDL_Event e;
 	while(SDL_PollEvent(&e) != 0) {
 		switch(e.type) {
-		case SDL_QUIT:
-			gQuit = true; break;
-		case SDL_KEYDOWN:
-		case SDL_KEYUP:
-			handleKeyboard(e); break;
-		case SDL_WINDOWEVENT:
-			mainWindow.handleEvent(e); break;
+			case SDL_QUIT: gQuit = true;							break;
+			case SDL_KEYUP: case SDL_KEYDOWN: handleKeyboard(e);	break;
+			case SDL_WINDOWEVENT: mainWindow.handleEvent(e);		break;
 		}
 	}
 }
@@ -147,16 +141,16 @@ void handleEvents() {
 void handleKeyboard(SDL_Event e) {
 	if(e.type == SDL_KEYDOWN) {
 		switch(e.key.keysym.scancode) {
-			case SDL_SCANCODE_ESCAPE: gQuit = true; break;
-			case SDL_SCANCODE_SPACE: pause = !pause; break;
-			case SDL_SCANCODE_R: generateObjects(); break;
-			case SDL_SCANCODE_1: collisionsEnabled = !collisionsEnabled; break;
-			case SDL_SCANCODE_2: gravityRadialEnabled = !gravityRadialEnabled; break;
-			case SDL_SCANCODE_3: gravityVerticalEnabled = !gravityVerticalEnabled; break;
-			case SDL_SCANCODE_4: backgroundFrictionEnabled = !backgroundFrictionEnabled; break;
-			case SDL_SCANCODE_5: springsEnabled = !springsEnabled; break;
-			case SDL_SCANCODE_KP_PLUS: changeSimulationSpeed(1); break;
-			case SDL_SCANCODE_KP_MINUS: changeSimulationSpeed(-1); break;
+			case SDL_SCANCODE_ESCAPE:	gQuit = true;											break;
+			case SDL_SCANCODE_SPACE:	pause = !pause;											break;
+			case SDL_SCANCODE_R:		generateObjects();										break;
+			case SDL_SCANCODE_1:		collisionsEnabled = !collisionsEnabled;					break;
+			case SDL_SCANCODE_2:		gravityRadialEnabled = !gravityRadialEnabled;			break;
+			case SDL_SCANCODE_3:		gravityVerticalEnabled = !gravityVerticalEnabled;		break;
+			case SDL_SCANCODE_4:		backgroundFrictionEnabled = !backgroundFrictionEnabled; break;
+			case SDL_SCANCODE_5:		springsEnabled = !springsEnabled;						break;
+			case SDL_SCANCODE_KP_PLUS:	changeSimulationSpeed(1);								break;
+			case SDL_SCANCODE_KP_MINUS: changeSimulationSpeed(-1);								break;
 		}
 	}
 }
