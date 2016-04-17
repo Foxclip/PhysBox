@@ -2,9 +2,14 @@
 #include <cstdlib>
 #include <cstdio>
 #include <cmath>
+#include <random>
+
+std::random_device rd;
+std::mt19937 mt(rd());
+std::uniform_real_distribution<double> dist(0.0, 1.0);
 
 double utils::random() {
-	return (double)rand()/(double)RAND_MAX;
+	return dist(mt);
 }
 
 utils::Color utils::randomColor() {
