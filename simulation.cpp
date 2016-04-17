@@ -10,14 +10,14 @@ int fps = 0;
 int lastFpsTime = 0;
 double simulationSpeed = pow(SIMULATION_SPEED_BASE, simulationSpeedExponent);
 
+void initSimulation() {
+	initSDL();
+	loadMedia();
+	initWindow();
+}
+
 void runSimulation() {
-	if(!initSDL()) {
-		printf("Failed to init\n");
-	} else if(!loadMedia()) {
-		printf("Failed to load media\n");
-	} else {
-		mainLoop();
-	}
+	mainLoop();
 	close();
 }
 
@@ -54,19 +54,13 @@ void close() {
 
 }
 
-void init() {
-
+void initWindow() {
 	mainWindow.init();
 	mainWindow.maximize();
 	mainWindow.setFullScreen(true);
-
-	generateObjects();
-
 }
 
 void mainLoop() {
-
-	init();
 
 	while(!gQuit) {
 
@@ -77,6 +71,7 @@ void mainLoop() {
 		updateFpsCount();
 
 	}
+
 }
 
 void render() {
@@ -131,9 +126,9 @@ void handleEvents() {
 	SDL_Event e;
 	while(SDL_PollEvent(&e) != 0) {
 		switch(e.type) {
-			case SDL_QUIT: gQuit = true;							break;
-			case SDL_KEYUP: case SDL_KEYDOWN: handleKeyboard(e);	break;
-			case SDL_WINDOWEVENT: mainWindow.handleEvent(e);		break;
+			case SDL_QUIT:						gQuit = true;				break;
+			case SDL_KEYUP: case SDL_KEYDOWN:	handleKeyboard(e);			break;
+			case SDL_WINDOWEVENT:				mainWindow.handleEvent(e);	break;
 		}
 	}
 }
@@ -143,7 +138,6 @@ void handleKeyboard(SDL_Event e) {
 		switch(e.key.keysym.scancode) {
 			case SDL_SCANCODE_ESCAPE:	gQuit = true;											break;
 			case SDL_SCANCODE_SPACE:	pause = !pause;											break;
-			case SDL_SCANCODE_R:		generateObjects();										break;
 			case SDL_SCANCODE_1:		collisionsEnabled = !collisionsEnabled;					break;
 			case SDL_SCANCODE_2:		gravityRadialEnabled = !gravityRadialEnabled;			break;
 			case SDL_SCANCODE_3:		gravityVerticalEnabled = !gravityVerticalEnabled;		break;
@@ -238,31 +232,8 @@ void updateFpsCount() {
 	}
 }
 
-void generateObjects() {
-
-	deleteAllObjects();
-
-	SDL_SetRenderDrawColor(mainWindow.getRenderer(), 0, 0, 0, 255);
-	SDL_RenderClear(mainWindow.getRenderer());
-	drawText((mainWindow.getWidth() - getStringWidth("GENERATING...", bigFont)) / 2,
-		(mainWindow.getHeight() - bigFont.getSize()) / 2, "GENERATING...", { 255, 255, 0 }, bigFont);
-	SDL_RenderPresent(mainWindow.getRenderer());
-
-	objects.push_back(new Ball(mainWindow.getWidth()/2, mainWindow.getHeight()/2, 50, 0, 0, { 255, 0, 0 }));
-
-	for(int i = 0; i < INITIAL_BALLS_NUMBER; i++)
-		objects.push_back(new Ball(
-			utils::randomBetween(0, mainWindow.getWidth()),
-			utils::randomBetween(0, mainWindow.getHeight()),
-			10,
-			utils::randomBetween(-1, 1),
-			utils::randomBetween(-1, 1),
-			utils::randomColor()
-			));
-
-	//objects.push_back(new Ball(800, 400, 50, 0, 0, { 255, 0, 0 }));
-	//objects.push_back(new Ball(800, 200, 10, 1, 0, { 0, 0, 255 }));
-
+void addBall(double x, double y, double radius, double speedX, double speedY, utils::Color color) {
+	objects.push_back(new Ball(x, y, radius, speedX, speedY, color));
 }
 
 void changeSimulationSpeed(int change) {

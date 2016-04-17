@@ -16,11 +16,12 @@
 #include "simobject.h"
 #include "utils.h"
 
+void initSimulation();
 void runSimulation();
 bool initSDL();
 bool loadMedia();
 void close();
-void init();
+void initWindow();
 void mainLoop();
 void render();
 void handleEvents();
@@ -30,6 +31,6 @@ void drawText(int x, int y, std::string str, utils::Color color, utils::Font& fo
 int getStringWidth(std::string, utils::Font& font);
 utils::Color getBoolColor(bool var);
 void updateFpsCount();
-void generateObjects();
+void addBall(double x, double y, double radius, double speedX, double speedY, utils::Color color);
 void changeSimulationSpeed(int change);
 void deleteAllObjects();
