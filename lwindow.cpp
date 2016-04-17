@@ -23,11 +23,15 @@ LWindow::~LWindow() {
 bool LWindow::init() {
 	mWindow = SDL_CreateWindow("PhysBox", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
 		DEFAULT_WINDOW_WIDTH, DEFAULT_WIINDOW_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
-	if(!mWindow)
+	if(!mWindow) {
+		printf("Window creation error: %s\n", SDL_GetError());
 		return false;
+	}
 	mRenderer = SDL_CreateRenderer(mWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-	if(!mRenderer)
+	if(!mRenderer) {
+		printf("Renderer creation error: %s\n", SDL_GetError());
 		return false;
+	}
 	mMouseFocus = true;
 	mKeyboardFocus = true;
 	mWidth = DEFAULT_WINDOW_WIDTH;

@@ -62,7 +62,7 @@ bool LTexture::loadFromRenderedText(std::string textureText, SDL_Color textColor
 	}
 	SDL_Texture* newTexture = SDL_CreateTextureFromSurface(mainWindow.getRenderer(), textSurface);
 	if(newTexture == NULL) {
-		printf("Text texture creation error: %s\n", SDL_GetError());
+		//printf("Text texture creation error: %s\n", SDL_GetError());
 		return false;
 	}
 	mWidth = textSurface->w;

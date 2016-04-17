@@ -16,21 +16,39 @@
 #include "simobject.h"
 #include "utils.h"
 
-void initSimulation();
-void runSimulation();
-bool initSDL();
-bool loadMedia();
-void close();
-void initWindow();
-void mainLoop();
-void render();
-void handleEvents();
-void handleKeyboard(SDL_Event e);
-void processPhysics();
-void drawText(int x, int y, std::string str, utils::Color color, utils::Font& font);
-int getStringWidth(std::string, utils::Font& font);
-utils::Color getBoolColor(bool var);
-void updateFpsCount();
-void addBall(double x, double y, double radius, double speedX, double speedY, utils::Color color);
-void changeSimulationSpeed(int change);
-void deleteAllObjects();
+class Simulation {
+
+public:
+
+	Simulation();
+	~Simulation();
+	void runSimulation();
+	void addBall(double x, double y, double radius, double speedX, double speedY, utils::Color color);
+
+private:
+
+	bool gQuit = false;
+	utils::Font bigFont;
+	utils::Font smallFont;
+	std::vector<SimObject*> objects;
+	int fpsCount = 0;
+	int fps = 0;
+	int lastFpsTime = 0;
+	double simulationSpeed = pow(SIMULATION_SPEED_BASE, simulationSpeedExponent);
+
+	bool initSDL();
+	bool loadMedia();
+	void close();
+	void initWindow();
+	void render();
+	void handleEvents();
+	void handleKeyboard(SDL_Event e);
+	void processPhysics();
+	void drawText(int x, int y, std::string str, utils::Color color, utils::Font& font);
+	int getStringWidth(std::string, utils::Font& font);
+	utils::Color getBoolColor(bool var);
+	void updateFpsCount();
+	void changeSimulationSpeed(int change);
+	void deleteAllObjects();
+
+};

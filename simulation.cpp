@@ -1,27 +1,27 @@
 #include "simulation.h"
 
-bool gQuit = false;
-utils::Font bigFont;
-utils::Font smallFont;
 LWindow mainWindow;
-std::vector<SimObject*> objects;
-int fpsCount = 0;
-int fps = 0;
-int lastFpsTime = 0;
-double simulationSpeed = pow(SIMULATION_SPEED_BASE, simulationSpeedExponent);
 
-void initSimulation() {
+Simulation::Simulation() {
 	initSDL();
 	loadMedia();
 	initWindow();
 }
 
-void runSimulation() {
-	mainLoop();
+Simulation::~Simulation() {
 	close();
 }
 
-bool initSDL() {
+void Simulation::runSimulation() {
+	while(!gQuit) {
+		handleEvents();
+		processPhysics();
+		render();
+		updateFpsCount();
+	}
+}
+
+bool Simulation::initSDL() {
 	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) < 0) {
 		printf("Init error: %s\n", SDL_GetError());
 		return false;
@@ -38,43 +38,26 @@ bool initSDL() {
 	return true;
 }
 
-bool loadMedia() {
+bool Simulation::loadMedia() {
 	bigFont.loadFont("arial.ttf", 28);
 	smallFont.loadFont("arial.ttf", 15);
 	return true;
 }
 
-void close() {
-
+void Simulation::close() {
 	deleteAllObjects();
-
 	TTF_Quit();
 	IMG_Quit();
 	SDL_Quit();
-
 }
 
-void initWindow() {
+void Simulation::initWindow() {
 	mainWindow.init();
 	mainWindow.maximize();
 	mainWindow.setFullScreen(true);
 }
 
-void mainLoop() {
-
-	while(!gQuit) {
-
-		handleEvents();
-		processPhysics();
-		render();
-
-		updateFpsCount();
-
-	}
-
-}
-
-void render() {
+void Simulation::render() {
 
 	if(mainWindow.isMinimised())
 		return;
@@ -122,7 +105,7 @@ void render() {
 
 }
 
-void handleEvents() {
+void Simulation::handleEvents() {
 	SDL_Event e;
 	while(SDL_PollEvent(&e) != 0) {
 		switch(e.type) {
@@ -133,7 +116,7 @@ void handleEvents() {
 	}
 }
 
-void handleKeyboard(SDL_Event e) {
+void Simulation::handleKeyboard(SDL_Event e) {
 	if(e.type == SDL_KEYDOWN) {
 		switch(e.key.keysym.scancode) {
 			case SDL_SCANCODE_ESCAPE:	gQuit = true;											break;
@@ -149,7 +132,7 @@ void handleKeyboard(SDL_Event e) {
 	}
 }
 
-void processPhysics() {
+void Simulation::processPhysics() {
 	if(pause) return;
 	if(collisionsEnabled) {
 		for(SimObject* object1: objects) {
@@ -203,26 +186,26 @@ void processPhysics() {
 	}
 }
 
-void drawText(int x, int y, std::string str, utils::Color color, utils::Font& font) {
+void Simulation::drawText(int x, int y, std::string str, utils::Color color, utils::Font& font) {
 	LTexture textTexture;
 	textTexture.loadFromRenderedText(str, { color.red, color.green, color.blue, 255 }, font.getSDLFont(), false);
 	textTexture.render(x, y);
 }
 
-int getStringWidth(std::string str, utils::Font& font) {
+int Simulation::getStringWidth(std::string str, utils::Font& font) {
 	int w;
 	TTF_SizeText(font.getSDLFont(), str.c_str(), &w, NULL);
 	return w;
 }
 
-utils::Color getBoolColor(bool var) {
+utils::Color Simulation::getBoolColor(bool var) {
 	if(var)
 		return { 0, 255, 0 };
 	else
 		return { 255, 0, 0 };
 }
 
-void updateFpsCount() {
+void Simulation::updateFpsCount() {
 	int currentTime = SDL_GetTicks();
 	fpsCount++;
 	if(currentTime - lastFpsTime > 1000) {
@@ -232,16 +215,16 @@ void updateFpsCount() {
 	}
 }
 
-void addBall(double x, double y, double radius, double speedX, double speedY, utils::Color color) {
+void Simulation::addBall(double x, double y, double radius, double speedX, double speedY, utils::Color color) {
 	objects.push_back(new Ball(x, y, radius, speedX, speedY, color));
 }
 
-void changeSimulationSpeed(int change) {
+void Simulation::changeSimulationSpeed(int change) {
 	simulationSpeedExponent += change;
 	simulationSpeed = pow(SIMULATION_SPEED_BASE, simulationSpeedExponent);
 }
 
-void deleteAllObjects() {
+void Simulation::deleteAllObjects() {
 	for(SimObject* object: objects)
 		delete object;
 	objects.clear();
