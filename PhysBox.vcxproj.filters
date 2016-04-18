@@ -44,9 +44,6 @@
     <ClInclude Include="utils.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
-    <ClInclude Include="settings.h">
-      <Filter>Заголовочные файлы</Filter>
-    </ClInclude>
     <ClInclude Include="ltexture.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>

@@ -144,14 +144,14 @@ void Simulation::processPhysics() {
 	}
 	if(gravityVerticalEnabled) {
 		for(SimObject* object: objects) {
-			object->calculateVerticalGravity(simulationSpeed);
+			object->calculateVerticalGravity(simulationSpeed, gravityVerticalForce);
 		}
 	}
 	if(gravityRadialEnabled) {
 		for(SimObject* object1: objects) {
 			for(SimObject* object2: objects) {
 				if(object1 == object2) continue;
-				object1->calculateGravity(object2, simulationSpeed);
+				object1->calculateGravity(object2, simulationSpeed, gravityRadialForce);
 			}
 		}
 	}
@@ -172,13 +172,14 @@ void Simulation::processPhysics() {
 		}
 		for(SimObject* object: objects) {
 			for(int j = object->springConnections.size() - 1; j >= 0; j--) {
-				object->calculateSprings(object->springConnections.at(j), simulationSpeed);
+				object->calculateSprings(object->springConnections.at(j),
+					simulationSpeed, springMaxDistance, springDistance, springDamping, springForce);
 			}
 		}
 	}
 	if(backgroundFrictionEnabled) {
 		for(SimObject* object: objects) {
-			object->calculateBackgroudFriction(simulationSpeed);
+			object->calculateBackgroudFriction(simulationSpeed, backgroundFrictionForce);
 		}
 	}
 	for(SimObject* object: objects) {

@@ -138,7 +138,6 @@
     <ClInclude Include="globals.h" />
     <ClInclude Include="ltexture.h" />
     <ClInclude Include="lwindow.h" />
-    <ClInclude Include="settings.h" />
     <ClInclude Include="simobject.h" />
     <ClInclude Include="simulation.h" />
     <ClInclude Include="utils.h" />

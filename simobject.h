@@ -1,13 +1,14 @@
 #pragma once
 
 #include "utils.h"
-#include "settings.h"
 #include "ltexture.h"
 #include <vector>
 
 enum ObjectType {
 	OBJECT_TYPE_BALL
 };
+
+const double DEFAULT_DAMPING = 0.5;
 
 class SimObject {
 
@@ -19,10 +20,11 @@ public:
 	int incomingSpringConnectionsCount = 0;
 	virtual void move(double delta);
 	void render();
-	void calculateBackgroudFriction(double delta);
-	void calculateVerticalGravity(double delta);
-	void calculateGravity(SimObject* anotherObject, double delta);
-	void calculateSprings(SimObject* anotherObject, double delta);
+	void calculateBackgroudFriction(double delta, double backgroundFrictionForce);
+	void calculateVerticalGravity(double delta, double gravityVerticalForce);
+	void calculateGravity(SimObject* anotherObject, double delta, double gravityRadialForce);
+	void calculateSprings(SimObject* anotherObject, double delta,
+		double springMaxDistance, double springDistance, double springDamping, double springForce);
 	double getMass();
 	ObjectType getObjectType();
 

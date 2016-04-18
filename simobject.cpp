@@ -11,7 +11,7 @@ void SimObject::render() {
 	texture.render((int)x - texture.getWidth()/2, (int)y - texture.getHeight()/2);
 }
 
-void SimObject::calculateBackgroudFriction(double delta) {
+void SimObject::calculateBackgroudFriction(double delta, double backgroundFrictionForce) {
 	double speed = sqrt(pow(velX, 2) + pow(velY, 2));
 	if(speed == 0)
 		return;
@@ -27,11 +27,11 @@ void SimObject::calculateBackgroudFriction(double delta) {
 		velY = 0;
 }
 
-void SimObject::calculateVerticalGravity(double delta) {
+void SimObject::calculateVerticalGravity(double delta, double gravityVerticalForce) {
 	velY += gravityVerticalForce * delta;
 }
 
-void SimObject::calculateGravity(SimObject* anotherObject, double delta) {
+void SimObject::calculateGravity(SimObject* anotherObject, double delta, double gravityRadialForce) {
 	double distance = utils::distance(x, anotherObject->x, y, anotherObject->y);
 	if(distance == 0)
 		return;
@@ -42,7 +42,9 @@ void SimObject::calculateGravity(SimObject* anotherObject, double delta) {
 	velY += forceY / getMass() * delta;
 }
 
-void SimObject::calculateSprings(SimObject* anotherObject, double delta) {
+void SimObject::calculateSprings(SimObject* anotherObject, double delta,
+	double springMaxDistance, double springDistance, double springDamping, double springForce) {
+
 	double distance = utils::distance(x, anotherObject->x, y, anotherObject->y);
 	if(distance == 0) return;
 	if(distance > springMaxDistance) {
@@ -69,6 +71,7 @@ void SimObject::calculateSprings(SimObject* anotherObject, double delta) {
 	double forceY = (anotherObject->y - y) / distance * force + dampingForceY;
 	velX += forceX / getMass() * delta;
 	velY += forceY / getMass() * delta;
+
 }
 
 double SimObject::getMass() {
