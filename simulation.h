@@ -24,6 +24,7 @@ public:
 	~Simulation();
 	void runSimulation();
 	void addBall(double x, double y, double radius, double speedX, double speedY, utils::Color color);
+	void deleteAllObjects();
 
 private:
 
@@ -49,6 +50,5 @@ private:
 	utils::Color getBoolColor(bool var);
 	void updateFpsCount();
 	void changeSimulationSpeed(int change);
-	void deleteAllObjects();
 
 };
