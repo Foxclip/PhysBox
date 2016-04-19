@@ -26,6 +26,7 @@ public:
 	bool backgroundFrictionEnabled = false;
 	bool springsEnabled = false;
 
+	CollisionType collisionType = COLLISION_TYPE_MERGE;
 	double gravityVerticalForce = 0.1;
 	double gravityRadialForce = 0.1;
 	double springForce = 10;
@@ -49,6 +50,7 @@ public:
 	void runSimulation();
 	void addBall(double x, double y, double radius, double speedX, double speedY, utils::Color color);
 	void deleteAllObjects();
+	void deleteObject(SimObject* object);
 
 private:
 

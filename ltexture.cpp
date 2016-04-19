@@ -73,6 +73,7 @@ bool LTexture::loadFromRenderedText(std::string textureText, SDL_Color textColor
 }
 
 bool LTexture::createBlank(int width, int height, SDL_TextureAccess access) {
+	free();
 	mTexture = SDL_CreateTexture(mainWindow.getRenderer(), SDL_PIXELFORMAT_RGBA8888, access, width, height);
 	if(mTexture == NULL) {
 		printf("Blank texture error: %s\n", SDL_GetError());

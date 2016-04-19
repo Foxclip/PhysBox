@@ -134,11 +134,16 @@ void Simulation::handleKeyboard(SDL_Event e) {
 
 void Simulation::processPhysics() {
 	if(pause) return;
+	for(SimObject* object: objects) {
+		if(object->isMarkedForDeletion) {
+			deleteObject(object);
+		}
+	}
 	if(collisionsEnabled) {
 		for(SimObject* object1: objects) {
 			for(SimObject* object2: objects) {
 				if(object1 == object2) continue;
-				Ball::collide(object1, object2, simulationSpeed);
+				Ball::collide(object1, object2, simulationSpeed, collisionType);
 			}
 		}
 	}
@@ -225,8 +230,14 @@ void Simulation::changeSimulationSpeed(int change) {
 	simulationSpeed = pow(SIMULATION_SPEED_BASE, simulationSpeedExponent);
 }
 
+
 void Simulation::deleteAllObjects() {
 	for(SimObject* object: objects)
 		delete object;
 	objects.clear();
+}
+
+void Simulation::deleteObject(SimObject* object) {
+	delete object;
+	objects.erase(std::remove(objects.begin(), objects.end(), object), objects.end());
 }

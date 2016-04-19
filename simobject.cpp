@@ -11,6 +11,11 @@ void SimObject::render() {
 	texture.render((int)x - texture.getWidth()/2, (int)y - texture.getHeight()/2);
 }
 
+void SimObject::collide(SimObject * object1, SimObject * object2, double delta, CollisionType collisionType) {
+		if(object1->getObjectType() == OBJECT_TYPE_BALL && object2->getObjectType() == OBJECT_TYPE_BALL)
+			Ball::collideBalls((Ball*)object1, (Ball*)object2, delta, collisionType);
+}
+
 void SimObject::calculateBackgroudFriction(double delta, double backgroundFrictionForce) {
 	double speed = sqrt(pow(velX, 2) + pow(velY, 2));
 	if(speed == 0)
@@ -84,15 +89,14 @@ ObjectType SimObject::getObjectType() {
 
 Ball::Ball(double x, double y, double radius, double speedX, double speedY, utils::Color color) {
 	
-	this->x			= x;
-	this->y			= y;
-	this->radius	= radius;
-	this->velX		= speedX;
-	this->velY		= speedY;
-	this->color		= color;
-	objectType		= OBJECT_TYPE_BALL;
+	this->x	= x;
+	this->y	= y;
+	this->radius = radius;
+	this->velX = speedX;
+	this->velY = speedY;
+	this->color	= color;
+	objectType = OBJECT_TYPE_BALL;
 
-	texture.createBlank(((int)radius)*2, ((int)radius)*2, SDL_TEXTUREACCESS_TARGET);
 	renderToTexture();
 	recalculateMass();
 
@@ -122,6 +126,7 @@ void Ball::move(double delta) {
 }
 
 void Ball::renderToTexture() {
+	texture.createBlank(((int)radius)*2, ((int)radius)*2, SDL_TEXTUREACCESS_TARGET);
 	texture.setAsRenderTarget();
 	SDL_SetTextureBlendMode(texture.getSDLTexture(), SDL_BLENDMODE_BLEND);
 	SDL_SetRenderDrawColor(mainWindow.getRenderer(), 0, 0, 0, 0);
@@ -138,16 +143,49 @@ void Ball::recalculateMass() {
 	mass = M_PI * pow(radius, 2);
 }
 
+void Ball::recalculateRadius() {
+	radius = sqrt(mass / M_PI);
+	renderToTexture();
+}
+
+void Ball::mergeBalls(Ball* ball1, Ball* ball2) {
+	double distance = utils::distance(ball1->x, ball2->x, ball1->y, ball2->y);
+	if(distance > (ball1->radius + ball2->radius)) return;
+	Ball* big;
+	Ball* small;
+	if(ball1->mass > ball2->mass) {
+		big = ball1;
+		small = ball2;
+	} else {
+		big = ball2;
+		small = ball1;
+	}
+	double massCenterX = (big->mass * big->x + small->mass * small->x) / (big->mass + small->mass);
+	double massCenterY = (big->mass * big->y + small->mass * small->y) / (big->mass + small->mass);
+	big->x = massCenterX;
+	big->y = massCenterY;
+	big->mass = big->mass + small->mass;
+	big->recalculateRadius();
+	big->color = {
+		(unsigned char)((big->mass * big->color.red	  + small->mass * small->color.red  ) / (big->mass + small->mass)),
+		(unsigned char)((big->mass * big->color.green + small->mass * small->color.green) / (big->mass + small->mass)),
+		(unsigned char)((big->mass * big->color.blue  + small->mass * small->color.blue ) / (big->mass + small->mass))
+	};
+	small->isMarkedForDeletion = true;
+}
+
 double Ball::partiallyElasticCollision(double v1, double v2, double m1, double m2, double restitution) {
 	return (restitution*m2*(v2-v1)+m1*v1+m2*v2)/(m1+m2);
 }
 
-void Ball::collide(SimObject* object1, SimObject* object2, double delta) {
-	if(object1->getObjectType() == OBJECT_TYPE_BALL && object2->getObjectType() == OBJECT_TYPE_BALL)
-		collideBalls((Ball*)object1, (Ball*)object2, delta);
+void Ball::collideBalls(Ball* b1, Ball* b2, double delta, CollisionType collisionType) {
+	switch(collisionType) {
+		case COLLISION_TYPE_BOUNCE: ballsBounce(b1, b2, delta); break;
+		case COLLISION_TYPE_MERGE:  mergeBalls(b1, b2);			break;
+	}
 }
 
-void Ball::collideBalls(Ball* b1, Ball* b2, double delta) {
+void Ball::ballsBounce(Ball* b1, Ball* b2, double delta) {
 	checkAndFixOverlap(b1, b2);
 	if(checkCollision(b1, b2, delta))
 		recalculateSpeedsAfterCollision(b1, b2);
@@ -185,8 +223,8 @@ void Ball::recalculateSpeedsAfterCollision(Ball* b1, Ball* b2) {
 	double collisionAngle = atan2(b2->x - b1->x, b1->y - b2->y) - M_PI/2;
 	double b1SpeedAngle = atan2(b1->velX, -b1->velY) - M_PI/2;
 	double b2SpeedAngle = atan2(b2->velX, -b2->velY) + M_PI/2;
-	double b1SpeedXRot = b1Speed * cos(b1SpeedAngle - collisionAngle);
-	double b1SpeedYRot = b1Speed * sin(b1SpeedAngle - collisionAngle);
+	double b1SpeedXRot =  b1Speed * cos(b1SpeedAngle - collisionAngle);
+	double b1SpeedYRot =  b1Speed * sin(b1SpeedAngle - collisionAngle);
 	double b2SpeedXRot = -b2Speed * cos(b2SpeedAngle - collisionAngle);
 	double b2SpeedYRot = -b2Speed * sin(b2SpeedAngle - collisionAngle);
 	double b1NewSpeedXRot = partiallyElasticCollision(b1SpeedXRot,
