@@ -164,6 +164,8 @@ void Ball::mergeBalls(Ball* ball1, Ball* ball2) {
 	double massCenterY = (big->mass * big->y + small->mass * small->y) / (big->mass + small->mass);
 	big->x = massCenterX;
 	big->y = massCenterY;
+	big->velX = (big->mass * big->velX + small->mass * small->velX) / (big->mass + small->mass);
+	big->velY = (big->mass * big->velY + small->mass * small->velY) / (big->mass + small->mass);
 	big->mass = big->mass + small->mass;
 	big->recalculateRadius();
 	big->color = {
