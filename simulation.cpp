@@ -54,7 +54,7 @@ void Simulation::close() {
 void Simulation::initWindow() {
 	mainWindow.init();
 	mainWindow.maximize();
-	mainWindow.setFullScreen(true);
+	//mainWindow.setFullScreen(true);
 }
 
 void Simulation::render() {
@@ -137,19 +137,21 @@ void Simulation::handleKeyboard(SDL_Event e) {
 
 void Simulation::processPhysics() {
 	if(pause) return;
-	int i = 0;
-	while(i < (int)objects.size()) {
-		if(objects.at(i)->isMarkedForDeletion) {
-			deleteObject(objects.at(i));
-		} else {
-			i++;
-		}
-	}
 	if(collisionsEnabled) {
 		for(SimObject* object1: objects) {
 			for(SimObject* object2: objects) {
 				if(object1 == object2) continue;
 				Ball::collide(object1, object2, simulationSpeed, collisionType);
+			}
+		}
+	}
+	{
+		int i = 0;
+		while(i < (int)objects.size()) {
+			if(objects.at(i)->isMarkedForDeletion) {
+				deleteObject(objects.at(i));
+			} else {
+				i++;
 			}
 		}
 	}
