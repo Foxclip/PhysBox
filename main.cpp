@@ -12,22 +12,21 @@ int main(int argc, char* args[]) {
 	simulation.collisionsEnabled = true;
 	simulation.gravityRadialEnabled = true;
 	simulation.collisionType = COLLISION_TYPE_MERGE;
-	for(int i = 0; i < 100; i++) {
-		simulation.addBall(
-			utils::randomBetween(0, mainWindow.getWidth()),
-			utils::randomBetween(0, mainWindow.getHeight()),
-			utils::nonLinearRandomBetween(1, 10, [](double x) { return x; }),
-			0, //utils::randomBetween(-1, 1),
-			0, //utils::randomBetween(-1, 1),
-			utils::randomColor()
-		);
+	for(int i = 0; i < 3; i++) {
+		for(int i = 0; i < 100; i++) {
+			simulation.addBall(
+				utils::randomBetween(0, mainWindow.getWidth()),
+				utils::randomBetween(0, mainWindow.getHeight()),
+				utils::nonLinearRandomBetween(1, 10, [](double x) { return x; }),
+				0, //utils::randomBetween(-1, 1),
+				0, //utils::randomBetween(-1, 1),
+				utils::randomColor()
+				);
+		}
+		if(simulation.runSimulation()) {
+			break;
+		}
 	}
-	//simulation.addBall(600, 300, 10, 1000, 0, { 255, 0, 0 });
-	//simulation.addBall(700, 300, 10, -1000, 0, { 0, 0, 255 });
-
-	//TODO timers, condition function lists, object count
-
-	simulation.runSimulation();
 
 	return 0;
 }

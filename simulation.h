@@ -44,7 +44,7 @@ public:
 
 	Simulation();
 	~Simulation();
-	void runSimulation();
+	bool runSimulation();
 	Ball* addBall(double x, double y, double radius, double speedX, double speedY, utils::Color color);
 	void deleteAllObjects();
 	void deleteObject(SimObject* object);
@@ -52,8 +52,9 @@ public:
 
 private:
 
-	bool gQuit = false;
 	bool pause = true;
+	bool internalExitRequest = false;
+	bool userExitRequest = false;
 	utils::Font bigFont;
 	utils::Font smallFont;
 	std::vector<SimObject*> objects;
@@ -82,5 +83,7 @@ private:
 	utils::Color getBoolColor(bool var);
 	void updateFpsCount();
 	void changeSimulationSpeed(int change);
+	void checkExitCondition();
+	void resetSimulation();
 
 };

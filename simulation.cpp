@@ -12,13 +12,21 @@ Simulation::~Simulation() {
 	close();
 }
 
-void Simulation::runSimulation() {
-	gQuit = false;
-	while(!gQuit) {
+bool Simulation::runSimulation() {
+	internalExitRequest = false;
+	userExitRequest = false;
+	while(!internalExitRequest && !userExitRequest) {
+		checkExitCondition();
 		handleEvents();
 		processPhysics();
 		render();
 		updateFpsCount();
+	}
+	if(!userExitRequest) {
+		resetSimulation();
+		return 0;
+	} else {
+		return 1;
 	}
 }
 
@@ -113,7 +121,7 @@ void Simulation::handleEvents() {
 	SDL_Event e;
 	while(SDL_PollEvent(&e) != 0) {
 		switch(e.type) {
-			case SDL_QUIT:						gQuit = true;				break;
+			case SDL_QUIT:						internalExitRequest = true;				break;
 			case SDL_KEYUP: case SDL_KEYDOWN:	handleKeyboard(e);			break;
 			case SDL_WINDOWEVENT:				mainWindow.handleEvent(e);	break;
 		}
@@ -123,7 +131,7 @@ void Simulation::handleEvents() {
 void Simulation::handleKeyboard(SDL_Event e) {
 	if(e.type == SDL_KEYDOWN) {
 		switch(e.key.keysym.scancode) {
-			case SDL_SCANCODE_ESCAPE:	gQuit = true;											break;
+			case SDL_SCANCODE_ESCAPE:	userExitRequest = true;										break;
 			case SDL_SCANCODE_SPACE:	pause = !pause;											break;
 			case SDL_SCANCODE_1:		collisionsEnabled = !collisionsEnabled;					break;
 			case SDL_SCANCODE_2:		gravityRadialEnabled = !gravityRadialEnabled;			break;
@@ -257,6 +265,15 @@ Ball* Simulation::addBall(double x, double y, double radius, double speedX, doub
 void Simulation::changeSimulationSpeed(int change) {
 	simulationSpeedExponent += change;
 	simulationSpeed = pow(SIMULATION_SPEED_BASE, simulationSpeedExponent);
+}
+
+void Simulation::checkExitCondition() {
+	if(objects.size() <= 1)
+		internalExitRequest = true;
+}
+
+void Simulation::resetSimulation() {
+	deleteAllObjects();
 }
 
 
