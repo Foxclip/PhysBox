@@ -54,17 +54,23 @@ void Simulation::close() {
 void Simulation::initWindow() {
 	mainWindow.init();
 	mainWindow.maximize();
-	//mainWindow.setFullScreen(true);
+	mainWindow.setFullScreen(true);
 }
 
 void Simulation::render() {
-
 	if(mainWindow.isMinimised())
 		return;
-
 	SDL_SetRenderDrawColor(mainWindow.getRenderer(), 0, 0, 0, 255);
 	SDL_RenderClear(mainWindow.getRenderer());
+	drawSprings();
+	for(SimObject* object: objects) {
+		object->render();
+	}
+	drawUIText();
+	SDL_RenderPresent(mainWindow.getRenderer());
+}
 
+void Simulation::drawSprings() {
 	if(springsEnabled) {
 		SDL_SetRenderDrawColor(mainWindow.getRenderer(), 255, 255, 0, 255);
 		for(SimObject* object1: objects) {
@@ -76,15 +82,12 @@ void Simulation::render() {
 			}
 		}
 	}
+}
 
-	for(SimObject* object: objects)
-		object->render();
-
+void Simulation::drawUIText() {
 	drawText(0, 0, "fps: " + std::to_string(fps), { 255, 255, 0 }, smallFont);
-
 	std::string str = "Objects: " + std::to_string(objects.size());
 	drawText((mainWindow.getWidth() - getStringWidth(str, smallFont)) / 2, 0, str, { 255, 255, 0 }, smallFont);
-
 	drawText(mainWindow.getWidth() - getStringWidth("Collisions (1)", smallFont), 0,
 		"Collisions (1)", getBoolColor(collisionsEnabled), smallFont);
 	drawText(mainWindow.getWidth() - getStringWidth("Gravity radial (2)", smallFont), smallFont.getSize(),
@@ -95,17 +98,14 @@ void Simulation::render() {
 		"Background friction (4)", getBoolColor(backgroundFrictionEnabled), smallFont);
 	drawText(mainWindow.getWidth() - getStringWidth("Springs (5)", smallFont), smallFont.getSize()*4,
 		"Springs (5)", getBoolColor(springsEnabled), smallFont);
-
 	str = "Simulation speed: " + std::to_string(simulationSpeed) +
 		" (" + std::to_string((int)simulationSpeedExponent) + ")";
 	drawText(mainWindow.getWidth() - getStringWidth(str, smallFont), smallFont.getSize()*7, str, { 255, 255, 0 }, smallFont);
-
-	if(pause)
+	if(pause) {
 		drawText((mainWindow.getWidth() - getStringWidth("PAUSE", bigFont)) / 2,
-			(mainWindow.getHeight() - bigFont.getSize()) / 2, "PAUSE", { 255, 255, 0 }, bigFont);
-
-	SDL_RenderPresent(mainWindow.getRenderer());
-
+				 (mainWindow.getHeight() - bigFont.getSize()) / 2, "PAUSE",
+				 { 255, 255, 0 }, bigFont);
+	}
 }
 
 void Simulation::handleEvents() {
@@ -137,6 +137,14 @@ void Simulation::handleKeyboard(SDL_Event e) {
 
 void Simulation::processPhysics() {
 	if(pause) return;
+	processCollisions();
+	deleteMarked();
+	processGravity();
+	processSprings();
+	processOther();
+}
+
+void Simulation::processCollisions() {
 	if(collisionsEnabled) {
 		for(SimObject* object1: objects) {
 			for(SimObject* object2: objects) {
@@ -145,16 +153,20 @@ void Simulation::processPhysics() {
 			}
 		}
 	}
-	{
-		int i = 0;
-		while(i < (int)objects.size()) {
-			if(objects.at(i)->isMarkedForDeletion) {
-				deleteObject(objects.at(i));
-			} else {
-				i++;
-			}
+}
+
+void Simulation::deleteMarked() {
+	int i = 0;
+	while(i < (int)objects.size()) {
+		if(objects.at(i)->isMarkedForDeletion) {
+			deleteObject(objects.at(i));
+		} else {
+			i++;
 		}
 	}
+}
+
+void Simulation::processGravity() {
 	if(gravityVerticalEnabled) {
 		for(SimObject* object: objects) {
 			object->calculateVerticalGravity(simulationSpeed, gravityVerticalForce);
@@ -168,6 +180,9 @@ void Simulation::processPhysics() {
 			}
 		}
 	}
+}
+
+void Simulation::processSprings() {
 	if(springsEnabled) {
 		for(SimObject* object1: objects) {
 			if(object1->springConnections.size() >= springMaxConnections) continue;
@@ -190,6 +205,9 @@ void Simulation::processPhysics() {
 			}
 		}
 	}
+}
+
+void Simulation::processOther() {
 	if(backgroundFrictionEnabled) {
 		for(SimObject* object: objects) {
 			object->calculateBackgroudFriction(simulationSpeed, backgroundFrictionForce);

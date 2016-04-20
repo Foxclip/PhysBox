@@ -68,9 +68,16 @@ private:
 	void close();
 	void initWindow();
 	void render();
+	void drawSprings();
+	void drawUIText();
 	void handleEvents();
 	void handleKeyboard(SDL_Event e);
 	void processPhysics();
+	void processCollisions();
+	void deleteMarked();
+	void processGravity();
+	void processSprings();
+	void processOther();
 	void drawText(int x, int y, std::string str, utils::Color color, utils::Font& font);
 	int getStringWidth(std::string, utils::Font& font);
 	utils::Color getBoolColor(bool var);
