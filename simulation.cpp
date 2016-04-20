@@ -221,8 +221,10 @@ void Simulation::updateFpsCount() {
 	}
 }
 
-void Simulation::addBall(double x, double y, double radius, double speedX, double speedY, utils::Color color) {
-	objects.push_back(new Ball(x, y, radius, speedX, speedY, color));
+Ball* Simulation::addBall(double x, double y, double radius, double speedX, double speedY, utils::Color color) {
+	Ball* ball = new Ball(x, y, radius, speedX, speedY, color);
+	objects.push_back(ball);
+	return ball;
 }
 
 void Simulation::changeSimulationSpeed(int change) {
@@ -240,4 +242,21 @@ void Simulation::deleteAllObjects() {
 void Simulation::deleteObject(SimObject* object) {
 	delete object;
 	objects.erase(std::remove(objects.begin(), objects.end(), object), objects.end());
+}
+
+void Simulation::generateSystem(double centerX, double centerY, double centerRadius, double moonRadius, int moonCount, double gap) {
+	Ball* center = addBall(centerX, centerY, centerRadius, 0, 0, { 255, 255, 0 });
+	for(int i = 1; i <= moonCount; i++) {
+		double angle = utils::randomBetween(0, 360);
+		double distanceToCenter = i * gap;
+		double velocity = sqrt(gravityRadialForce * center->getMass() / distanceToCenter);
+		addBall(
+			cos(angle * M_PI / 180) * distanceToCenter + centerX,
+			sin(angle * M_PI / 180) * distanceToCenter + centerY,
+			moonRadius,
+			cos((angle + 90) * M_PI / 180) * velocity,
+			sin((angle + 90) * M_PI / 180) * velocity,
+			utils::randomColor()
+		);
+	}
 }

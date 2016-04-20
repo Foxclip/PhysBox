@@ -125,6 +125,7 @@ void Ball::move(double delta) {
 
 }
 
+//TODO make faster
 void Ball::renderToTexture() {
 	texture.createBlank(((int)radius)*2, ((int)radius)*2, SDL_TEXTUREACCESS_TARGET);
 	texture.setAsRenderTarget();

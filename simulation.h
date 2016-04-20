@@ -48,9 +48,10 @@ public:
 	Simulation();
 	~Simulation();
 	void runSimulation();
-	void addBall(double x, double y, double radius, double speedX, double speedY, utils::Color color);
+	Ball* addBall(double x, double y, double radius, double speedX, double speedY, utils::Color color);
 	void deleteAllObjects();
 	void deleteObject(SimObject* object);
+	void generateSystem(double centerX, double centerY, double centerRadius, double moonRadius, int moonCount, double gap);
 
 private:
 

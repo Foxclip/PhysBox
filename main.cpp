@@ -1,14 +1,23 @@
 #include "simulation.h"
 
+void generateRandomBalls(Simulation* simulation);
+
 int main(int argc, char* args[]) {
 
 	Simulation simulation;
-	simulation.addBall(100, 100, 10, 5, 5, { 255, 0, 0 });
-	simulation.addBall(500, 100, 100, 5, 5, { 0, 0, 255 });
-	simulation.deleteAllObjects();
+	simulation.generateSystem(mainWindow.getWidth() / 2, mainWindow.getHeight() / 2, 30, 5, 5, 50);
+	simulation.gravityRadialEnabled = true;
 
+	//TODO timers, condition function lists, object count
+
+	simulation.runSimulation();
+
+	return 0;
+}
+
+void generateRandomBalls(Simulation* simulation) {
 	for(int i = 0; i < 100; i++) {
-		simulation.addBall(
+		simulation->addBall(
 			utils::randomBetween(0, mainWindow.getWidth()),
 			utils::randomBetween(0, mainWindow.getHeight()),
 			10,
@@ -17,8 +26,4 @@ int main(int argc, char* args[]) {
 			utils::randomColor()
 			);
 	}
-
-	simulation.runSimulation();
-
-	return 0;
 }
