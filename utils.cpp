@@ -26,6 +26,10 @@ namespace utils {
 		return random() * (max - min) + min;
 	}
 
+	double nonLinearRandomBetween(double min, double max, std::function<double(double)> f) {
+		return f(random()) * (max - min) + min;
+	}
+
 	Font::Font() {
 		mFont = NULL;
 		mSize = 0;

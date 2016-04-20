@@ -2,6 +2,7 @@
 
 #include <SDL_ttf.h>
 #include <string>
+#include <functional>
 
 namespace utils {
 
@@ -25,6 +26,7 @@ namespace utils {
 	};
 
 	double randomBetween(double min, double max);
+	double nonLinearRandomBetween(double min, double max, std::function<double(double)> f);
 	double random();
 	Color randomColor();
 	double distance(double x1, double x2, double y1, double y2);

@@ -13,6 +13,7 @@ Simulation::~Simulation() {
 }
 
 void Simulation::runSimulation() {
+	gQuit = false;
 	while(!gQuit) {
 		handleEvents();
 		processPhysics();
