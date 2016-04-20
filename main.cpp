@@ -1,7 +1,5 @@
 #include "simulation.h"
 
-void generateRandomBalls(Simulation* simulation);
-
 int main(int argc, char* args[]) {
 
 	Simulation simulation;
@@ -13,17 +11,4 @@ int main(int argc, char* args[]) {
 	simulation.runSimulation();
 
 	return 0;
-}
-
-void generateRandomBalls(Simulation* simulation) {
-	for(int i = 0; i < 100; i++) {
-		simulation->addBall(
-			utils::randomBetween(0, mainWindow.getWidth()),
-			utils::randomBetween(0, mainWindow.getHeight()),
-			10,
-			utils::randomBetween(-1, 1),
-			utils::randomBetween(-1, 1),
-			utils::randomColor()
-			);
-	}
 }

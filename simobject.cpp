@@ -94,7 +94,7 @@ Ball::Ball(double x, double y, double radius, double speedX, double speedY, util
 	this->radius = radius;
 	this->velX = speedX;
 	this->velY = speedY;
-	this->color	= color;
+	this->color = color;
 	objectType = OBJECT_TYPE_BALL;
 
 	renderToTexture();
