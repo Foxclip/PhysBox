@@ -39,10 +39,8 @@ public:
 	double cubucPixelMass = 0.001;
 	const double DEFAULT_DAMPING = 0.5;
 
-	bool variableTimestep = true;
 	const double SIMULATION_SPEED_BASE = 4;
 	double simulationSpeedExponent = 0;
-	bool pause = true;
 
 	Simulation();
 	~Simulation();
@@ -55,6 +53,7 @@ public:
 private:
 
 	bool gQuit = false;
+	bool pause = true;
 	utils::Font bigFont;
 	utils::Font smallFont;
 	std::vector<SimObject*> objects;

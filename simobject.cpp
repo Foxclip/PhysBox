@@ -149,10 +149,10 @@ void Ball::recalculateRadius() {
 	renderToTexture();
 }
 
-void Ball::mergeBalls(Ball* ball1, Ball* ball2) {
-	double distance = utils::distance(ball1->x, ball2->x, ball1->y, ball2->y);
-	if(distance > (ball1->radius + ball2->radius)) return;
+void Ball::mergeBalls(Ball* ball1, Ball* ball2, double delta) {
 	if(ball1->isMarkedForDeletion || ball2->isMarkedForDeletion) return;
+	if(!((utils::distance(ball1->x, ball2->x, ball1->y, ball2->y) < ball1->radius + ball2->radius)
+		|| checkCollision(ball1, ball2, delta))) return;
 	Ball* big;
 	Ball* small;
 	if(ball1->mass >= ball2->mass) {
@@ -185,7 +185,7 @@ double Ball::partiallyElasticCollision(double v1, double v2, double m1, double m
 void Ball::collideBalls(Ball* b1, Ball* b2, double delta, CollisionType collisionType) {
 	switch(collisionType) {
 		case COLLISION_TYPE_BOUNCE: ballsBounce(b1, b2, delta); break;
-		case COLLISION_TYPE_MERGE:  mergeBalls(b1, b2);			break;
+		case COLLISION_TYPE_MERGE:  mergeBalls (b1, b2, delta);	break;
 	}
 }
 

@@ -52,7 +52,7 @@ public:
 	void renderToTexture();
 	void recalculateMass();
 	void recalculateRadius();
-	static void mergeBalls(Ball* ball1, Ball* ball2);
+	static void mergeBalls(Ball* ball1, Ball* ball2, double delta);
 	static double partiallyElasticCollision(double v1, double v2, double m1, double m2, double restitution);
 	static void collideBalls(Ball* b1, Ball* b2, double delta, CollisionType collisionType);
 	static void ballsBounce(Ball* b1, Ball* b2, double delta);

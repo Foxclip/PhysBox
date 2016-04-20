@@ -17,13 +17,13 @@ int main(int argc, char* args[]) {
 			utils::randomBetween(0, mainWindow.getWidth()),
 			utils::randomBetween(0, mainWindow.getHeight()),
 			utils::nonLinearRandomBetween(1, 10, [](double x) { return x; }),
-			utils::randomBetween(-1, 1),
-			utils::randomBetween(-1, 1),
+			0, //utils::randomBetween(-1, 1),
+			0, //utils::randomBetween(-1, 1),
 			utils::randomColor()
 		);
 	}
-	//simulation.addBall(600, 300, 30, 1, 0, { 255, 0, 0 });
-	//simulation.addBall(700, 300, 30, -1, 0, { 0, 0, 255 });
+	//simulation.addBall(600, 300, 10, 1000, 0, { 255, 0, 0 });
+	//simulation.addBall(700, 300, 10, -1000, 0, { 0, 0, 255 });
 
 	//TODO timers, condition function lists, object count
 
