@@ -82,6 +82,9 @@ void Simulation::render() {
 
 	drawText(0, 0, "fps: " + std::to_string(fps), { 255, 255, 0 }, smallFont);
 
+	std::string str = "Objects: " + std::to_string(objects.size());
+	drawText((mainWindow.getWidth() - getStringWidth(str, smallFont)) / 2, 0, str, { 255, 255, 0 }, smallFont);
+
 	drawText(mainWindow.getWidth() - getStringWidth("Collisions (1)", smallFont), 0,
 		"Collisions (1)", getBoolColor(collisionsEnabled), smallFont);
 	drawText(mainWindow.getWidth() - getStringWidth("Gravity radial (2)", smallFont), smallFont.getSize(),
@@ -93,7 +96,7 @@ void Simulation::render() {
 	drawText(mainWindow.getWidth() - getStringWidth("Springs (5)", smallFont), smallFont.getSize()*4,
 		"Springs (5)", getBoolColor(springsEnabled), smallFont);
 
-	std::string str = "Simulation speed: " + std::to_string(simulationSpeed) +
+	str = "Simulation speed: " + std::to_string(simulationSpeed) +
 		" (" + std::to_string((int)simulationSpeedExponent) + ")";
 	drawText(mainWindow.getWidth() - getStringWidth(str, smallFont), smallFont.getSize()*7, str, { 255, 255, 0 }, smallFont);
 
@@ -134,9 +137,12 @@ void Simulation::handleKeyboard(SDL_Event e) {
 
 void Simulation::processPhysics() {
 	if(pause) return;
-	for(SimObject* object: objects) {
-		if(object->isMarkedForDeletion) {
-			deleteObject(object);
+	int i = 0;
+	while(i < (int)objects.size()) {
+		if(objects.at(i)->isMarkedForDeletion) {
+			deleteObject(objects.at(i));
+		} else {
+			i++;
 		}
 	}
 	if(collisionsEnabled) {

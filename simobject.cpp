@@ -152,9 +152,10 @@ void Ball::recalculateRadius() {
 void Ball::mergeBalls(Ball* ball1, Ball* ball2) {
 	double distance = utils::distance(ball1->x, ball2->x, ball1->y, ball2->y);
 	if(distance > (ball1->radius + ball2->radius)) return;
+	if(ball1->isMarkedForDeletion || ball2->isMarkedForDeletion) return;
 	Ball* big;
 	Ball* small;
-	if(ball1->mass > ball2->mass) {
+	if(ball1->mass >= ball2->mass) {
 		big = ball1;
 		small = ball2;
 	} else {
@@ -167,13 +168,13 @@ void Ball::mergeBalls(Ball* ball1, Ball* ball2) {
 	big->y = massCenterY;
 	big->velX = (big->mass * big->velX + small->mass * small->velX) / (big->mass + small->mass);
 	big->velY = (big->mass * big->velY + small->mass * small->velY) / (big->mass + small->mass);
-	big->mass = big->mass + small->mass;
-	big->recalculateRadius();
 	big->color = {
 		(unsigned char)((big->mass * big->color.red	  + small->mass * small->color.red  ) / (big->mass + small->mass)),
 		(unsigned char)((big->mass * big->color.green + small->mass * small->color.green) / (big->mass + small->mass)),
 		(unsigned char)((big->mass * big->color.blue  + small->mass * small->color.blue ) / (big->mass + small->mass))
 	};
+	big->mass = big->mass + small->mass;
+	big->recalculateRadius();
 	small->isMarkedForDeletion = true;
 }
 

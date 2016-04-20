@@ -20,13 +20,13 @@ class Simulation {
 
 public:
 
-	bool collisionsEnabled = true;
+	bool collisionsEnabled = false;
 	bool gravityRadialEnabled = false;
 	bool gravityVerticalEnabled = false;
 	bool backgroundFrictionEnabled = false;
 	bool springsEnabled = false;
 
-	CollisionType collisionType = COLLISION_TYPE_MERGE;
+	CollisionType collisionType = COLLISION_TYPE_BOUNCE;
 	double gravityVerticalForce = 0.1;
 	double gravityRadialForce = 0.1;
 	double springForce = 10;
@@ -34,11 +34,10 @@ public:
 	double springDistance = 50;
 	double springInitialDistance = 0;
 	double springMaxDistance = springDistance * 1.25;
-	double springMaxConnections = 60000;
+	double springMaxConnections = 1024;
 	double backgroundFrictionForce = 1;
 	double cubucPixelMass = 0.001;
 	const double DEFAULT_DAMPING = 0.5;
-	const double INITIAL_BALLS_NUMBER = 500;
 
 	bool variableTimestep = true;
 	const double SIMULATION_SPEED_BASE = 4;
