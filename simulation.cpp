@@ -12,22 +12,17 @@ Simulation::~Simulation() {
 	close();
 }
 
-bool Simulation::runSimulation() {
-	internalExitRequest = false;
-	userExitRequest = false;
-	while(!internalExitRequest && !userExitRequest) {
+double Simulation::runSimulation() {
+	exitRequest = false;
+	while(!exitRequest) {
 		checkExitCondition();
 		handleEvents();
 		processPhysics();
 		render();
 		updateFpsCount();
 	}
-	if(!userExitRequest) {
-		resetSimulation();
-		return 0;
-	} else {
-		return 1;
-	}
+	resetSimulation();
+	return 0;
 }
 
 bool Simulation::initSDL() {
@@ -67,15 +62,16 @@ void Simulation::initWindow() {
 }
 
 void Simulation::render() {
-	if(mainWindow.isMinimised())
-		return;
+	if(mainWindow.isMinimised()) return;
 	SDL_SetRenderDrawColor(mainWindow.getRenderer(), 0, 0, 0, 255);
 	SDL_RenderClear(mainWindow.getRenderer());
 	drawSprings();
 	for(SimObject* object: objects) {
 		object->render();
 	}
-	drawUIText();
+	if(uiEnabled) {
+		drawUIText();
+	}
 	SDL_RenderPresent(mainWindow.getRenderer());
 }
 
@@ -94,11 +90,20 @@ void Simulation::drawSprings() {
 }
 
 void Simulation::drawUIText() {
+
 	drawText(0, 0, "fps: " + std::to_string(fps), { 255, 255, 0 }, smallFont);
+
 	std::string str = "Objects: " + std::to_string(objects.size());
 	drawText((mainWindow.getWidth() - getStringWidth(str, smallFont)) / 2, 0, str, { 255, 255, 0 }, smallFont);
-	drawText(mainWindow.getWidth() - getStringWidth("Collisions (1)", smallFont), 0,
-		"Collisions (1)", getBoolColor(collisionsEnabled), smallFont);
+
+	switch(collisionType) {
+		case COLLISION_TYPE_BOUNCE: str = "bounce"; break;
+		case COLLISION_TYPE_MERGE:  str = "merge";	break;
+		default:					str = "?";		break;
+	}
+	str = "Collisions(" + str + ") (1)";
+	drawText(mainWindow.getWidth() - getStringWidth(str, smallFont), 0,
+		str, getBoolColor(collisionsEnabled), smallFont);
 	drawText(mainWindow.getWidth() - getStringWidth("Gravity radial (2)", smallFont), smallFont.getSize(),
 		"Gravity radial (2)", getBoolColor(gravityRadialEnabled), smallFont);
 	drawText(mainWindow.getWidth() - getStringWidth("Gravity vertical (3)", smallFont), smallFont.getSize()*2,
@@ -107,9 +112,11 @@ void Simulation::drawUIText() {
 		"Background friction (4)", getBoolColor(backgroundFrictionEnabled), smallFont);
 	drawText(mainWindow.getWidth() - getStringWidth("Springs (5)", smallFont), smallFont.getSize()*4,
 		"Springs (5)", getBoolColor(springsEnabled), smallFont);
+
 	str = "Simulation speed: " + std::to_string(simulationSpeed) +
 		" (" + std::to_string((int)simulationSpeedExponent) + ")";
 	drawText(mainWindow.getWidth() - getStringWidth(str, smallFont), smallFont.getSize()*7, str, { 255, 255, 0 }, smallFont);
+
 	if(pause) {
 		drawText((mainWindow.getWidth() - getStringWidth("PAUSE", bigFont)) / 2,
 				 (mainWindow.getHeight() - bigFont.getSize()) / 2, "PAUSE",
@@ -121,7 +128,7 @@ void Simulation::handleEvents() {
 	SDL_Event e;
 	while(SDL_PollEvent(&e) != 0) {
 		switch(e.type) {
-			case SDL_QUIT:						internalExitRequest = true;				break;
+			case SDL_QUIT:						exit(EXIT_SUCCESS);			break;
 			case SDL_KEYUP: case SDL_KEYDOWN:	handleKeyboard(e);			break;
 			case SDL_WINDOWEVENT:				mainWindow.handleEvent(e);	break;
 		}
@@ -131,7 +138,7 @@ void Simulation::handleEvents() {
 void Simulation::handleKeyboard(SDL_Event e) {
 	if(e.type == SDL_KEYDOWN) {
 		switch(e.key.keysym.scancode) {
-			case SDL_SCANCODE_ESCAPE:	userExitRequest = true;										break;
+			case SDL_SCANCODE_ESCAPE:	exit(EXIT_SUCCESS);										break;
 			case SDL_SCANCODE_SPACE:	pause = !pause;											break;
 			case SDL_SCANCODE_1:		collisionsEnabled = !collisionsEnabled;					break;
 			case SDL_SCANCODE_2:		gravityRadialEnabled = !gravityRadialEnabled;			break;
@@ -140,6 +147,9 @@ void Simulation::handleKeyboard(SDL_Event e) {
 			case SDL_SCANCODE_5:		springsEnabled = !springsEnabled;						break;
 			case SDL_SCANCODE_KP_PLUS:	changeSimulationSpeed(1);								break;
 			case SDL_SCANCODE_KP_MINUS: changeSimulationSpeed(-1);								break;
+			case SDL_SCANCODE_F2:		uiEnabled = !uiEnabled;									break;
+			case SDL_SCANCODE_C:		collisionType =
+									(CollisionType)((collisionType+1) % COLLISION_TYPES_NUM);	break;
 		}
 	}
 }
@@ -268,8 +278,8 @@ void Simulation::changeSimulationSpeed(int change) {
 }
 
 void Simulation::checkExitCondition() {
-	if(objects.size() <= 1)
-		internalExitRequest = true;
+	if(objects.size() <= 3)
+		exitRequest = true;
 }
 
 void Simulation::resetSimulation() {

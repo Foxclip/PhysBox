@@ -10,7 +10,8 @@ enum ObjectType {
 
 enum CollisionType {
 	COLLISION_TYPE_BOUNCE,
-	COLLISION_TYPE_MERGE
+	COLLISION_TYPE_MERGE,
+	COLLISION_TYPES_NUM
 };
 
 const double DEFAULT_DAMPING = 0.5;
