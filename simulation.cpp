@@ -2,10 +2,11 @@
 
 LWindow mainWindow;
 
-Simulation::Simulation() {
+Simulation::Simulation(std::function<bool(Simulation*)> exitConditionFunction) {
 	initSDL();
 	loadMedia();
 	initWindow();
+	this->exitContidionFunction = exitConditionFunction;
 }
 
 Simulation::~Simulation() {
@@ -278,7 +279,7 @@ void Simulation::changeSimulationSpeed(int change) {
 }
 
 void Simulation::checkExitCondition() {
-	if(objects.size() <= 3)
+	if(exitContidionFunction(this))
 		exitRequest = true;
 }
 
