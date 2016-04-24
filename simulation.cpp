@@ -2,7 +2,8 @@
 
 LWindow mainWindow;
 
-Simulation::Simulation() {
+Simulation::Simulation(std::function<bool(Simulation*)> exitConditionFunction) {
+	this->exitContidionFunction = exitConditionFunction;
 	initSDL();
 	loadMedia();
 	initWindow();
@@ -13,15 +14,13 @@ Simulation::~Simulation() {
 }
 
 double Simulation::runSimulation() {
-	exitRequest = false;
 	while(!exitRequest) {
-		checkExitCondition();
 		handleEvents();
 		processPhysics();
 		render();
 		updateFpsCount();
+		checkExitCondition();
 	}
-	resetSimulation();
 	return 0;
 }
 
@@ -148,8 +147,8 @@ void Simulation::handleKeyboard(SDL_Event e) {
 			case SDL_SCANCODE_KP_PLUS:	changeSimulationSpeed(1);								break;
 			case SDL_SCANCODE_KP_MINUS: changeSimulationSpeed(-1);								break;
 			case SDL_SCANCODE_F2:		uiEnabled = !uiEnabled;									break;
-			case SDL_SCANCODE_C:		collisionType =
-									(CollisionType)((collisionType+1) % COLLISION_TYPES_NUM);	break;
+			case SDL_SCANCODE_C:		collisionType = (CollisionType)((collisionType+1) %
+										COLLISION_TYPES_NUM);									break;
 		}
 	}
 }
@@ -278,11 +277,12 @@ void Simulation::changeSimulationSpeed(int change) {
 }
 
 void Simulation::checkExitCondition() {
-	if(objects.size() <= 3)
+	if(exitContidionFunction(this))
 		exitRequest = true;
 }
 
 void Simulation::resetSimulation() {
+	exitRequest = false;
 	deleteAllObjects();
 }
 

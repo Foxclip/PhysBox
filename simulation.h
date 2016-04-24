@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <sstream>
 #include <vector>
+#include <functional>
 #include "lwindow.h"
 #include "ltexture.h"
 #include "globals.h"
@@ -42,9 +43,12 @@ public:
 	const double SIMULATION_SPEED_BASE = 4;
 	double simulationSpeedExponent = 0;
 
-	Simulation();
+	std::vector<SimObject*> objects;
+
+	Simulation(std::function<bool(Simulation*)> exitConditionFunction);
 	~Simulation();
 	double runSimulation();
+	void resetSimulation();
 	Ball* addBall(double x, double y, double radius, double speedX, double speedY, utils::Color color);
 	void deleteAllObjects();
 	void deleteObject(SimObject* object);
@@ -55,9 +59,9 @@ private:
 	bool pause = true;
 	bool exitRequest = false;
 	bool uiEnabled = true;
+	std::function<bool(Simulation*)> exitContidionFunction;
 	utils::Font bigFont;
 	utils::Font smallFont;
-	std::vector<SimObject*> objects;
 	int fpsCount = 0;
 	int fps = 0;
 	int lastFpsTime = 0;
@@ -84,6 +88,5 @@ private:
 	void updateFpsCount();
 	void changeSimulationSpeed(int change);
 	void checkExitCondition();
-	void resetSimulation();
 
 };
