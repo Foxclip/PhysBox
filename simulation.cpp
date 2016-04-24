@@ -44,6 +44,7 @@ bool Simulation::initSDL() {
 bool Simulation::loadMedia() {
 	bigFont.loadFont("arial.ttf", 28);
 	smallFont.loadFont("arial.ttf", 15);
+	smallerFont.loadFont("arial.ttf", 10);
 	return true;
 }
 
@@ -90,7 +91,8 @@ void Simulation::drawSprings() {
 
 void Simulation::drawUIText() {
 
-	drawText(0, 0, "fps: " + std::to_string(fps), { 255, 255, 0 }, smallFont);
+	drawText(0, 0,					 "fps: "  + std::to_string(fps),	  { 255, 255, 0 }, smallFont);
+	drawText(0, smallFont.getSize(), "time: " + utils::toString(time, 1), { 255, 255, 0 }, smallFont);
 
 	std::string str = "Objects: " + std::to_string(objects.size());
 	drawText((mainWindow.getWidth() - getStringWidth(str, smallFont)) / 2, 0, str, { 255, 255, 0 }, smallFont);
@@ -101,16 +103,16 @@ void Simulation::drawUIText() {
 		default:					str = "?";		break;
 	}
 	str = "Collisions(" + str + ") (1)";
-	drawText(mainWindow.getWidth() - getStringWidth(str, smallFont), 0,
-		str, getBoolColor(collisionsEnabled), smallFont);
-	drawText(mainWindow.getWidth() - getStringWidth("Gravity radial (2)", smallFont), smallFont.getSize(),
-		"Gravity radial (2)", getBoolColor(gravityRadialEnabled), smallFont);
-	drawText(mainWindow.getWidth() - getStringWidth("Gravity vertical (3)", smallFont), smallFont.getSize()*2,
-		"Gravity vertical (3)", getBoolColor(gravityVerticalEnabled), smallFont);
+	drawText(mainWindow.getWidth() - getStringWidth(str,					   smallFont), 0,
+		str,					   getBoolColor(collisionsEnabled),			   smallFont);
+	drawText(mainWindow.getWidth() - getStringWidth("Gravity radial (2)",      smallFont), smallFont.getSize(),
+		"Gravity radial (2)",	   getBoolColor(gravityRadialEnabled),		   smallFont);
+	drawText(mainWindow.getWidth() - getStringWidth("Gravity vertical (3)",	   smallFont), smallFont.getSize()*2,
+		"Gravity vertical (3)",	   getBoolColor(gravityVerticalEnabled),	   smallFont);
 	drawText(mainWindow.getWidth() - getStringWidth("Background friction (4)", smallFont), smallFont.getSize()*3,
-		"Background friction (4)", getBoolColor(backgroundFrictionEnabled), smallFont);
-	drawText(mainWindow.getWidth() - getStringWidth("Springs (5)", smallFont), smallFont.getSize()*4,
-		"Springs (5)", getBoolColor(springsEnabled), smallFont);
+		"Background friction (4)", getBoolColor(backgroundFrictionEnabled),    smallFont);
+	drawText(mainWindow.getWidth() - getStringWidth("Springs (5)",			   smallFont), smallFont.getSize()*4,
+		"Springs (5)",			   getBoolColor(springsEnabled),			   smallFont);
 
 	str = "Simulation speed: " + std::to_string(simulationSpeed) +
 		" (" + std::to_string((int)simulationSpeedExponent) + ")";
@@ -160,6 +162,7 @@ void Simulation::processPhysics() {
 	processGravity();
 	processSprings();
 	processOther();
+	time += simulationSpeed * SECONDS_PER_FRAME;
 }
 
 void Simulation::processCollisions() {
@@ -283,6 +286,7 @@ void Simulation::checkExitCondition() {
 
 void Simulation::resetSimulation() {
 	exitRequest = false;
+	time = 0;
 	deleteAllObjects();
 }
 

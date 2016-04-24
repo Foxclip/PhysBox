@@ -3,6 +3,9 @@
 #include <cstdio>
 #include <cmath>
 #include <random>
+#include <sstream>
+#include <ios>
+#include <iomanip>
 
 std::random_device rd;
 std::mt19937 mt(rd());
@@ -20,6 +23,12 @@ namespace utils {
 
 	double distance(double x1, double x2, double y1, double y2) {
 		return sqrt(pow(x1-x2, 2) + pow(y1-y2, 2));
+	}
+
+	std::string toString(double var, int precision) {
+		std::ostringstream strs;
+		strs << std::fixed << std::setprecision(precision) << var;
+		return strs.str();
 	}
 
 	double randomBetween(double min, double max) {

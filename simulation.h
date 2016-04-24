@@ -17,6 +17,8 @@
 #include "simobject.h"
 #include "utils.h"
 
+const double SECONDS_PER_FRAME = 1.0/60.0;
+
 class Simulation {
 
 public:
@@ -56,12 +58,14 @@ public:
 
 private:
 
+	double time = 0;
 	bool pause = true;
 	bool exitRequest = false;
 	bool uiEnabled = true;
 	std::function<bool(Simulation*)> exitContidionFunction;
 	utils::Font bigFont;
 	utils::Font smallFont;
+	utils::Font smallerFont;
 	int fpsCount = 0;
 	int fps = 0;
 	int lastFpsTime = 0;

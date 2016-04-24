@@ -30,5 +30,6 @@ namespace utils {
 	double random();
 	Color randomColor();
 	double distance(double x1, double x2, double y1, double y2);
+	std::string toString(double var, int precision);
 
 }
