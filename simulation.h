@@ -32,15 +32,15 @@ public:
 	CollisionType collisionType = COLLISION_TYPE_BOUNCE;
 	double gravityVerticalForce = 0.1;
 	double gravityRadialForce = 0.1;
-	double springForce = 10;
+	double springForce = 1;
 	double springDamping = 0.5;
-	double springDistance = 50;
+	double springDistance = 100;
 	double springInitialDistance = 0;
 	double springMaxDistance = springDistance * 1.25;
 	double springMaxConnections = 1024;
 	double backgroundFrictionForce = 1;
 	double cubucPixelMass = 0.001;
-	const double DEFAULT_DAMPING = 0.5;
+	//const double DEFAULT_DAMPING = 0.5;
 
 	const double SIMULATION_SPEED_BASE = 4;
 	double simulationSpeedExponent = 0;

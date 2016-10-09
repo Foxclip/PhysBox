@@ -77,11 +77,22 @@ void Simulation::render() {
 
 void Simulation::drawSprings() {
 	if(springsEnabled) {
-		SDL_SetRenderDrawColor(mainWindow.getRenderer(), 255, 255, 0, 255);
+		SDL_SetRenderDrawBlendMode(mainWindow.getRenderer(), SDL_BLENDMODE_BLEND);
 		for(SimObject* object1: objects) {
 			for(SimObject* object2: objects) {
 				if(std::find(object1->springConnections.begin(), object1->springConnections.end(),
 					object2) != object1->springConnections.end()) {
+					int opacity;
+					double distance = utils::distance(object1->x, object2->x, object1->y, object2->y);
+					if(distance > springMaxDistance) {
+						opacity = 0;
+					} else {
+						double k = -255 / springMaxDistance;
+						double b = -k * springMaxDistance;
+						opacity = (k * distance + b);
+					}
+					double p = 255 / std::max(opacity, 255 - opacity);
+					SDL_SetRenderDrawColor(mainWindow.getRenderer(), opacity * p, (255 - opacity) * p, 0, opacity);
 					SDL_RenderDrawLine(mainWindow.getRenderer(), (int)object1->x, (int)object1->y, (int)object2->x, (int)object2->y);
 				}
 			}
