@@ -30,12 +30,11 @@ public:
 	bool springsEnabled = false;
 
 	CollisionType collisionType = COLLISION_TYPE_BOUNCE;
-	double gravityVerticalForce = 0.1;
-	double gravityRadialForce = 0.1;
-	double springForce = 1;
-	double springDamping = 0.5;
-	double springDistance = 100;
-	double springInitialDistance = 0;
+	double gravityVerticalForce = 0.05;
+	double gravityRadialForce = 0.15;
+	double springForce = 0.1;
+	double springDamping = 0;
+	double springDistance = 50;
 	double springMaxDistance = springDistance * 1.25;
 	double springMaxConnections = 1024;
 	double backgroundFrictionForce = 1;

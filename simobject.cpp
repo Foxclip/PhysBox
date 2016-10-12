@@ -52,7 +52,7 @@ void SimObject::calculateSprings(SimObject* anotherObject, double delta,
 
 	double distance = utils::distance(x, anotherObject->x, y, anotherObject->y);
 	if(distance == 0) return;
-	if(distance > springMaxDistance) {
+	if(springMaxDistance > 0 && distance > springMaxDistance) {
 		springConnections.erase(std::remove(springConnections.begin(), springConnections.end(), anotherObject), springConnections.end());
 		anotherObject->incomingSpringConnectionsCount--;
 		return;
@@ -60,6 +60,7 @@ void SimObject::calculateSprings(SimObject* anotherObject, double delta,
 	double offset = distance - springDistance;
 	double relativeSpeedX = anotherObject->velX - velX;
 	double relativeSpeedY = anotherObject->velY - velY;
+	//TODO remake damping
 	double relativeSpeed = sqrt(pow(relativeSpeedX, 2) + pow(relativeSpeedY, 2));
 	double dampingForce = relativeSpeed * springDamping;
 	double dampingForceX, dampingForceY;

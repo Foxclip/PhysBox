@@ -76,25 +76,26 @@ void Simulation::render() {
 }
 
 void Simulation::drawSprings() {
-	if(springsEnabled) {
-		SDL_SetRenderDrawBlendMode(mainWindow.getRenderer(), SDL_BLENDMODE_BLEND);
-		for(SimObject* object1: objects) {
-			for(SimObject* object2: objects) {
-				if(std::find(object1->springConnections.begin(), object1->springConnections.end(),
-					object2) != object1->springConnections.end()) {
-					int opacity;
-					double distance = utils::distance(object1->x, object2->x, object1->y, object2->y);
-					if(distance > springMaxDistance) {
-						opacity = 0;
-					} else {
-						double k = -255 / springMaxDistance;
-						double b = -k * springMaxDistance;
-						opacity = (k * distance + b);
-					}
-					double p = 255 / std::max(opacity, 255 - opacity);
-					SDL_SetRenderDrawColor(mainWindow.getRenderer(), opacity * p, (255 - opacity) * p, 0, opacity);
-					SDL_RenderDrawLine(mainWindow.getRenderer(), (int)object1->x, (int)object1->y, (int)object2->x, (int)object2->y);
+	if(!springsEnabled) return;
+	SDL_SetRenderDrawBlendMode(mainWindow.getRenderer(), SDL_BLENDMODE_BLEND);
+	for(SimObject* object1: objects) {
+		for(SimObject* object2: objects) {
+			if(std::find(object1->springConnections.begin(), object1->springConnections.end(),
+				object2) != object1->springConnections.end()) {
+				int opacity;
+				double distance = utils::distance(object1->x, object2->x, object1->y, object2->y);
+				if(distance > springMaxDistance) {
+					opacity = 0;
+				} else {
+					double k = -255 / springMaxDistance;
+					double b = -k * springMaxDistance;
+					opacity = (int)(k * distance + b);
 				}
+				int Hue = (int)utils::mapRange(opacity, 0, 255, 120, 0);
+				utils::Color springColor = utils::HSVtoRGB(Hue, 100, 100);
+				SDL_SetRenderDrawColor(mainWindow.getRenderer(), springColor.red, springColor.green, springColor.blue, opacity);
+				SDL_RenderDrawLine(mainWindow.getRenderer(), (int)object1->x, (int)object1->y, (int)object2->x, (int)object2->y);
+				//drawText((object1->x + object2->x) / 2, (object1->y + object2->y) / 2, std::to_string(Hue) + "|" + std::to_string(opacity), { 255, 255, 255 }, smallerFont);
 			}
 		}
 	}
@@ -224,7 +225,7 @@ void Simulation::processSprings() {
 				if(object2->incomingSpringConnectionsCount >= springMaxConnections) continue;
 				if(std::find(object1->springConnections.begin(), object1->springConnections.end(),
 					object2) != object1->springConnections.end()) continue;
-				if(utils::distance(object1->x, object2->x, object1->y, object2->y) < springMaxDistance) {
+				if((springDistance > 0) && (utils::distance(object1->x, object2->x, object1->y, object2->y) < springDistance)) {
 					object1->springConnections.push_back(object2);
 					object2->incomingSpringConnectionsCount++;
 				}
