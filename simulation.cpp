@@ -7,6 +7,7 @@ Simulation::Simulation(std::function<bool(Simulation*)> exitConditionFunction) {
 	initSDL();
 	loadMedia();
 	initWindow();
+	this->exitContidionFunction = exitConditionFunction;
 }
 
 Simulation::~Simulation() {

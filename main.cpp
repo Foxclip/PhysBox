@@ -8,7 +8,6 @@ int main(int argc, char* args[]) {
 	simulation.collisionsEnabled = true;
 	//simulation.gravityRadialEnabled = true;
 	//simulation.gravityVerticalEnabled = true;
-	simulation.collisionType = COLLISION_TYPE_BOUNCE;
 	while(true) {
 		simulation.resetSimulation();
 		for(int i = 0; i < 200; i++) {
