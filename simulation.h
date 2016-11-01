@@ -11,6 +11,8 @@
 #include <sstream>
 #include <vector>
 #include <functional>
+#include <libconfig.hh>
+#include <iostream>
 #include "lwindow.h"
 #include "ltexture.h"
 #include "globals.h"
@@ -72,6 +74,7 @@ private:
 
 	bool initSDL();
 	bool loadMedia();
+	bool loadConfig();
 	void close();
 	void initWindow();
 	void render();

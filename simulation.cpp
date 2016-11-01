@@ -5,6 +5,7 @@ LWindow mainWindow;
 Simulation::Simulation(std::function<bool(Simulation*)> exitConditionFunction) {
 	this->exitContidionFunction = exitConditionFunction;
 	initSDL();
+	loadConfig();
 	loadMedia();
 	initWindow();
 	this->exitContidionFunction = exitConditionFunction;
@@ -47,6 +48,26 @@ bool Simulation::loadMedia() {
 	smallFont.loadFont("arial.ttf", 15);
 	smallerFont.loadFont("arial.ttf", 10);
 	return true;
+}
+
+bool Simulation::loadConfig() {
+	libconfig::Config cfg;
+    try {
+        cfg.readFile("simulation_settings.cfg");
+        collisionsEnabled = cfg.lookup("collisionsEnabled");
+        gravityRadialEnabled = cfg.lookup("gravityRadialEnabled");
+        gravityVerticalEnabled = cfg.lookup("gravityVerticalEnabled");
+        backgroundFrictionEnabled = cfg.lookup("backgroundFrictionEnabled");
+        springsEnabled = cfg.lookup("springsEnabled");
+        return true;
+    } catch(const libconfig::FileIOException &fioex) {
+        std::cout << "Unable to read config file" << std::endl;
+        return false;
+    } catch(const libconfig::ParseException &pex) {
+        std::cout << "Config parse error at " << pex.getFile() << ":" << pex.getLine()
+                  << " - " << pex.getError() << std::endl;
+        return false;
+    }
 }
 
 void Simulation::close() {
