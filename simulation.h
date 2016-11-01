@@ -38,13 +38,14 @@ public:
 	double springDamping = 0;
 	double springDistance = 50;
 	double springMaxDistance = springDistance * 1.25;
-	double springMaxConnections = 1024;
 	double backgroundFrictionForce = 1;
-	double cubucPixelMass = 0.001;
+	double cubicPixelMass = 0.001;
 	//const double DEFAULT_DAMPING = 0.5;
 
+	int springMaxConnections = 1024;
+
 	const double SIMULATION_SPEED_BASE = 4;
-	double simulationSpeedExponent = 0;
+	int simulationSpeedExponent = 0;
 
 	std::vector<SimObject*> objects;
 

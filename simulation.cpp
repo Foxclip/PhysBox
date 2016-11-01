@@ -52,14 +52,34 @@ bool Simulation::loadMedia() {
 
 bool Simulation::loadConfig() {
 	libconfig::Config cfg;
+
     try {
+
         cfg.readFile("simulation_settings.cfg");
-        collisionsEnabled = cfg.lookup("collisionsEnabled");
-        gravityRadialEnabled = cfg.lookup("gravityRadialEnabled");
-        gravityVerticalEnabled = cfg.lookup("gravityVerticalEnabled");
-        backgroundFrictionEnabled = cfg.lookup("backgroundFrictionEnabled");
-        springsEnabled = cfg.lookup("springsEnabled");
+        collisionsEnabled			= cfg.lookup("collisionsEnabled");
+        gravityRadialEnabled		= cfg.lookup("gravityRadialEnabled");
+        gravityVerticalEnabled		= cfg.lookup("gravityVerticalEnabled");
+        backgroundFrictionEnabled	= cfg.lookup("backgroundFrictionEnabled");
+        springsEnabled				= cfg.lookup("springsEnabled");
+
+		int _collisionType = cfg.lookup("collisionType");
+		switch(_collisionType) {
+			case 0:  collisionType = COLLISION_TYPE_BOUNCE;	break;
+			case 1:	 collisionType = COLLISION_TYPE_MERGE;	break;
+			default: collisionType = COLLISION_TYPE_BOUNCE;	break;
+		}
+		gravityVerticalForce	= cfg.lookup("gravityVerticalForce");
+		gravityRadialForce		= cfg.lookup("gravityRadialForce");
+		springForce				= cfg.lookup("springForce");
+		springDamping			= cfg.lookup("springDamping");
+		springDistance			= cfg.lookup("springDistance");
+		springMaxDistance		= springDistance * 1.25;
+		springMaxConnections	= cfg.lookup("springMaxConnections");
+		backgroundFrictionForce	= cfg.lookup("backgroundFrictionForce");
+		cubicPixelMass			= cfg.lookup("cubicPixelMass");
+
         return true;
+
     } catch(const libconfig::FileIOException &fioex) {
         std::cout << "Unable to read config file" << std::endl;
         return false;
@@ -67,7 +87,11 @@ bool Simulation::loadConfig() {
         std::cout << "Config parse error at " << pex.getFile() << ":" << pex.getLine()
                   << " - " << pex.getError() << std::endl;
         return false;
-    }
+    } catch(const libconfig::ConfigException &e) {
+		std::cout << e.what() << std::endl;
+		exit(EXIT_FAILURE);
+		return false;
+	}
 }
 
 void Simulation::close() {
@@ -117,7 +141,6 @@ void Simulation::drawSprings() {
 				utils::Color springColor = utils::HSVtoRGB(Hue, 100, 100);
 				SDL_SetRenderDrawColor(mainWindow.getRenderer(), springColor.red, springColor.green, springColor.blue, opacity);
 				SDL_RenderDrawLine(mainWindow.getRenderer(), (int)object1->x, (int)object1->y, (int)object2->x, (int)object2->y);
-				//drawText((object1->x + object2->x) / 2, (object1->y + object2->y) / 2, std::to_string(Hue) + "|" + std::to_string(opacity), { 255, 255, 255 }, smallerFont);
 			}
 		}
 	}
