@@ -77,6 +77,7 @@ bool Simulation::loadConfig() {
 		springMaxConnections	= cfg.lookup("springMaxConnections");
 		backgroundFrictionForce	= cfg.lookup("backgroundFrictionForce");
 		cubicPixelMass			= cfg.lookup("cubicPixelMass");
+		bumpSpeed				= cfg.lookup("bumpSpeed");
 
         return true;
 
@@ -206,8 +207,11 @@ void Simulation::handleKeyboard(SDL_Event e) {
 			case SDL_SCANCODE_KP_PLUS:	changeSimulationSpeed(1);								break;
 			case SDL_SCANCODE_KP_MINUS: changeSimulationSpeed(-1);								break;
 			case SDL_SCANCODE_F2:		uiEnabled = !uiEnabled;									break;
-			case SDL_SCANCODE_C:		collisionType = (CollisionType)((collisionType+1) %
-										COLLISION_TYPES_NUM);									break;
+			case SDL_SCANCODE_C:		nextCollisionType();									break;
+			case SDL_SCANCODE_UP:		bumpAll(0, -bumpSpeed);									break;
+			case SDL_SCANCODE_DOWN:		bumpAll(0,  bumpSpeed);									break;
+			case SDL_SCANCODE_LEFT:		bumpAll(-bumpSpeed, 0);									break;
+			case SDL_SCANCODE_RIGHT:	bumpAll( bumpSpeed, 0);									break;
 		}
 	}
 }
@@ -336,9 +340,20 @@ void Simulation::changeSimulationSpeed(int change) {
 	simulationSpeed = pow(SIMULATION_SPEED_BASE, simulationSpeedExponent);
 }
 
+void Simulation::nextCollisionType() {
+	collisionType = (CollisionType)((collisionType+1) % COLLISION_TYPES_NUM);	
+}
+
 void Simulation::checkExitCondition() {
 	if(exitContidionFunction(this))
 		exitRequest = true;
+}
+
+void Simulation::bumpAll(double velX, double velY) {
+	for(SimObject* obj: objects) {
+		obj->velX += velX;
+		obj->velY += velY;
+	}
 }
 
 void Simulation::resetSimulation() {

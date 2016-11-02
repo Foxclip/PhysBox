@@ -41,6 +41,7 @@ public:
 	double backgroundFrictionForce = 1;
 	double cubicPixelMass = 0.001;
 	//const double DEFAULT_DAMPING = 0.5;
+	double bumpSpeed = 1;
 
 	int springMaxConnections = 1024;
 
@@ -94,6 +95,8 @@ private:
 	utils::Color getBoolColor(bool var);
 	void updateFpsCount();
 	void changeSimulationSpeed(int change);
+	void nextCollisionType();
 	void checkExitCondition();
+	void bumpAll(double velX, double velY);
 
 };
