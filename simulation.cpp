@@ -78,6 +78,7 @@ bool Simulation::loadConfig() {
 		backgroundFrictionForce	= cfg.lookup("backgroundFrictionForce");
 		cubicPixelMass			= cfg.lookup("cubicPixelMass");
 		bumpSpeed				= cfg.lookup("bumpSpeed");
+		gravityIncrement		= cfg.lookup("gravityIncrement");
 
         return true;
 
@@ -90,7 +91,6 @@ bool Simulation::loadConfig() {
         return false;
     } catch(const libconfig::ConfigException &e) {
 		std::cout << e.what() << std::endl;
-		exit(EXIT_FAILURE);
 		return false;
 	}
 }
@@ -172,9 +172,10 @@ void Simulation::drawUIText() {
 	drawText(mainWindow.getWidth() - getStringWidth("Springs (5)",			   smallFont), smallFont.getSize()*4,
 		"Springs (5)",			   getBoolColor(springsEnabled),			   smallFont);
 
-	str = "Simulation speed: " + std::to_string(simulationSpeed) +
-		" (" + std::to_string((int)simulationSpeedExponent) + ")";
+	str = "Simulation speed: " + std::to_string(simulationSpeed) + " (" + std::to_string((int)simulationSpeedExponent) + ")";
 	drawText(mainWindow.getWidth() - getStringWidth(str, smallFont), smallFont.getSize()*7, str, { 255, 255, 0 }, smallFont);
+	str = "RadialG: " + std::to_string(gravityRadialForce);
+	drawText(mainWindow.getWidth() - getStringWidth(str, smallFont), smallFont.getSize()*9, str, { 255, 255, 0 }, smallFont);
 
 	if(pause) {
 		drawText((mainWindow.getWidth() - getStringWidth("PAUSE", bigFont)) / 2,
@@ -197,21 +198,23 @@ void Simulation::handleEvents() {
 void Simulation::handleKeyboard(SDL_Event e) {
 	if(e.type == SDL_KEYDOWN) {
 		switch(e.key.keysym.scancode) {
-			case SDL_SCANCODE_ESCAPE:	exit(EXIT_SUCCESS);										break;
-			case SDL_SCANCODE_SPACE:	pause = !pause;											break;
-			case SDL_SCANCODE_1:		collisionsEnabled = !collisionsEnabled;					break;
-			case SDL_SCANCODE_2:		gravityRadialEnabled = !gravityRadialEnabled;			break;
-			case SDL_SCANCODE_3:		gravityVerticalEnabled = !gravityVerticalEnabled;		break;
-			case SDL_SCANCODE_4:		backgroundFrictionEnabled = !backgroundFrictionEnabled; break;
-			case SDL_SCANCODE_5:		springsEnabled = !springsEnabled;						break;
-			case SDL_SCANCODE_KP_PLUS:	changeSimulationSpeed(1);								break;
-			case SDL_SCANCODE_KP_MINUS: changeSimulationSpeed(-1);								break;
-			case SDL_SCANCODE_F2:		uiEnabled = !uiEnabled;									break;
-			case SDL_SCANCODE_C:		nextCollisionType();									break;
-			case SDL_SCANCODE_UP:		bumpAll(0, -bumpSpeed);									break;
-			case SDL_SCANCODE_DOWN:		bumpAll(0,  bumpSpeed);									break;
-			case SDL_SCANCODE_LEFT:		bumpAll(-bumpSpeed, 0);									break;
-			case SDL_SCANCODE_RIGHT:	bumpAll( bumpSpeed, 0);									break;
+			case SDL_SCANCODE_ESCAPE:		exit(EXIT_SUCCESS);										break;
+			case SDL_SCANCODE_SPACE:		pause = !pause;											break;
+			case SDL_SCANCODE_1:			collisionsEnabled = !collisionsEnabled;					break;
+			case SDL_SCANCODE_2:			gravityRadialEnabled = !gravityRadialEnabled;			break;
+			case SDL_SCANCODE_3:			gravityVerticalEnabled = !gravityVerticalEnabled;		break;
+			case SDL_SCANCODE_4:			backgroundFrictionEnabled = !backgroundFrictionEnabled; break;
+			case SDL_SCANCODE_5:			springsEnabled = !springsEnabled;						break;
+			case SDL_SCANCODE_KP_PLUS:		changeSimulationSpeed(1);								break;
+			case SDL_SCANCODE_KP_MINUS:		changeSimulationSpeed(-1);								break;
+			case SDL_SCANCODE_F2:			uiEnabled = !uiEnabled;									break;
+			case SDL_SCANCODE_C:			nextCollisionType();									break;
+			case SDL_SCANCODE_UP:			bumpAll(0, -bumpSpeed);									break;
+			case SDL_SCANCODE_DOWN:			bumpAll(0,  bumpSpeed);									break;
+			case SDL_SCANCODE_LEFT:			bumpAll(-bumpSpeed, 0);									break;
+			case SDL_SCANCODE_RIGHT:		bumpAll( bumpSpeed, 0);									break;
+			case SDL_SCANCODE_LEFTBRACKET:	gravityRadialForce -= gravityIncrement;					break;
+			case SDL_SCANCODE_RIGHTBRACKET:	gravityRadialForce += gravityIncrement;					break;
 		}
 	}
 }

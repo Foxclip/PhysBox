@@ -42,6 +42,7 @@ public:
 	double cubicPixelMass = 0.001;
 	//const double DEFAULT_DAMPING = 0.5;
 	double bumpSpeed = 1;
+	double gravityIncrement = 0.1;
 
 	int springMaxConnections = 1024;
 
