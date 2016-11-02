@@ -134,10 +134,15 @@ void Ball::renderToTexture() {
 	SDL_SetRenderDrawColor(mainWindow.getRenderer(), 0, 0, 0, 0);
 	SDL_RenderClear(mainWindow.getRenderer());
 	SDL_SetRenderDrawColor(mainWindow.getRenderer(), color.red, color.green, color.blue, 255);
-	for(int yCoord = -(int)radius; yCoord <= (int)radius; yCoord++)
-		for(int xCoord = -(int)radius; xCoord <= (int)radius; xCoord++)
-			if(((xCoord+0.5)*(xCoord+0.5) + (yCoord+0.5)*(yCoord+0.5)) <= radius*radius)
+	for(int yCoord = -(int)radius; yCoord <= (int)radius; yCoord++) {
+		for(int xCoord = -(int)radius; xCoord <= (int)radius; xCoord++) {
+			double xCoordShifted = xCoord + 0.5;
+			double yCoordShifted = yCoord + 0.5;
+			if((xCoordShifted*xCoordShifted + yCoordShifted*yCoordShifted) <= radius*radius) {
 				SDL_RenderDrawPoint(mainWindow.getRenderer(), (int)(xCoord + radius), (int)(yCoord + radius));
+			}
+		}
+	}
 	SDL_SetRenderTarget(mainWindow.getRenderer(), NULL);
 }
 
