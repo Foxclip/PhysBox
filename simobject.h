@@ -19,6 +19,7 @@ const double DEFAULT_DAMPING = 0.5;
 class SimObject {
 
 public:
+	double isActive = true;
 	double x = 0, y = 0;
 	double velX = 0, velY = 0;
 	double damping = DEFAULT_DAMPING;
@@ -28,7 +29,7 @@ public:
 	virtual void move(double delta);
 	void render();
 	static void collide(SimObject* object1, SimObject* object2, double delta, CollisionType collisionType);
-	void calculateBackgroudFriction(double delta, double backgroundFrictionForce);
+	void calculateBackgroundFriction(double delta, double backgroundFrictionForce);
 	void calculateVerticalGravity(double delta, double gravityVerticalForce);
 	void calculateGravity(SimObject* anotherObject, double delta, double gravityRadialForce);
 	void calculateSprings(SimObject* anotherObject, double delta,
@@ -48,7 +49,7 @@ protected:
 
 class Ball: public SimObject {
 public:
-	Ball(double x, double y, double radius, double speedX, double speedY, utils::Color color);
+	Ball(double x, double y, double radius, double speedX, double speedY, utils::Color color, bool isActive = true);
 	void move(double delta);
 	void renderToTexture();
 	void recalculateMass();

@@ -16,7 +16,7 @@ void SimObject::collide(SimObject * object1, SimObject * object2, double delta, 
 			Ball::collideBalls((Ball*)object1, (Ball*)object2, delta, collisionType);
 }
 
-void SimObject::calculateBackgroudFriction(double delta, double backgroundFrictionForce) {
+void SimObject::calculateBackgroundFriction(double delta, double backgroundFrictionForce) {
 	double speed = sqrt(pow(velX, 2) + pow(velY, 2));
 	if(speed == 0)
 		return;
@@ -88,7 +88,7 @@ ObjectType SimObject::getObjectType() {
 	return objectType;
 }
 
-Ball::Ball(double x, double y, double radius, double speedX, double speedY, utils::Color color) {
+Ball::Ball(double x, double y, double radius, double speedX, double speedY, utils::Color color, bool isActive) {
 	
 	this->x	= x;
 	this->y	= y;
@@ -96,6 +96,7 @@ Ball::Ball(double x, double y, double radius, double speedX, double speedY, util
 	this->velX = speedX;
 	this->velY = speedY;
 	this->color = color;
+	this->isActive = isActive;
 	objectType = OBJECT_TYPE_BALL;
 
 	renderToTexture();

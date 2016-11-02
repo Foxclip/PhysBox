@@ -40,7 +40,7 @@ public:
 	double springMaxDistance = springDistance * 1.25;
 	double backgroundFrictionForce = 1;
 	double cubicPixelMass = 0.001;
-	//const double DEFAULT_DAMPING = 0.5;
+
 	double bumpSpeed = 1;
 	double gravityIncrement = 0.1;
 
@@ -55,7 +55,7 @@ public:
 	~Simulation();
 	double runSimulation();
 	void resetSimulation();
-	Ball* addBall(double x, double y, double radius, double speedX, double speedY, utils::Color color);
+	Ball* addBall(double x, double y, double radius, double speedX, double speedY, utils::Color color, bool isActive = true);
 	void deleteAllObjects();
 	void deleteObject(SimObject* object);
 	void generateSystem(double centerX, double centerY, double centerRadius, double moonRadius, int moonCount, double gap);
@@ -85,6 +85,7 @@ private:
 	void drawUIText();
 	void handleEvents();
 	void handleKeyboard(SDL_Event e);
+	void zeroSpeed();
 	void processPhysics();
 	void processCollisions();
 	void deleteMarked();

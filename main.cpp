@@ -18,7 +18,8 @@ int main(int argc, char* args[]) {
 								2.5,
 								utils::randomBetween(-1, 1),
 								utils::randomBetween(-1, 1),
-								utils::randomColor()
+								utils::randomColor(),
+								utils::random() > 0.5
 							  );
 		}
 		simulation.runSimulation();

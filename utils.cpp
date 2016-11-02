@@ -22,7 +22,9 @@ namespace utils {
 	}
 
 	double distance(double x1, double x2, double y1, double y2) {
-		return sqrt(pow(x1-x2, 2) + pow(y1-y2, 2));
+		double deltaX = x1 - x2;
+		double deltaY = y1 - y2;
+		return sqrt(deltaX*deltaX + deltaY*deltaY);
 	}
 
 	std::string toString(double var, int precision) {

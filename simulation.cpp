@@ -219,8 +219,18 @@ void Simulation::handleKeyboard(SDL_Event e) {
 	}
 }
 
+void Simulation::zeroSpeed() {
+	for(SimObject* object: objects) {
+		if(!object->isActive) {
+			object->velX = 0;
+			object->velY = 0;
+		}
+	}
+}
+
 void Simulation::processPhysics() {
 	if(pause) return;
+	zeroSpeed();
 	processCollisions();
 	deleteMarked();
 	processGravity();
@@ -273,6 +283,7 @@ void Simulation::processSprings() {
 			if(object1->springConnections.size() >= springMaxConnections) continue;
 			for(SimObject* object2: objects) {
 				if(object1 == object2) continue;
+				if(!object1->isActive && !object2->isActive) continue;
 				if(object1->springConnections.size() >= springMaxConnections) break;
 				if(object2->incomingSpringConnectionsCount >= springMaxConnections) continue;
 				if(std::find(object1->springConnections.begin(), object1->springConnections.end(),
@@ -295,11 +306,13 @@ void Simulation::processSprings() {
 void Simulation::processOther() {
 	if(backgroundFrictionEnabled) {
 		for(SimObject* object: objects) {
-			object->calculateBackgroudFriction(simulationSpeed, backgroundFrictionForce);
+			object->calculateBackgroundFriction(simulationSpeed, backgroundFrictionForce);
 		}
 	}
 	for(SimObject* object: objects) {
-		object->move(simulationSpeed);
+		if(object->isActive) {
+			object->move(simulationSpeed);
+		}
 	}
 }
 
@@ -332,8 +345,8 @@ void Simulation::updateFpsCount() {
 	}
 }
 
-Ball* Simulation::addBall(double x, double y, double radius, double speedX, double speedY, utils::Color color) {
-	Ball* ball = new Ball(x, y, radius, speedX, speedY, color);
+Ball* Simulation::addBall(double x, double y, double radius, double speedX, double speedY, utils::Color color, bool isActive) {
+	Ball* ball = new Ball(x, y, radius, speedX, speedY, color, isActive);
 	objects.push_back(ball);
 	return ball;
 }
