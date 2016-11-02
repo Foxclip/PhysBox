@@ -7,8 +7,8 @@ void SimObject::move(double delta) {
 	y += velY * delta;
 }
 
-void SimObject::render() {
-	texture.render((int)x - texture.getWidth()/2, (int)y - texture.getHeight()/2);
+void SimObject::render(int offsetX, int offsetY) {
+	texture.render((int)x - texture.getWidth()/2 + offsetX, (int)y - texture.getHeight()/2 + offsetY);
 }
 
 void SimObject::collide(SimObject * object1, SimObject * object2, double delta, CollisionType collisionType) {

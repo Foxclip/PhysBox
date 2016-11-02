@@ -49,6 +49,10 @@ public:
 	const double SIMULATION_SPEED_BASE = 4;
 	int simulationSpeedExponent = 0;
 
+	bool isWheelDown = false;
+	int mousePrevX = 0, mousePrevY = 0;
+	double offsetX = 0, offsetY = 0;
+
 	std::vector<SimObject*> objects;
 
 	Simulation(std::function<bool(Simulation*)> exitConditionFunction);
@@ -85,6 +89,7 @@ private:
 	void drawUIText();
 	void handleEvents();
 	void handleKeyboard(SDL_Event e);
+	void handleMouse(SDL_Event e);
 	void zeroSpeed();
 	void processPhysics();
 	void processCollisions();

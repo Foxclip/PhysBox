@@ -101,7 +101,7 @@ void Simulation::render() {
 	SDL_RenderClear(mainWindow.getRenderer());
 	drawSprings();
 	for(SimObject* object: objects) {
-		object->render();
+		object->render(offsetX, offsetY);
 	}
 	if(uiEnabled) {
 		drawUIText();
@@ -128,7 +128,8 @@ void Simulation::drawSprings() {
 				int Hue = (int)utils::mapRange(opacity, 0, 255, 120, 0);
 				utils::Color springColor = utils::HSVtoRGB(Hue, 100, 100);
 				SDL_SetRenderDrawColor(mainWindow.getRenderer(), springColor.red, springColor.green, springColor.blue, opacity);
-				SDL_RenderDrawLine(mainWindow.getRenderer(), (int)object1->x, (int)object1->y, (int)object2->x, (int)object2->y);
+				SDL_RenderDrawLine(mainWindow.getRenderer(), (int)object1->x + offsetX, (int)object1->y + offsetY,
+															 (int)object2->x + offsetX, (int)object2->y + offsetY);
 			}
 		}
 	}
@@ -177,6 +178,10 @@ void Simulation::handleEvents() {
 		switch(e.type) {
 			case SDL_QUIT:						exit(EXIT_SUCCESS);			break;
 			case SDL_KEYUP: case SDL_KEYDOWN:	handleKeyboard(e);			break;
+			case SDL_MOUSEBUTTONDOWN: 
+			case SDL_MOUSEBUTTONUP:
+			case SDL_MOUSEMOTION: 
+			case SDL_MOUSEWHEEL:				handleMouse(e);				break;
 			case SDL_WINDOWEVENT:				mainWindow.handleEvent(e);	break;
 		}
 	}
@@ -202,6 +207,33 @@ void Simulation::handleKeyboard(SDL_Event e) {
 			case SDL_SCANCODE_RIGHT:		bumpAll( bumpSpeed, 0);									break;
 			case SDL_SCANCODE_LEFTBRACKET:	gravityRadialForce -= gravityIncrement;					break;
 			case SDL_SCANCODE_RIGHTBRACKET:	gravityRadialForce += gravityIncrement;					break;
+		}
+	}
+}
+
+void Simulation::handleMouse(SDL_Event e) {
+	if(e.type == SDL_MOUSEBUTTONDOWN) {
+		if(e.button.button == SDL_BUTTON_MIDDLE) {
+			int mouseX, mouseY;
+			SDL_GetMouseState(&mouseX, &mouseY);
+			mousePrevX = mouseX;
+			mousePrevY = mouseY;
+			isWheelDown = true;
+		}
+	}
+	if(e.type == SDL_MOUSEBUTTONUP) {
+		if(e.button.button == SDL_BUTTON_MIDDLE) {
+			isWheelDown = false;
+		}
+	}
+	if(e.type == SDL_MOUSEMOTION) {
+		int mouseX, mouseY;
+		if(isWheelDown) {
+			SDL_GetMouseState(&mouseX, &mouseY);
+			offsetX += mouseX - mousePrevX;
+			offsetY += mouseY - mousePrevY;
+			mousePrevX = mouseX;
+			mousePrevY = mouseY;
 		}
 	}
 }
