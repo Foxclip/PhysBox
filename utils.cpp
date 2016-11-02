@@ -34,9 +34,9 @@ namespace utils {
 	}
 
 	Color HSVtoRGB(int H, int S, int V) {
-		Color rgb;
+		Color rgb = { 255, 255, 255 };
 		int Hi = (int)std::floor(H / 60) % 6;
-		double Vmin = ((100 - S) * V) / 100;
+		int Vmin = ((100 - S) * V) / 100;
 		int a = (V - Vmin) * (H % 60) / 60;
 		int Vinc = Vmin + a;
 		int Vdec = V - a;

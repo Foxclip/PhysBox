@@ -51,48 +51,35 @@ bool Simulation::loadMedia() {
 }
 
 bool Simulation::loadConfig() {
+
 	libconfig::Config cfg;
 
-    try {
+    cfg.readFile("simulation_settings.cfg");
+    collisionsEnabled			= cfg.lookup("collisionsEnabled");
+    gravityRadialEnabled		= cfg.lookup("gravityRadialEnabled");
+    gravityVerticalEnabled		= cfg.lookup("gravityVerticalEnabled");
+    backgroundFrictionEnabled	= cfg.lookup("backgroundFrictionEnabled");
+    springsEnabled				= cfg.lookup("springsEnabled");
 
-        cfg.readFile("simulation_settings.cfg");
-        collisionsEnabled			= cfg.lookup("collisionsEnabled");
-        gravityRadialEnabled		= cfg.lookup("gravityRadialEnabled");
-        gravityVerticalEnabled		= cfg.lookup("gravityVerticalEnabled");
-        backgroundFrictionEnabled	= cfg.lookup("backgroundFrictionEnabled");
-        springsEnabled				= cfg.lookup("springsEnabled");
-
-		int _collisionType = cfg.lookup("collisionType");
-		switch(_collisionType) {
-			case 0:  collisionType = COLLISION_TYPE_BOUNCE;	break;
-			case 1:	 collisionType = COLLISION_TYPE_MERGE;	break;
-			default: collisionType = COLLISION_TYPE_BOUNCE;	break;
-		}
-		gravityVerticalForce	= cfg.lookup("gravityVerticalForce");
-		gravityRadialForce		= cfg.lookup("gravityRadialForce");
-		springForce				= cfg.lookup("springForce");
-		springDamping			= cfg.lookup("springDamping");
-		springDistance			= cfg.lookup("springDistance");
-		springMaxDistance		= springDistance * 1.25;
-		springMaxConnections	= cfg.lookup("springMaxConnections");
-		backgroundFrictionForce	= cfg.lookup("backgroundFrictionForce");
-		cubicPixelMass			= cfg.lookup("cubicPixelMass");
-		bumpSpeed				= cfg.lookup("bumpSpeed");
-		gravityIncrement		= cfg.lookup("gravityIncrement");
-
-        return true;
-
-    } catch(const libconfig::FileIOException &fioex) {
-        std::cout << "Unable to read config file" << std::endl;
-        return false;
-    } catch(const libconfig::ParseException &pex) {
-        std::cout << "Config parse error at " << pex.getFile() << ":" << pex.getLine()
-                  << " - " << pex.getError() << std::endl;
-        return false;
-    } catch(const libconfig::ConfigException &e) {
-		std::cout << e.what() << std::endl;
-		return false;
+	int _collisionType = cfg.lookup("collisionType");
+	switch(_collisionType) {
+		case 0:  collisionType = COLLISION_TYPE_BOUNCE;	break;
+		case 1:	 collisionType = COLLISION_TYPE_MERGE;	break;
+		default: collisionType = COLLISION_TYPE_BOUNCE;	break;
 	}
+	gravityVerticalForce	= cfg.lookup("gravityVerticalForce");
+	gravityRadialForce		= cfg.lookup("gravityRadialForce");
+	springForce				= cfg.lookup("springForce");
+	springDamping			= cfg.lookup("springDamping");
+	springDistance			= cfg.lookup("springDistance");
+	springMaxDistance		= springDistance * 1.25;
+	springMaxConnections	= cfg.lookup("springMaxConnections");
+	backgroundFrictionForce	= cfg.lookup("backgroundFrictionForce");
+	cubicPixelMass			= cfg.lookup("cubicPixelMass");
+	bumpSpeed				= cfg.lookup("bumpSpeed");
+	gravityIncrement		= cfg.lookup("gravityIncrement");
+
+    return true;
 }
 
 void Simulation::close() {
