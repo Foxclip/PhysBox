@@ -17,7 +17,7 @@ void SimObject::collide(SimObject * object1, SimObject * object2, double delta, 
 }
 
 void SimObject::calculateBackgroundFriction(double delta, double backgroundFrictionForce) {
-	double speed = sqrt(pow(velX, 2) + pow(velY, 2));
+	double speed = sqrt(velX*velX + velY*velY);
 	if(speed == 0)
 		return;
 	double forceX = -velX / speed * backgroundFrictionForce;
@@ -40,7 +40,7 @@ void SimObject::calculateGravity(SimObject* anotherObject, double delta, double 
 	double distance = utils::distance(x, anotherObject->x, y, anotherObject->y);
 	if(distance == 0)
 		return;
-	double force = gravityRadialForce * getMass() * anotherObject->getMass() / pow(distance, 2);
+	double force = gravityRadialForce * getMass() * anotherObject->getMass() / (distance*distance);
 	double forceX = (anotherObject->x - x) / distance * force;
 	double forceY = (anotherObject->y - y) / distance * force;
 	velX += forceX / getMass() * delta;
@@ -61,7 +61,7 @@ void SimObject::calculateSprings(SimObject* anotherObject, double delta,
 	double relativeSpeedX = anotherObject->velX - velX;
 	double relativeSpeedY = anotherObject->velY - velY;
 	//TODO remake damping
-	double relativeSpeed = sqrt(pow(relativeSpeedX, 2) + pow(relativeSpeedY, 2));
+	double relativeSpeed = sqrt(relativeSpeedX*relativeSpeedX + relativeSpeedY*relativeSpeedY);
 	double dampingForce = relativeSpeed * springDamping;
 	double dampingForceX, dampingForceY;
 	if(relativeSpeed != 0) {
@@ -148,7 +148,7 @@ void Ball::renderToTexture() {
 }
 
 void Ball::recalculateMass() {
-	mass = M_PI * pow(radius, 2);
+	mass = M_PI * radius*radius;
 }
 
 void Ball::recalculateRadius() {
@@ -203,14 +203,15 @@ void Ball::ballsBounce(Ball* b1, Ball* b2, double delta) {
 }
 
 bool Ball::checkCollision(Ball* b1, Ball* b2, double delta) {
-	double collisionDistanceSquared = pow(b1->radius + b2->radius, 2);
+	double collisionDistance = b1->radius + b2->radius;
+	double collisionDistanceSquared = collisionDistance*collisionDistance;
 	double distX = b2->x - b1->x;
 	double distY = b2->y - b1->y;
 	double relativeSpeedX = (b2->velX - b1->velX)*delta;
 	double relativeSpeedY = (b2->velY - b1->velY)*delta;
-	double distanceSquared = pow(distX, 2) + pow(distY, 2);
+	double distanceSquared = distX*distX + distY*distY;
 	double distToCollisionSquared = distanceSquared - collisionDistanceSquared;
-	double relativeSpeedSquared = pow(relativeSpeedX, 2) + pow(relativeSpeedY, 2);
+	double relativeSpeedSquared = relativeSpeedX*relativeSpeedX + relativeSpeedY*relativeSpeedY;
 	double d = 2*relativeSpeedX*distX + 2*relativeSpeedY*distY;
 	double determinant = d*d - 4*distToCollisionSquared*relativeSpeedSquared;
 	if(determinant <= 0) return false;
@@ -229,8 +230,8 @@ bool Ball::checkCollision(Ball* b1, Ball* b2, double delta) {
 }
 
 void Ball::recalculateSpeedsAfterCollision(Ball* b1, Ball* b2) {
-	double b1Speed = sqrt(pow(b1->velX, 2) + pow(b1->velY, 2));
-	double b2Speed = sqrt(pow(b2->velX, 2) + pow(b2->velY, 2));
+	double b1Speed = sqrt(b1->velX*b1->velX + b1->velY*b1->velY);
+	double b2Speed = sqrt(b2->velX*b2->velX + b2->velY*b2->velY);
 	double collisionAngle = atan2(b2->x - b1->x, b1->y - b2->y) - M_PI/2;
 	double b1SpeedAngle = atan2(b1->velX, -b1->velY) - M_PI/2;
 	double b2SpeedAngle = atan2(b2->velX, -b2->velY) + M_PI/2;
