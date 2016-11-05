@@ -29,6 +29,7 @@ public:
 	virtual void move(double delta);
 	void render(int offsetX, int offsetY);
 	static void collide(SimObject* object1, SimObject* object2, double delta, CollisionType collisionType);
+	static double distanceBetween(SimObject* object1, SimObject* object2);
 	void calculateBackgroundFriction(double delta, double backgroundFrictionForce);
 	void calculateVerticalGravity(double delta, double gravityVerticalForce);
 	void calculateGravity(SimObject* anotherObject, double delta, double gravityRadialForce);

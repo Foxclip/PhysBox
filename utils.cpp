@@ -21,12 +21,6 @@ namespace utils {
 		return{ (unsigned char)(random()*256), (unsigned char)(random()*256), (unsigned char)(random()*256) };
 	}
 
-	double distance(double x1, double x2, double y1, double y2) {
-		double deltaX = x1 - x2;
-		double deltaY = y1 - y2;
-		return sqrt(deltaX*deltaX + deltaY*deltaY);
-	}
-
 	std::string toString(double var, int precision) {
 		std::ostringstream strs;
 		strs << std::fixed << std::setprecision(precision) << var;

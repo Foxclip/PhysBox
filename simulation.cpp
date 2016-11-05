@@ -117,7 +117,7 @@ void Simulation::drawSprings() {
 			if(std::find(object1->springConnections.begin(), object1->springConnections.end(),
 				object2) != object1->springConnections.end()) {
 				int opacity;
-				double distance = utils::distance(object1->x, object2->x, object1->y, object2->y);
+				double distance = SimObject::distanceBetween(object1, object2);
 				if(distance > springMaxDistance) {
 					opacity = 0;
 				} else {
@@ -307,7 +307,7 @@ void Simulation::processSprings() {
 				if(object2->incomingSpringConnectionsCount >= springMaxConnections) continue;
 				if(std::find(object1->springConnections.begin(), object1->springConnections.end(),
 					object2) != object1->springConnections.end()) continue;
-				if((springDistance > 0) && (utils::distance(object1->x, object2->x, object1->y, object2->y) < springDistance)) {
+				if((springDistance > 0) && (SimObject::distanceBetween(object1, object2) < springDistance)) {
 					object1->springConnections.push_back(object2);
 					object2->incomingSpringConnectionsCount++;
 				}

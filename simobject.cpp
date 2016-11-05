@@ -11,9 +11,15 @@ void SimObject::render(int offsetX, int offsetY) {
 	texture.render((int)x - texture.getWidth()/2 + offsetX, (int)y - texture.getHeight()/2 + offsetY);
 }
 
-void SimObject::collide(SimObject * object1, SimObject * object2, double delta, CollisionType collisionType) {
+void SimObject::collide(SimObject* object1, SimObject* object2, double delta, CollisionType collisionType) {
 		if(object1->getObjectType() == OBJECT_TYPE_BALL && object2->getObjectType() == OBJECT_TYPE_BALL)
 			Ball::collideBalls((Ball*)object1, (Ball*)object2, delta, collisionType);
+}
+
+double SimObject::distanceBetween(SimObject* object1, SimObject* object2) {
+		double deltaX = object1->x - object2->x;
+		double deltaY = object1->y - object2->y;
+		return sqrt(deltaX*deltaX + deltaY*deltaY);
 }
 
 void SimObject::calculateBackgroundFriction(double delta, double backgroundFrictionForce) {
@@ -37,7 +43,7 @@ void SimObject::calculateVerticalGravity(double delta, double gravityVerticalFor
 }
 
 void SimObject::calculateGravity(SimObject* anotherObject, double delta, double gravityRadialForce) {
-	double distance = utils::distance(x, anotherObject->x, y, anotherObject->y);
+	double distance = distanceBetween(this, anotherObject);
 	if(distance == 0)
 		return;
 	double force = gravityRadialForce * getMass() * anotherObject->getMass() / (distance*distance);
@@ -50,7 +56,7 @@ void SimObject::calculateGravity(SimObject* anotherObject, double delta, double 
 void SimObject::calculateSprings(SimObject* anotherObject, double delta,
 	double springMaxDistance, double springDistance, double springDamping, double springForce) {
 
-	double distance = utils::distance(x, anotherObject->x, y, anotherObject->y);
+	double distance = distanceBetween(this, anotherObject);
 	if(distance == 0) return;
 	if(springMaxDistance > 0 && distance > springMaxDistance) {
 		springConnections.erase(std::remove(springConnections.begin(), springConnections.end(), anotherObject), springConnections.end());
@@ -158,7 +164,7 @@ void Ball::recalculateRadius() {
 
 void Ball::mergeBalls(Ball* ball1, Ball* ball2, double delta) {
 	if(ball1->isMarkedForDeletion || ball2->isMarkedForDeletion) return;
-	if(!((utils::distance(ball1->x, ball2->x, ball1->y, ball2->y) < ball1->radius + ball2->radius)
+	if(!((distanceBetween(ball1, ball2) < ball1->radius + ball2->radius)
 		|| checkCollision(ball1, ball2, delta))) return;
 	Ball* big;
 	Ball* small;
@@ -250,7 +256,7 @@ void Ball::recalculateSpeedsAfterCollision(Ball* b1, Ball* b2) {
 }
 
 void Ball::checkAndFixOverlap(Ball* b1, Ball* b2) {
-	double distance = utils::distance(b1->x, b2->x, b1->y, b2->y);
+	double distance = distanceBetween(b1, b2);
 	if(distance == 0) return;
 	double overlap = b1->radius + b2->radius - distance;
 	if(overlap <= 0) return;

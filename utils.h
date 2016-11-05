@@ -29,7 +29,6 @@ namespace utils {
 	double nonLinearRandomBetween(double min, double max, std::function<double(double)> f);
 	double random();
 	Color randomColor();
-	double distance(double x1, double x2, double y1, double y2);
 	std::string toString(double var, int precision);
 	Color HSVtoRGB(int H, int S, int V);
 	double mapRange(double val, double min1, double max1, double min2, double max2, bool clamp = false);
