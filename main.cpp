@@ -5,7 +5,6 @@ int main(int argc, char* args[]) {
 	Simulation simulation([](Simulation* sim) {
 		return false;
 	});
-	simulation.collisionsEnabled = true;
 	libconfig::Config cfg;
 	cfg.readFile("startup.cfg");
 	int numberOfObjects = cfg.lookup("numberOfObjects");

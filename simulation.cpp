@@ -57,7 +57,7 @@ bool Simulation::initBullet() {
 bool Simulation::loadMedia() {
 	bigFont.loadFont("arial.ttf", 28);
 	smallFont.loadFont("arial.ttf", 15);
-	smallerFont.loadFont("arial.ttf", 10);
+	microFont.loadFont("arial.ttf", 10);
 	return true;
 }
 
@@ -149,44 +149,64 @@ void Simulation::drawSprings() {
 
 void Simulation::drawUIText() {
 
-	drawText(0, 0,					 "fps: "  + std::to_string(fps),	  { 255, 255, 0 }, smallFont);
-	drawText(0, smallFont.getSize(), "time: " + utils::toString(time, 1), { 255, 255, 0 }, smallFont);
+	textDrawOffset = 0;
+	currentFont = smallFont;
+	currentTextColor = {255, 255, 0};
 
+	drawText(0, 0,					 "fps: "  + std::to_string(fps));
+	drawText(0, smallFont.getSize(), "time: " + utils::toString(time, 1));
 	std::string str = "Objects: " + std::to_string(objects.size());
-	drawText((mainWindow.getWidth() - getStringWidth(str, smallFont)) / 2, 0, str, { 255, 255, 0 }, smallFont);
+	drawText((mainWindow.getWidth() - getStringWidth(str, smallFont)) / 2, 0, str);
 
 	switch(collisionType) {
 		case COLLISION_TYPE_BOUNCE: str = "bounce"; break;
 		case COLLISION_TYPE_MERGE:  str = "merge";	break;
 		default:					str = "?";		break;
 	}
-	str = "Collisions(" + str + ") (1)";
-	drawText(mainWindow.getWidth() - getStringWidth(str,					   smallFont), 0,
-		str,					   getBoolColor(collisionsEnabled),			   smallFont);
-	drawText(mainWindow.getWidth() - getStringWidth("Gravity radial (2)",      smallFont), smallFont.getSize(),
-		"Gravity radial (2)",	   getBoolColor(gravityRadialEnabled),		   smallFont);
-	drawText(mainWindow.getWidth() - getStringWidth("Gravity vertical (3)",	   smallFont), smallFont.getSize()*2,
-		"Gravity vertical (3)",	   getBoolColor(gravityVerticalEnabled),	   smallFont);
-	drawText(mainWindow.getWidth() - getStringWidth("Background friction (4)", smallFont), smallFont.getSize()*3,
-		"Background friction (4)", getBoolColor(backgroundFrictionEnabled),    smallFont);
-	drawText(mainWindow.getWidth() - getStringWidth("Springs (5)",			   smallFont), smallFont.getSize()*4,
-		"Springs (5)",			   getBoolColor(springsEnabled),			   smallFont);
+	drawOption("Collisions(" + str + ") (1)", &collisionsEnabled);
+	drawOption("Gravity radial (2)", &gravityRadialEnabled);
+	drawOption("Gravity vertical (3)", &gravityVerticalEnabled);
+	drawOption("Background friction (4)", &backgroundFrictionEnabled);
+	drawOption("Springs (5)", &springsEnabled);
+	drawBlank();
 
+	currentTextColor = {255, 255, 0};
 	str = "Simulation speed: " + std::to_string(simulationSpeed) + " (" + std::to_string((int)simulationSpeedExponent) + ")";
-	drawText(mainWindow.getWidth() - getStringWidth(str, smallFont), smallFont.getSize()*7, str, { 255, 255, 0 }, smallFont);
-	str = "RadialG: " + std::to_string(gravityRadialForce);
-	drawText(mainWindow.getWidth() - getStringWidth(str, smallFont), smallFont.getSize()*9, str, { 255, 255, 0 }, smallFont);
-	str = "VerticalG: " + std::to_string(gravityVerticalForce);
-	drawText(mainWindow.getWidth() - getStringWidth(str, smallFont), smallFont.getSize()*10, str, { 255, 255, 0 }, smallFont);
-	str = "DefRest: " + std::to_string(defaultRestitution);
-	drawText(mainWindow.getWidth() - getStringWidth(str, smallFont), smallFont.getSize()*11, str, { 255, 255, 0 }, smallFont);
+	drawInfo(str);
+	drawBlank();
+
+	currentFont = microFont;
+	drawInfo("RadialG: ", &gravityRadialForce);
+	drawInfo("VerticalG: ", &gravityVerticalForce);
+	drawInfo("DefRest: ", &defaultRestitution);
 
 	if(pause) {
+		currentFont = bigFont;
 		drawText((mainWindow.getWidth() - getStringWidth("PAUSE", bigFont)) / 2,
-				 (mainWindow.getHeight() - bigFont.getSize()) / 2, "PAUSE",
-				 { 255, 255, 0 }, bigFont);
+				 (mainWindow.getHeight() - bigFont.getSize()) / 2, "PAUSE");
 	}
+
 }
+
+void Simulation::drawOption(std::string text, bool* option) {
+	currentTextColor = getBoolColor(*option);
+	drawText(mainWindow.getWidth() - getStringWidth(text, currentFont), textDrawOffset, text);
+	textDrawOffset += currentFont.getSize();
+}
+
+void Simulation::drawInfo(std::string text) {
+	drawText(mainWindow.getWidth() - getStringWidth(text, currentFont), textDrawOffset, text);
+	textDrawOffset += currentFont.getSize();
+}
+
+void Simulation::drawInfo(std::string text, double* parameter) {
+	drawInfo(text + std::to_string(*parameter));
+}
+
+void Simulation::drawBlank() {
+	textDrawOffset += currentFont.getSize();
+}
+
 
 void Simulation::handleEvents() {
 	SDL_Event e;
@@ -259,7 +279,11 @@ void Simulation::processPhysics() {
 	deleteMarked();
 	processGravity();
 	processSprings();
-	dynamicsWorld->setGravity(btVector3(0, gravityVerticalForce, 0));
+	if(gravityVerticalEnabled) {
+		dynamicsWorld->setGravity(btVector3(0, gravityVerticalForce, 0));
+	} else {
+		dynamicsWorld->setGravity(btVector3(0, 0, 0));
+	}
 	for(SimObject* object: objects) {
 		object->setRestitution(defaultRestitution);
 	}
@@ -318,9 +342,10 @@ void Simulation::processSprings() {
 	}
 }
 
-void Simulation::drawText(int x, int y, std::string str, utils::Color color, utils::Font& font) {
+void Simulation::drawText(int x, int y, std::string str) {
 	LTexture textTexture;
-	textTexture.loadFromRenderedText(str, { color.red, color.green, color.blue, 255 }, font.getSDLFont(), false);
+	textTexture.loadFromRenderedText(str, { currentTextColor.red, currentTextColor.green, currentTextColor.blue, 255 },
+										currentFont.getSDLFont(), false);
 	textTexture.render(x, y);
 }
 

@@ -77,11 +77,14 @@ private:
 	std::function<bool(Simulation*)> exitContidionFunction;
 	utils::Font bigFont;
 	utils::Font smallFont;
-	utils::Font smallerFont;
+	utils::Font microFont;
 	int fpsCount = 0;
 	int fps = 0;
 	int lastFpsTime = 0;
 	double simulationSpeed = pow(SIMULATION_SPEED_BASE, simulationSpeedExponent);
+	int textDrawOffset = 0;
+	utils::Font currentFont = smallFont;
+	utils::Color currentTextColor = { 255, 255, 0 };
 
 	bool initSDL();
 	bool initBullet();
@@ -92,6 +95,10 @@ private:
 	void render();
 	void drawSprings();
 	void drawUIText();
+	void drawOption(std::string text, bool* option);
+	void drawInfo(std::string text);
+	void drawInfo(std::string text, double* parameter);
+	void drawBlank();
 	void handleEvents();
 	void handleKeyboard(SDL_Event e);
 	void handleMouse(SDL_Event e);
@@ -99,7 +106,7 @@ private:
 	void deleteMarked();
 	void processGravity();
 	void processSprings();
-	void drawText(int x, int y, std::string str, utils::Color color, utils::Font& font);
+	void drawText(int x, int y, std::string str);
 	int getStringWidth(std::string, utils::Font& font);
 	utils::Color getBoolColor(bool var);
 	void updateFpsCount();
