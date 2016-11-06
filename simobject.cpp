@@ -27,6 +27,13 @@ double SimObject::getVelY() {
 	return rigidBody->getLinearVelocity().y();
 }
 
+double SimObject::getRotation() {
+	btTransform t;
+	rigidBody->getMotionState()->getWorldTransform(t);
+	btQuaternion quat = t.getRotation();
+	return utils::quaternionToEulerZ(quat.x(), quat.y(), quat.z(), quat.w());
+}
+
 void SimObject::setX(double x) {
 	btTransform t;
 	rigidBody->getMotionState()->getWorldTransform(t);
@@ -53,9 +60,14 @@ void SimObject::setRestitution(double restitution) {
 	rigidBody->setRestitution(restitution);
 }
 
+void SimObject::setFriction(double friction) {
+	rigidBody->setFriction(friction);
+}
+
 
 void SimObject::render(int offsetX, int offsetY) {
-	texture.render((int)getX() - texture.getWidth()/2 + offsetX, (int)getY() - texture.getHeight()/2 + offsetY);
+	texture.render((int)getX() - texture.getWidth()/2 + offsetX, (int)getY() - texture.getHeight()/2 + offsetY,
+					NULL, getRotation() * 180 / M_PI);
 }
 
 double SimObject::distanceBetween(SimObject* object1, SimObject* object2) {
@@ -145,6 +157,7 @@ Ball::Ball(double x, double y, double radius, double speedX, double speedY, util
 	rigidBody->setActivationState(DISABLE_DEACTIVATION);
 	rigidBody->setRestitution(defaultRestitution);
 	rigidBody->setDamping(0, 0);
+	rigidBody->setFriction(defaultFriction);
 
 	setVelX(speedX);
 	setVelY(speedY);
@@ -158,19 +171,22 @@ Ball::Ball(double x, double y, double radius, double speedX, double speedY, util
 
 }
 
-//TODO make faster
 void Ball::renderToTexture() {
 	texture.createBlank(((int)radius)*2, ((int)radius)*2, SDL_TEXTUREACCESS_TARGET);
 	texture.setAsRenderTarget();
 	SDL_SetTextureBlendMode(texture.getSDLTexture(), SDL_BLENDMODE_BLEND);
 	SDL_SetRenderDrawColor(mainWindow.getRenderer(), 0, 0, 0, 0);
 	SDL_RenderClear(mainWindow.getRenderer());
-	SDL_SetRenderDrawColor(mainWindow.getRenderer(), color.red, color.green, color.blue, 255);
 	for(int yCoord = -(int)radius; yCoord <= (int)radius; yCoord++) {
 		for(int xCoord = -(int)radius; xCoord <= (int)radius; xCoord++) {
 			double xCoordShifted = xCoord + 0.5;
 			double yCoordShifted = yCoord + 0.5;
 			if((xCoordShifted*xCoordShifted + yCoordShifted*yCoordShifted) <= radius*radius) {
+				if(yCoordShifted < -radius / 2.0) {
+					SDL_SetRenderDrawColor(mainWindow.getRenderer(), 255, 255, 255, 255);
+				} else {
+					SDL_SetRenderDrawColor(mainWindow.getRenderer(), color.red, color.green, color.blue, 255);
+				}
 				SDL_RenderDrawPoint(mainWindow.getRenderer(), (int)(xCoord + radius), (int)(yCoord + radius));
 			}
 		}
@@ -230,6 +246,7 @@ Plane::Plane(PlaneSide side) {
 	rigidBody = new btRigidBody(ci);
 	rigidBody->setActivationState(DISABLE_DEACTIVATION);
 	rigidBody->setRestitution(defaultRestitution);
+	rigidBody->setFriction(defaultFriction);
 }
 
 void Plane::renderToTexture() {

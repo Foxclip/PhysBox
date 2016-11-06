@@ -18,7 +18,19 @@ namespace utils {
 	}
 
 	Color randomColor() {
-		return{ (unsigned char)(random()*256), (unsigned char)(random()*256), (unsigned char)(random()*256) };
+		return { (unsigned char)(random()*256),
+				 (unsigned char)(random()*256),
+				 (unsigned char)(random()*256)  };
+	}
+
+	Color randomColorBetween(int min, int max) {
+		return { (unsigned char)(randomBetween(min/256.0, max/256.0)*256),
+				 (unsigned char)(randomBetween(min/256.0, max/256.0)*256),
+				 (unsigned char)(randomBetween(min/256.0, max/256.0)*256)  };
+	}
+
+	Color randomHSVColor(int S, int V) {
+		return HSVtoRGB((int)randomBetween(0, 360), S, V);
 	}
 
 	std::string toString(double var, int precision) {
@@ -29,6 +41,7 @@ namespace utils {
 
 	Color HSVtoRGB(int H, int S, int V) {
 		Color rgb = { 255, 255, 255 };
+		V *= 2;
 		int Hi = (int)std::floor(H / 60) % 6;
 		int Vmin = ((100 - S) * V) / 100;
 		int a = (V - Vmin) * (H % 60) / 60;
@@ -59,6 +72,13 @@ namespace utils {
 		}
 		return result;
 	}
+
+double quaternionToEulerZ(double x, double y, double z, double w) {
+	double ysqr = y * y;
+	double t0 = -2.0f * (ysqr + z * z) + 1.0f;
+	double t1 = +2.0f * (x * y - w * z);
+	return std::atan2(t0, t1);
+}
 
 	double randomBetween(double min, double max) {
 		return random() * (max - min) + min;

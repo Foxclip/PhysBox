@@ -90,6 +90,7 @@ bool Simulation::loadConfig() {
 	bumpSpeed				= cfg.lookup("bumpSpeed");
 	gravityIncrement		= cfg.lookup("gravityIncrement");
 	defaultRestitution		= cfg.lookup("defaultRestitution");
+	defaultFriction			= cfg.lookup("defaultFriction");
 
     return true;
 }
@@ -285,9 +286,11 @@ void Simulation::processPhysics() {
 	}
 	for(SimObject* object: objects) {
 		object->setRestitution(defaultRestitution);
+		object->setFriction(defaultFriction);
 	}
 	for(Plane* plane: planes) {
 		plane->setRestitution(defaultRestitution);
+		plane->setFriction(defaultFriction);
 	}
 	dynamicsWorld->stepSimulation(simulationSpeed * SECONDS_PER_FRAME, 100);
 	time += simulationSpeed * SECONDS_PER_FRAME;

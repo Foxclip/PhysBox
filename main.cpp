@@ -8,16 +8,17 @@ int main(int argc, char* args[]) {
 	libconfig::Config cfg;
 	cfg.readFile("startup.cfg");
 	int numberOfObjects = cfg.lookup("numberOfObjects");
+	double radius = cfg.lookup("radius");
 	while(true) {
 		simulation.resetSimulation();
 		for(int i = 0; i < numberOfObjects; i++) {
 			simulation.addBall(
 								utils::randomBetween(0, mainWindow.getWidth()),
 								utils::randomBetween(0, mainWindow.getHeight()),
-								5,
+								radius,
 								utils::randomBetween(0, 0),
 								utils::randomBetween(0, 0),
-								utils::randomColor()
+								utils::randomHSVColor(100, 100)
 							  );
 		}
 		//simulation.addBall(500, 500, 20, 10, 0, {255, 0, 0});

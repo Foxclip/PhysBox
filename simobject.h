@@ -16,6 +16,7 @@ enum CollisionType {
 };
 
 static double defaultRestitution;
+static double defaultFriction;
 
 class SimObject {
 
@@ -29,11 +30,13 @@ public:
 	double getY();
 	double getVelX();
 	double getVelY();
+	double getRotation();
 	void setX(double x);
 	void setY(double y);
 	void setVelX(double velX);
 	void setVelY(double velY);
 	void setRestitution(double restitution);
+	void setFriction(double friction);
 	void render(int offsetX, int offsetY);
 	static double distanceBetween(SimObject* object1, SimObject* object2);
 	void calculateGravity(SimObject* anotherObject, double delta, double gravityRadialForce);
