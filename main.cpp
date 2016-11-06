@@ -15,12 +15,13 @@ int main(int argc, char* args[]) {
 			simulation.addBall(
 								utils::randomBetween(0, mainWindow.getWidth()),
 								utils::randomBetween(0, mainWindow.getHeight()),
-								2.5,
-								utils::randomBetween(-1, 1),
-								utils::randomBetween(-1, 1),
+								5,
+								utils::randomBetween(-100, 100),
+								utils::randomBetween(-100, 100),
 								utils::randomColor()
 							  );
 		}
+		//simulation.addBall(500, 500, 20, 10, 0, {255, 0, 0});
 		simulation.runSimulation();
 	}
 

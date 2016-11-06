@@ -12,6 +12,7 @@
 #include <vector>
 #include <functional>
 #include <libconfig.hh>
+#include <btBulletDynamicsCommon.h>
 #include <iostream>
 #include "lwindow.h"
 #include "ltexture.h"
@@ -32,7 +33,7 @@ public:
 	bool springsEnabled = false;
 
 	CollisionType collisionType = COLLISION_TYPE_BOUNCE;
-	double gravityVerticalForce = 0.05;
+	double gravityVerticalForce = 0.0;
 	double gravityRadialForce = 0.15;
 	double springForce = 0.1;
 	double springDamping = 0;
@@ -66,6 +67,7 @@ public:
 
 private:
 
+	btDynamicsWorld* dynamicsWorld;
 	double time = 0;
 	bool pause = true;
 	bool exitRequest = false;
@@ -80,6 +82,7 @@ private:
 	double simulationSpeed = pow(SIMULATION_SPEED_BASE, simulationSpeedExponent);
 
 	bool initSDL();
+	bool initBullet();
 	bool loadMedia();
 	bool loadConfig();
 	void close();
@@ -90,9 +93,7 @@ private:
 	void handleEvents();
 	void handleKeyboard(SDL_Event e);
 	void handleMouse(SDL_Event e);
-	void zeroSpeed();
 	void processPhysics();
-	void processCollisions();
 	void deleteMarked();
 	void processGravity();
 	void processSprings();

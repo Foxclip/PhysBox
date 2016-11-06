@@ -3,6 +3,7 @@
 #include "utils.h"
 #include "ltexture.h"
 #include <vector>
+#include <btBulletDynamicsCommon.h>
 
 enum ObjectType {
 	OBJECT_TYPE_BALL
@@ -14,56 +15,52 @@ enum CollisionType {
 	COLLISION_TYPES_NUM
 };
 
-const double DEFAULT_DAMPING = 0.5;
+const double DEFAULT_DAMPING = 1;
 
 class SimObject {
 
 public:
 	double isActive = true;
-	double x = 0, y = 0;
-	double velX = 0, velY = 0;
 	double damping = DEFAULT_DAMPING;
 	std::vector<SimObject*> springConnections;
 	int incomingSpringConnectionsCount = 0;
 	bool isMarkedForDeletion = false;
-	virtual void move(double delta);
+	void addToRigidBodyWorld(btDynamicsWorld* world);
+	double getX();
+	double getY();
+	double getVelX();
+	double getVelY();
+	void setX(double x);
+	void setY(double y);
+	void setVelX(double velX);
+	void setVelY(double velY);
 	void render(int offsetX, int offsetY);
-	static void collide(SimObject* object1, SimObject* object2, double delta, CollisionType collisionType);
 	static double distanceBetween(SimObject* object1, SimObject* object2);
 	void calculateBackgroundFriction(double delta, double backgroundFrictionForce);
-	void calculateVerticalGravity(double delta, double gravityVerticalForce);
 	void calculateGravity(SimObject* anotherObject, double delta, double gravityRadialForce);
 	void calculateSprings(SimObject* anotherObject, double delta,
 		double springMaxDistance, double springDistance, double springDamping, double springForce);
 	double getMass();
+	void setMass(double mass);
 	ObjectType getObjectType();
 
 protected:
-	double mass;
+	btRigidBody* rigidBody;
 	utils::Color color;
 	LTexture texture;
 	ObjectType objectType;
 	virtual void renderToTexture() = 0;
-	virtual void recalculateMass() = 0;
 
 };
 
 class Ball: public SimObject {
 public:
 	Ball(double x, double y, double radius, double speedX, double speedY, utils::Color color, bool isActive = true);
-	void move(double delta);
 	void renderToTexture();
-	void recalculateMass();
 	void recalculateRadius();
 	static void mergeBalls(Ball* ball1, Ball* ball2, double delta);
-	static double partiallyElasticCollision(double v1, double v2, double m1, double m2, double restitution);
-	static void collideBalls(Ball* b1, Ball* b2, double delta, CollisionType collisionType);
-	static void ballsBounce(Ball* b1, Ball* b2, double delta);
-	static bool checkCollision(Ball* b1, Ball* b2, double delta);
-	static void recalculateSpeedsAfterCollision(Ball* b1, Ball* b2);
-	static void checkAndFixOverlap(Ball* b1, Ball* b2);
 
 private:
 	double radius;
-
+	double calculateMass(double rad);
 };

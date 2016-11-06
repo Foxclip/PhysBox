@@ -5,6 +5,7 @@ LWindow mainWindow;
 Simulation::Simulation(std::function<bool(Simulation*)> exitConditionFunction) {
 	this->exitContidionFunction = exitConditionFunction;
 	initSDL();
+	initBullet();
 	loadConfig();
 	loadMedia();
 	initWindow();
@@ -40,6 +41,16 @@ bool Simulation::initSDL() {
 		printf("TTF init error: %s\n", TTF_GetError());
 		return false;
 	}
+	return true;
+}
+
+bool Simulation::initBullet() {
+	btBroadphaseInterface* broadphase = new btDbvtBroadphase();
+	btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
+	btCollisionDispatcher* dispatcher = new btCollisionDispatcher(collisionConfiguration);
+	btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver();
+	dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
+	dynamicsWorld->setGravity(btVector3(0, gravityVerticalForce, 0));
 	return true;
 }
 
@@ -128,8 +139,8 @@ void Simulation::drawSprings() {
 				int Hue = (int)utils::mapRange(opacity, 0, 255, 120, 0);
 				utils::Color springColor = utils::HSVtoRGB(Hue, 100, 100);
 				SDL_SetRenderDrawColor(mainWindow.getRenderer(), springColor.red, springColor.green, springColor.blue, opacity);
-				SDL_RenderDrawLine(mainWindow.getRenderer(), (int)object1->x + offsetX, (int)object1->y + offsetY,
-															 (int)object2->x + offsetX, (int)object2->y + offsetY);
+				SDL_RenderDrawLine(mainWindow.getRenderer(), (int)object1->getX() + offsetX, (int)object1->getY() + offsetY,
+															 (int)object2->getX() + offsetX, (int)object2->getY() + offsetY);
 			}
 		}
 	}
@@ -238,35 +249,14 @@ void Simulation::handleMouse(SDL_Event e) {
 	}
 }
 
-void Simulation::zeroSpeed() {
-	for(SimObject* object: objects) {
-		if(!object->isActive) {
-			object->velX = 0;
-			object->velY = 0;
-		}
-	}
-}
-
 void Simulation::processPhysics() {
 	if(pause) return;
-	zeroSpeed();
-	processCollisions();
 	deleteMarked();
 	processGravity();
 	processSprings();
 	processOther();
+	dynamicsWorld->stepSimulation(simulationSpeed * SECONDS_PER_FRAME, 100);
 	time += simulationSpeed * SECONDS_PER_FRAME;
-}
-
-void Simulation::processCollisions() {
-	if(collisionsEnabled) {
-		for(SimObject* object1: objects) {
-			for(SimObject* object2: objects) {
-				if(object1 == object2) continue;
-				Ball::collide(object1, object2, simulationSpeed, collisionType);
-			}
-		}
-	}
 }
 
 void Simulation::deleteMarked() {
@@ -281,11 +271,6 @@ void Simulation::deleteMarked() {
 }
 
 void Simulation::processGravity() {
-	if(gravityVerticalEnabled) {
-		for(SimObject* object: objects) {
-			object->calculateVerticalGravity(simulationSpeed, gravityVerticalForce);
-		}
-	}
 	if(gravityRadialEnabled) {
 		for(SimObject* object1: objects) {
 			for(SimObject* object2: objects) {
@@ -328,11 +313,6 @@ void Simulation::processOther() {
 			object->calculateBackgroundFriction(simulationSpeed, backgroundFrictionForce);
 		}
 	}
-	for(SimObject* object: objects) {
-		if(object->isActive) {
-			object->move(simulationSpeed);
-		}
-	}
 }
 
 void Simulation::drawText(int x, int y, std::string str, utils::Color color, utils::Font& font) {
@@ -367,6 +347,7 @@ void Simulation::updateFpsCount() {
 Ball* Simulation::addBall(double x, double y, double radius, double speedX, double speedY, utils::Color color, bool isActive) {
 	Ball* ball = new Ball(x, y, radius, speedX, speedY, color, isActive);
 	objects.push_back(ball);
+	ball->addToRigidBodyWorld(dynamicsWorld);
 	return ball;
 }
 
@@ -386,8 +367,8 @@ void Simulation::checkExitCondition() {
 
 void Simulation::bumpAll(double velX, double velY) {
 	for(SimObject* obj: objects) {
-		obj->velX += velX;
-		obj->velY += velY;
+		obj->setVelX(obj->getVelX() + velX);
+		obj->setVelY(obj->getVelY() + velX);
 	}
 }
 
