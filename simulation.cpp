@@ -202,6 +202,21 @@ void Simulation::drawInfo(std::string text, double* parameter) {
 	drawInfo(text + std::to_string(*parameter));
 }
 
+void Simulation::drawOption(std::string text, bool* option) {
+	currentTextColor = getBoolColor(*option);
+	drawText(mainWindow.getWidth() - getStringWidth(text, currentFont), textDrawOffset, text);
+	textDrawOffset += currentFont.getSize();
+}
+
+void Simulation::drawInfo(std::string text) {
+	drawText(mainWindow.getWidth() - getStringWidth(text, currentFont), textDrawOffset, text);
+	textDrawOffset += currentFont.getSize();
+}
+
+void Simulation::drawInfo(std::string text, double* parameter) {
+	drawInfo(text + std::to_string(*parameter));
+}
+
 void Simulation::drawBlank() {
 	textDrawOffset += currentFont.getSize();
 }
