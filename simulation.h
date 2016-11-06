@@ -33,7 +33,7 @@ public:
 	bool springsEnabled = false;
 
 	CollisionType collisionType = COLLISION_TYPE_BOUNCE;
-	double gravityVerticalForce = 0.0;
+	double gravityVerticalForce = 100.0;
 	double gravityRadialForce = 0.15;
 	double springForce = 0.1;
 	double springDamping = 0;
@@ -55,12 +55,14 @@ public:
 	double offsetX = 0, offsetY = 0;
 
 	std::vector<SimObject*> objects;
+	std::vector<Plane*> planes;
 
 	Simulation(std::function<bool(Simulation*)> exitConditionFunction);
 	~Simulation();
 	double runSimulation();
 	void resetSimulation();
 	Ball* addBall(double x, double y, double radius, double speedX, double speedY, utils::Color color, bool isActive = true);
+	Plane* addPlane(Plane::PlaneSide side);
 	void deleteAllObjects();
 	void deleteObject(SimObject* object);
 	void generateSystem(double centerX, double centerY, double centerRadius, double moonRadius, int moonCount, double gap);
@@ -97,7 +99,6 @@ private:
 	void deleteMarked();
 	void processGravity();
 	void processSprings();
-	void processOther();
 	void drawText(int x, int y, std::string str, utils::Color color, utils::Font& font);
 	int getStringWidth(std::string, utils::Font& font);
 	utils::Color getBoolColor(bool var);

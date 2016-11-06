@@ -89,6 +89,7 @@ bool Simulation::loadConfig() {
 	cubicPixelMass			= cfg.lookup("cubicPixelMass");
 	bumpSpeed				= cfg.lookup("bumpSpeed");
 	gravityIncrement		= cfg.lookup("gravityIncrement");
+	defaultRestitution		= cfg.lookup("defaultRestitution");
 
     return true;
 }
@@ -175,6 +176,10 @@ void Simulation::drawUIText() {
 	drawText(mainWindow.getWidth() - getStringWidth(str, smallFont), smallFont.getSize()*7, str, { 255, 255, 0 }, smallFont);
 	str = "RadialG: " + std::to_string(gravityRadialForce);
 	drawText(mainWindow.getWidth() - getStringWidth(str, smallFont), smallFont.getSize()*9, str, { 255, 255, 0 }, smallFont);
+	str = "VerticalG: " + std::to_string(gravityVerticalForce);
+	drawText(mainWindow.getWidth() - getStringWidth(str, smallFont), smallFont.getSize()*10, str, { 255, 255, 0 }, smallFont);
+	str = "DefRest: " + std::to_string(defaultRestitution);
+	drawText(mainWindow.getWidth() - getStringWidth(str, smallFont), smallFont.getSize()*11, str, { 255, 255, 0 }, smallFont);
 
 	if(pause) {
 		drawText((mainWindow.getWidth() - getStringWidth("PAUSE", bigFont)) / 2,
@@ -254,7 +259,13 @@ void Simulation::processPhysics() {
 	deleteMarked();
 	processGravity();
 	processSprings();
-	processOther();
+	dynamicsWorld->setGravity(btVector3(0, gravityVerticalForce, 0));
+	for(SimObject* object: objects) {
+		object->setRestitution(defaultRestitution);
+	}
+	for(Plane* plane: planes) {
+		plane->setRestitution(defaultRestitution);
+	}
 	dynamicsWorld->stepSimulation(simulationSpeed * SECONDS_PER_FRAME, 100);
 	time += simulationSpeed * SECONDS_PER_FRAME;
 }
@@ -307,14 +318,6 @@ void Simulation::processSprings() {
 	}
 }
 
-void Simulation::processOther() {
-	if(backgroundFrictionEnabled) {
-		for(SimObject* object: objects) {
-			object->calculateBackgroundFriction(simulationSpeed, backgroundFrictionForce);
-		}
-	}
-}
-
 void Simulation::drawText(int x, int y, std::string str, utils::Color color, utils::Font& font) {
 	LTexture textTexture;
 	textTexture.loadFromRenderedText(str, { color.red, color.green, color.blue, 255 }, font.getSDLFont(), false);
@@ -351,6 +354,13 @@ Ball* Simulation::addBall(double x, double y, double radius, double speedX, doub
 	return ball;
 }
 
+Plane* Simulation::addPlane(Plane::PlaneSide side) {
+	Plane* plane = new Plane(side);
+	planes.push_back(plane);
+	plane->addToRigidBodyWorld(dynamicsWorld);
+	return plane;
+}
+
 void Simulation::changeSimulationSpeed(int change) {
 	simulationSpeedExponent += change;
 	simulationSpeed = pow(SIMULATION_SPEED_BASE, simulationSpeedExponent);
@@ -368,7 +378,7 @@ void Simulation::checkExitCondition() {
 void Simulation::bumpAll(double velX, double velY) {
 	for(SimObject* obj: objects) {
 		obj->setVelX(obj->getVelX() + velX);
-		obj->setVelY(obj->getVelY() + velX);
+		obj->setVelY(obj->getVelY() + velY);
 	}
 }
 

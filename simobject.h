@@ -15,13 +15,12 @@ enum CollisionType {
 	COLLISION_TYPES_NUM
 };
 
-const double DEFAULT_DAMPING = 1;
+static double defaultRestitution;
 
 class SimObject {
 
 public:
 	double isActive = true;
-	double damping = DEFAULT_DAMPING;
 	std::vector<SimObject*> springConnections;
 	int incomingSpringConnectionsCount = 0;
 	bool isMarkedForDeletion = false;
@@ -34,9 +33,9 @@ public:
 	void setY(double y);
 	void setVelX(double velX);
 	void setVelY(double velY);
+	void setRestitution(double restitution);
 	void render(int offsetX, int offsetY);
 	static double distanceBetween(SimObject* object1, SimObject* object2);
-	void calculateBackgroundFriction(double delta, double backgroundFrictionForce);
 	void calculateGravity(SimObject* anotherObject, double delta, double gravityRadialForce);
 	void calculateSprings(SimObject* anotherObject, double delta,
 		double springMaxDistance, double springDistance, double springDamping, double springForce);
@@ -63,4 +62,19 @@ public:
 private:
 	double radius;
 	double calculateMass(double rad);
+};
+
+class Plane: public SimObject {
+public:
+	enum PlaneSide {
+		POS_LEFT,
+		POS_RIGHT,
+		POS_TOP,
+		POS_BOTTOM
+	};
+	Plane(PlaneSide side);
+
+private:
+	void renderToTexture();
+
 };

@@ -49,6 +49,10 @@ void SimObject::setVelY(double velY) {
 	rigidBody->setLinearVelocity(btVector3(getVelX(), velY, 0));
 }
 
+void SimObject::setRestitution(double restitution) {
+	rigidBody->setRestitution(restitution);
+}
+
 
 void SimObject::render(int offsetX, int offsetY) {
 	texture.render((int)getX() - texture.getWidth()/2 + offsetX, (int)getY() - texture.getHeight()/2 + offsetY);
@@ -58,27 +62,6 @@ double SimObject::distanceBetween(SimObject* object1, SimObject* object2) {
 		double deltaX = object1->getX() - object2->getX();
 		double deltaY = object1->getY() - object2->getY();
 		return sqrt(deltaX*deltaX + deltaY*deltaY);
-}
-
-void SimObject::calculateBackgroundFriction(double delta, double backgroundFrictionForce) {
-	double velX = getVelX();
-	double velY = getVelY();
-	double speed = sqrt(velX*velX + velY*velY);
-	if(speed == 0) return;
-	double forceX = -velX / speed * backgroundFrictionForce;
-	double forceY = -velY / speed * backgroundFrictionForce;
-	double oldSpeedX = velX;
-	double oldSpeedY = velY;
-	velX += forceX / getMass() * delta;
-	velY += forceY / getMass() * delta;
-	if(velX * oldSpeedX < 0) {
-		velX = 0;
-	}
-	if(velY * oldSpeedY < 0) {
-		velY = 0;
-	}
-	setVelX(velX);
-	setVelY(velY);
 }
 
 void SimObject::calculateGravity(SimObject* anotherObject, double delta, double gravityRadialForce) {
@@ -160,7 +143,8 @@ Ball::Ball(double x, double y, double radius, double speedX, double speedY, util
 	btRigidBody::btRigidBodyConstructionInfo ci(mass, mState, shape, inertia);
 	rigidBody = new btRigidBody(ci);
 	rigidBody->setActivationState(DISABLE_DEACTIVATION);
-	rigidBody->setRestitution(1);
+	rigidBody->setRestitution(defaultRestitution);
+	rigidBody->setDamping(0, 0);
 
 	setVelX(speedX);
 	setVelY(speedY);
@@ -229,4 +213,24 @@ void Ball::mergeBalls(Ball* ball1, Ball* ball2, double delta) {
 	big->setMass(big->getMass() + small->getMass());
 	big->recalculateRadius();
 	small->isMarkedForDeletion = true;
+}
+
+Plane::Plane(PlaneSide side) {
+	btVector3 rot;
+	btVector3 pos;
+	switch(side) {
+		case Plane::POS_LEFT:	 rot = btVector3( 1,  0,  0); pos = btVector3(0,					 0,						 0); break;
+		case Plane::POS_RIGHT:	 rot = btVector3(-1,  0,  0); pos = btVector3(mainWindow.getWidth(), 0,						 0); break;
+		case Plane::POS_TOP:	 rot = btVector3( 0,  1,  0); pos = btVector3(0,					 0,						 0); break;
+		case Plane::POS_BOTTOM:	 rot = btVector3( 0, -1,  0); pos = btVector3(0,					 mainWindow.getHeight(), 0); break;
+	}
+	btCollisionShape* shape = new btStaticPlaneShape(rot, 1);
+	btDefaultMotionState* mState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), pos));
+	btRigidBody::btRigidBodyConstructionInfo ci(0, mState, shape, btVector3(0, 0, 0));
+	rigidBody = new btRigidBody(ci);
+	rigidBody->setActivationState(DISABLE_DEACTIVATION);
+	rigidBody->setRestitution(defaultRestitution);
+}
+
+void Plane::renderToTexture() {
 }
