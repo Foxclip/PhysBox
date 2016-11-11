@@ -13,15 +13,14 @@ int main(int argc, char* args[]) {
 		simulation.resetSimulation();
 		for(int i = 0; i < numberOfObjects; i++) {
 			simulation.addBall(
-								utils::randomBetween(0, mainWindow.getWidth()),
-								utils::randomBetween(0, mainWindow.getHeight()),
+								utils::randomBetween(0, mainWindow.getSize().x),
+								utils::randomBetween(0, mainWindow.getSize().y),
 								radius,
 								utils::randomBetween(0, 0),
 								utils::randomBetween(0, 0),
 								utils::randomHSVColor(100, 100)
 							  );
 		}
-		//simulation.addBall(500, 500, 20, 10, 0, {255, 0, 0});
 		simulation.addPlane(Plane::POS_LEFT);
 		simulation.addPlane(Plane::POS_RIGHT);
 		simulation.addPlane(Plane::POS_TOP);

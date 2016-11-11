@@ -1,9 +1,6 @@
 #pragma once
 
-#include <SDL.h>
-#include <SDL_image.h>
-#include <SDL_ttf.h>
-#include <SDL_thread.h>
+#include <SFML/Graphics.hpp>
 #include <stdio.h>
 #include <cstdlib>
 #include <string>
@@ -14,8 +11,6 @@
 #include <libconfig.hh>
 #include <btBulletDynamicsCommon.h>
 #include <iostream>
-#include "lwindow.h"
-#include "ltexture.h"
 #include "globals.h"
 #include "simobject.h"
 #include "utils.h"
@@ -61,7 +56,7 @@ public:
 	~Simulation();
 	double runSimulation();
 	void resetSimulation();
-	Ball* addBall(double x, double y, double radius, double speedX, double speedY, utils::Color color, bool isActive = true);
+	Ball* addBall(double x, double y, double radius, double speedX, double speedY, sf::Color color, bool isActive = true);
 	Plane* addPlane(Plane::PlaneSide side);
 	void deleteAllObjects();
 	void deleteObject(SimObject* object);
@@ -71,27 +66,39 @@ private:
 
 	btDynamicsWorld* dynamicsWorld;
 	double time = 0;
+	sf::Clock clock;
 	bool pause = true;
 	bool exitRequest = false;
 	bool uiEnabled = true;
 	std::function<bool(Simulation*)> exitContidionFunction;
-	utils::Font bigFont;
-	utils::Font smallFont;
-	utils::Font microFont;
 	int fpsCount = 0;
 	int fps = 0;
 	int lastFpsTime = 0;
 	double simulationSpeed = pow(SIMULATION_SPEED_BASE, simulationSpeedExponent);
 	int textDrawOffset = 0;
-	utils::Font currentFont = smallFont;
-	utils::Color currentTextColor = { 255, 255, 0 };
+	enum WindowSnap {
+		WINDOW_SNAP_OFF = 0,
+		WINDOW_SNAP_H_LEFT = 1,
+		WINDOW_SNAP_H_RIGHT = 2,
+		WINDOW_SNAP_V_TOP = 4,
+		WINDOW_SNAP_V_BOTTOM = 8,
+		WINDOW_SNAP_H_CENTER = 16,
+		WINDOW_SNAP_V_CENTER = 32
+	};
+	sf::Font font;
+	enum FontSize {
+		FONT_SIZE_SMALL = 10,
+		FONT_SIZE_NORMAL = 15,
+		FONT_SIZE_BIG = 28
+	};
+	FontSize currentFontSize = FONT_SIZE_NORMAL;
+	sf::Color currentTextColor = sf::Color::Yellow;
 
-	bool initSDL();
-	bool initBullet();
+	void initSFML();
+	void initBullet();
 	bool loadMedia();
-	bool loadConfig();
+	void loadConfig();
 	void close();
-	void initWindow();
 	void render();
 	void drawSprings();
 	void drawUIText();
@@ -100,15 +107,14 @@ private:
 	void drawInfo(std::string text, double* parameter);
 	void drawBlank();
 	void handleEvents();
-	void handleKeyboard(SDL_Event e);
-	void handleMouse(SDL_Event e);
+	void handleKeyboard(sf::Event e);
+	void handleMouse(sf::Event e);
 	void processPhysics();
 	void deleteMarked();
 	void processGravity();
 	void processSprings();
-	void drawText(int x, int y, std::string str);
-	int getStringWidth(std::string, utils::Font& font);
-	utils::Color getBoolColor(bool var);
+	void drawText(int x, int y, int snap, std::string str);
+	sf::Color getBoolColor(bool var);
 	void updateFpsCount();
 	void changeSimulationSpeed(int change);
 	void nextCollisionType();

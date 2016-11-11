@@ -73,8 +73,8 @@
     <LibraryPath>C:\Bullet\lib;C:\LibConfig\Debug;C:\SDL\lib\win32;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>C:\LibConfig\lib;C:\SDL\include;C:\Bullet\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Bullet\lib;C:\LibConfig\Debug;C:\SDL\lib\win32;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\LibConfig\lib;C:\SFML-2.4.1\include;C:\Bullet\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Bullet\lib;C:\LibConfig\Debug;C:\SFML-2.4.1\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -111,7 +111,7 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;libconfig++.lib;BulletCollision.lib;BulletDynamics.lib;LinearMath.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>sfml-graphics.lib;sfml-system.lib;sfml-window.lib;libconfig++.lib;BulletCollision.lib;BulletDynamics.lib;LinearMath.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
@@ -129,8 +129,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ltexture.cpp" />
-    <ClCompile Include="lwindow.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="simobject.cpp" />
     <ClCompile Include="simulation.cpp" />
@@ -138,8 +136,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="globals.h" />
-    <ClInclude Include="ltexture.h" />
-    <ClInclude Include="lwindow.h" />
     <ClInclude Include="simobject.h" />
     <ClInclude Include="simulation.h" />
     <ClInclude Include="utils.h" />

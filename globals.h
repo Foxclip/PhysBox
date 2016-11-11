@@ -1,7 +1,6 @@
 #pragma once
 
-#include <SDL.h>
-#include <SDL_ttf.h>
-#include "lwindow.h"
+#include <SFML/Graphics.hpp>
 
-extern LWindow mainWindow;
+extern sf::RenderWindow mainWindow;
+const float PI = 3.14f;

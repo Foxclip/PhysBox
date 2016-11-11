@@ -64,12 +64,6 @@ void SimObject::setFriction(double friction) {
 	rigidBody->setFriction(friction);
 }
 
-
-void SimObject::render(int offsetX, int offsetY) {
-	texture.render((int)getX() - texture.getWidth()/2 + offsetX, (int)getY() - texture.getHeight()/2 + offsetY,
-					NULL, getRotation() * 180 / M_PI);
-}
-
 double SimObject::distanceBetween(SimObject* object1, SimObject* object2) {
 		double deltaX = object1->getX() - object2->getX();
 		double deltaY = object1->getY() - object2->getY();
@@ -140,7 +134,7 @@ ObjectType SimObject::getObjectType() {
 	return objectType;
 }
 
-Ball::Ball(double x, double y, double radius, double speedX, double speedY, utils::Color color, bool isActive) {
+Ball::Ball(double x, double y, double radius, double speedX, double speedY, sf::Color color, bool isActive) {
 	
 	btCollisionShape* shape = new btSphereShape(radius);
 	btDefaultMotionState* mState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(x, y, 0)));
@@ -167,40 +161,23 @@ Ball::Ball(double x, double y, double radius, double speedX, double speedY, util
 	this->isActive = isActive;
 	objectType = OBJECT_TYPE_BALL;
 
-	renderToTexture();
-
 }
 
-void Ball::renderToTexture() {
-	texture.createBlank(((int)radius)*2, ((int)radius)*2, SDL_TEXTUREACCESS_TARGET);
-	texture.setAsRenderTarget();
-	SDL_SetTextureBlendMode(texture.getSDLTexture(), SDL_BLENDMODE_BLEND);
-	SDL_SetRenderDrawColor(mainWindow.getRenderer(), 0, 0, 0, 0);
-	SDL_RenderClear(mainWindow.getRenderer());
-	for(int yCoord = -(int)radius; yCoord <= (int)radius; yCoord++) {
-		for(int xCoord = -(int)radius; xCoord <= (int)radius; xCoord++) {
-			double xCoordShifted = xCoord + 0.5;
-			double yCoordShifted = yCoord + 0.5;
-			if((xCoordShifted*xCoordShifted + yCoordShifted*yCoordShifted) <= radius*radius) {
-				if(yCoordShifted < -radius / 2.0) {
-					SDL_SetRenderDrawColor(mainWindow.getRenderer(), 255, 255, 255, 255);
-				} else {
-					SDL_SetRenderDrawColor(mainWindow.getRenderer(), color.red, color.green, color.blue, 255);
-				}
-				SDL_RenderDrawPoint(mainWindow.getRenderer(), (int)(xCoord + radius), (int)(yCoord + radius));
-			}
-		}
-	}
-	SDL_SetRenderTarget(mainWindow.getRenderer(), NULL);
+void Ball::render() {
+	sf::CircleShape circle(radius);
+	circle.setOrigin(radius, radius);
+	circle.setFillColor(color);
+	circle.setPosition(getX(), getY());
+	circle.setRotation(getRotation() * 180 / PI);
+	mainWindow.draw(circle);
 }
 
 double Ball::calculateMass(double rad) {
-	return M_PI * rad*rad;
+	return PI * rad*rad;
 }
 
 void Ball::recalculateRadius() {
-	radius = sqrt(getMass() / M_PI);
-	renderToTexture();
+	radius = sqrt(getMass() / PI);
 }
 
 void Ball::mergeBalls(Ball* ball1, Ball* ball2, double delta) {
@@ -222,9 +199,9 @@ void Ball::mergeBalls(Ball* ball1, Ball* ball2, double delta) {
 	big->setVelX((big->getMass() * big->getVelX() + small->getMass() * small->getVelX()) / (big->getMass() + small->getMass()));
 	big->setVelY((big->getMass() * big->getVelY() + small->getMass() * small->getVelY()) / (big->getMass() + small->getMass()));
 	big->color = {
-		(unsigned char)((big->getMass() * big->color.red   + small->getMass() * small->color.red  ) / (big->getMass() + small->getMass())),
-		(unsigned char)((big->getMass() * big->color.green + small->getMass() * small->color.green) / (big->getMass() + small->getMass())),
-		(unsigned char)((big->getMass() * big->color.blue  + small->getMass() * small->color.blue ) / (big->getMass() + small->getMass()))
+		(unsigned char)((big->getMass() * big->color.r + small->getMass() * small->color.r) / (big->getMass() + small->getMass())),
+		(unsigned char)((big->getMass() * big->color.g + small->getMass() * small->color.g) / (big->getMass() + small->getMass())),
+		(unsigned char)((big->getMass() * big->color.b + small->getMass() * small->color.b) / (big->getMass() + small->getMass()))
 	};
 	big->setMass(big->getMass() + small->getMass());
 	big->recalculateRadius();
@@ -235,10 +212,10 @@ Plane::Plane(PlaneSide side) {
 	btVector3 rot;
 	btVector3 pos;
 	switch(side) {
-		case Plane::POS_LEFT:	 rot = btVector3( 1,  0,  0); pos = btVector3(0,					 0,						 0); break;
-		case Plane::POS_RIGHT:	 rot = btVector3(-1,  0,  0); pos = btVector3(mainWindow.getWidth(), 0,						 0); break;
-		case Plane::POS_TOP:	 rot = btVector3( 0,  1,  0); pos = btVector3(0,					 0,						 0); break;
-		case Plane::POS_BOTTOM:	 rot = btVector3( 0, -1,  0); pos = btVector3(0,					 mainWindow.getHeight(), 0); break;
+		case Plane::POS_LEFT:	 rot = btVector3( 1,  0,  0); pos = btVector3(0,					  0,					  0); break;
+		case Plane::POS_RIGHT:	 rot = btVector3(-1,  0,  0); pos = btVector3(mainWindow.getSize().x, 0,					  0); break;
+		case Plane::POS_TOP:	 rot = btVector3( 0,  1,  0); pos = btVector3(0,					  0,					  0); break;
+		case Plane::POS_BOTTOM:	 rot = btVector3( 0, -1,  0); pos = btVector3(0,					  mainWindow.getSize().y, 0); break;
 	}
 	btCollisionShape* shape = new btStaticPlaneShape(rot, 1);
 	btDefaultMotionState* mState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), pos));
@@ -249,5 +226,6 @@ Plane::Plane(PlaneSide side) {
 	rigidBody->setFriction(defaultFriction);
 }
 
-void Plane::renderToTexture() {
+void Plane::render() {
 }
+

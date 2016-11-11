@@ -1,7 +1,6 @@
 #pragma once
 
 #include "utils.h"
-#include "ltexture.h"
 #include <vector>
 #include <btBulletDynamicsCommon.h>
 
@@ -37,7 +36,7 @@ public:
 	void setVelY(double velY);
 	void setRestitution(double restitution);
 	void setFriction(double friction);
-	void render(int offsetX, int offsetY);
+	virtual void render() = 0;
 	static double distanceBetween(SimObject* object1, SimObject* object2);
 	void calculateGravity(SimObject* anotherObject, double delta, double gravityRadialForce);
 	void calculateSprings(SimObject* anotherObject, double delta,
@@ -48,17 +47,15 @@ public:
 
 protected:
 	btRigidBody* rigidBody;
-	utils::Color color;
-	LTexture texture;
+	sf::Color color;
 	ObjectType objectType;
-	virtual void renderToTexture() = 0;
 
 };
 
 class Ball: public SimObject {
 public:
-	Ball(double x, double y, double radius, double speedX, double speedY, utils::Color color, bool isActive = true);
-	void renderToTexture();
+	Ball(double x, double y, double radius, double speedX, double speedY, sf::Color color, bool isActive = true);
+	void render();
 	void recalculateRadius();
 	static void mergeBalls(Ball* ball1, Ball* ball2, double delta);
 
@@ -76,8 +73,6 @@ public:
 		POS_BOTTOM
 	};
 	Plane(PlaneSide side);
-
-private:
-	void renderToTexture();
+	void render();
 
 };

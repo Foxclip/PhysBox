@@ -17,30 +17,24 @@ namespace utils {
 		return dist(mt);
 	}
 
-	Color randomColor() {
+	sf::Color randomColor() {
 		return { (unsigned char)(random()*256),
 				 (unsigned char)(random()*256),
 				 (unsigned char)(random()*256)  };
 	}
 
-	Color randomColorBetween(int min, int max) {
+	sf::Color randomColorBetween(int min, int max) {
 		return { (unsigned char)(randomBetween(min/256.0, max/256.0)*256),
 				 (unsigned char)(randomBetween(min/256.0, max/256.0)*256),
 				 (unsigned char)(randomBetween(min/256.0, max/256.0)*256)  };
 	}
 
-	Color randomHSVColor(int S, int V) {
+	sf::Color randomHSVColor(int S, int V) {
 		return HSVtoRGB((int)randomBetween(0, 360), S, V);
 	}
 
-	std::string toString(double var, int precision) {
-		std::ostringstream strs;
-		strs << std::fixed << std::setprecision(precision) << var;
-		return strs.str();
-	}
-
-	Color HSVtoRGB(int H, int S, int V) {
-		Color rgb = { 255, 255, 255 };
+	sf::Color HSVtoRGB(int H, int S, int V) {
+		sf::Color rgb = { 255, 255, 255 };
 		V *= 2;
 		int Hi = (int)std::floor(H / 60) % 6;
 		int Vmin = ((100 - S) * V) / 100;
@@ -48,14 +42,20 @@ namespace utils {
 		int Vinc = Vmin + a;
 		int Vdec = V - a;
 		switch(Hi) {
-			case 0: rgb.red = V;	rgb.green = Vinc;	rgb.blue = Vmin;	break;
-			case 1: rgb.red = Vdec; rgb.green = V;		rgb.blue = Vmin;	break;
-			case 2: rgb.red = Vmin; rgb.green = V;		rgb.blue = Vinc;	break;
-			case 3: rgb.red = Vmin; rgb.green = Vdec;	rgb.blue = V;		break;
-			case 4: rgb.red = Vinc; rgb.green = Vmin;	rgb.blue = V;		break;
-			case 5: rgb.red = V;	rgb.green = Vmin;	rgb.blue = Vdec;	break;
+			case 0: rgb.r = V;	  rgb.g = Vinc;	rgb.b = Vmin;	break;
+			case 1: rgb.r = Vdec; rgb.g = V;	rgb.b = Vmin;	break;
+			case 2: rgb.r = Vmin; rgb.g = V;	rgb.b = Vinc;	break;
+			case 3: rgb.r = Vmin; rgb.g = Vdec;	rgb.b = V;		break;
+			case 4: rgb.r = Vinc; rgb.g = Vmin;	rgb.b = V;		break;
+			case 5: rgb.r = V;	  rgb.g = Vmin;	rgb.b = Vdec;	break;
 		}
 		return rgb;
+	}
+
+	std::string toString(double var, int precision) {
+		std::ostringstream strs;
+		strs << std::fixed << std::setprecision(precision) << var;
+		return strs.str();
 	}
 
 	double mapRange(double val, double min1, double max1, double min2, double max2, bool clamp) {
@@ -86,39 +86,6 @@ double quaternionToEulerZ(double x, double y, double z, double w) {
 
 	double nonLinearRandomBetween(double min, double max, std::function<double(double)> f) {
 		return f(random()) * (max - min) + min;
-	}
-
-	Font::Font() {
-		mFont = NULL;
-		mSize = 0;
-	}
-
-	Font::~Font() {
-		free();
-	}
-
-	bool Font::loadFont(std::string path, int size) {
-		TTF_Font* loadedFont = TTF_OpenFont(path.c_str(), size);
-		if(!loadedFont) {
-			printf("Font loading error: %s\n", TTF_GetError());
-			return false;
-		}
-		mFont = loadedFont;
-		mSize = size;
-		return true;
-	}
-
-	TTF_Font* Font::getSDLFont() {
-		return mFont;
-	}
-
-	int Font::getSize() {
-		return mSize;
-	}
-
-	void Font::free() {
-		mFont = NULL;
-		mSize = 0;
 	}
 
 }

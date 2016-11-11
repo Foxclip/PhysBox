@@ -1,14 +1,13 @@
 #include "simulation.h"
 
-LWindow mainWindow;
+sf::RenderWindow mainWindow;
 
 Simulation::Simulation(std::function<bool(Simulation*)> exitConditionFunction) {
 	this->exitContidionFunction = exitConditionFunction;
-	initSDL();
+	initSFML();
 	initBullet();
 	loadConfig();
 	loadMedia();
-	initWindow();
 	this->exitContidionFunction = exitConditionFunction;
 }
 
@@ -27,41 +26,29 @@ double Simulation::runSimulation() {
 	return 0;
 }
 
-bool Simulation::initSDL() {
-	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) < 0) {
-		printf("Init error: %s\n", SDL_GetError());
-		return false;
-	}
-	int imgFlags = IMG_INIT_PNG;
-	if(!(IMG_Init(imgFlags) & imgFlags)) {
-		printf("SDL image init error: %s\n", IMG_GetError());
-		return false;
-	}
-	if(TTF_Init() == -1) {
-		printf("TTF init error: %s\n", TTF_GetError());
-		return false;
-	}
-	return true;
+void Simulation::initSFML() {
+	
+	sf::ContextSettings settings;
+	settings.antialiasingLevel = 8;
+	mainWindow.create(sf::VideoMode::getFullscreenModes()[0], "SFML", sf::Style::Fullscreen, settings);
+	mainWindow.setVerticalSyncEnabled(true);
+
 }
 
-bool Simulation::initBullet() {
+void Simulation::initBullet() {
 	btBroadphaseInterface* broadphase = new btDbvtBroadphase();
 	btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
 	btCollisionDispatcher* dispatcher = new btCollisionDispatcher(collisionConfiguration);
 	btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver();
 	dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
 	dynamicsWorld->setGravity(btVector3(0, gravityVerticalForce, 0));
-	return true;
 }
 
 bool Simulation::loadMedia() {
-	bigFont.loadFont("arial.ttf", 28);
-	smallFont.loadFont("arial.ttf", 15);
-	microFont.loadFont("arial.ttf", 10);
-	return true;
+	return font.loadFromFile("arial.ttf");
 }
 
-bool Simulation::loadConfig() {
+void Simulation::loadConfig() {
 
 	libconfig::Config cfg;
 
@@ -92,39 +79,26 @@ bool Simulation::loadConfig() {
 	defaultRestitution		= cfg.lookup("defaultRestitution");
 	defaultFriction			= cfg.lookup("defaultFriction");
 
-    return true;
 }
 
 void Simulation::close() {
 	deleteAllObjects();
-	TTF_Quit();
-	IMG_Quit();
-	SDL_Quit();
-}
-
-void Simulation::initWindow() {
-	mainWindow.init();
-	mainWindow.maximize();
-	mainWindow.setFullScreen(true);
 }
 
 void Simulation::render() {
-	if(mainWindow.isMinimised()) return;
-	SDL_SetRenderDrawColor(mainWindow.getRenderer(), 0, 0, 0, 255);
-	SDL_RenderClear(mainWindow.getRenderer());
+	mainWindow.clear(sf::Color::Black);
 	drawSprings();
 	for(SimObject* object: objects) {
-		object->render(offsetX, offsetY);
+		object->render();
 	}
 	if(uiEnabled) {
 		drawUIText();
 	}
-	SDL_RenderPresent(mainWindow.getRenderer());
+	mainWindow.display();
 }
 
 void Simulation::drawSprings() {
 	if(!springsEnabled) return;
-	SDL_SetRenderDrawBlendMode(mainWindow.getRenderer(), SDL_BLENDMODE_BLEND);
 	for(SimObject* object1: objects) {
 		for(SimObject* object2: objects) {
 			if(std::find(object1->springConnections.begin(), object1->springConnections.end(),
@@ -139,10 +113,13 @@ void Simulation::drawSprings() {
 					opacity = (int)(k * distance + b);
 				}
 				int Hue = (int)utils::mapRange(opacity, 0, 255, 120, 0);
-				utils::Color springColor = utils::HSVtoRGB(Hue, 100, 100);
-				SDL_SetRenderDrawColor(mainWindow.getRenderer(), springColor.red, springColor.green, springColor.blue, opacity);
-				SDL_RenderDrawLine(mainWindow.getRenderer(), (int)object1->getX() + offsetX, (int)object1->getY() + offsetY,
-															 (int)object2->getX() + offsetX, (int)object2->getY() + offsetY);
+				sf::Color springColor = utils::HSVtoRGB(Hue, 100, 100);
+				sf::VertexArray lines(sf::LineStrip, 2);
+				lines[0].position = sf::Vector2f(object1->getX(), object1->getY());
+				lines[1].position = sf::Vector2f(object2->getX(), object2->getY());
+				lines[0].color = sf::Color(springColor.r, springColor.g, springColor.b, opacity);
+				lines[1].color = sf::Color(springColor.r, springColor.g, springColor.b, opacity);
+				mainWindow.draw(lines);
 			}
 		}
 	}
@@ -151,13 +128,13 @@ void Simulation::drawSprings() {
 void Simulation::drawUIText() {
 
 	textDrawOffset = 0;
-	currentFont = smallFont;
+	currentFontSize = FONT_SIZE_NORMAL;
 	currentTextColor = {255, 255, 0};
 
-	drawText(0, 0,					 "fps: "  + std::to_string(fps));
-	drawText(0, smallFont.getSize(), "time: " + utils::toString(time, 1));
+	drawText(0, 0,				  WINDOW_SNAP_H_LEFT | WINDOW_SNAP_V_TOP, "fps: "  + std::to_string(fps));
+	drawText(0, FONT_SIZE_NORMAL, WINDOW_SNAP_H_LEFT,					  "time: " + utils::toString(time, 1));
 	std::string str = "Objects: " + std::to_string(objects.size());
-	drawText((mainWindow.getWidth() - getStringWidth(str, smallFont)) / 2, 0, str);
+	drawText(0, 0,				  WINDOW_SNAP_H_CENTER | WINDOW_SNAP_V_TOP, str);
 
 	switch(collisionType) {
 		case COLLISION_TYPE_BOUNCE: str = "bounce"; break;
@@ -175,28 +152,27 @@ void Simulation::drawUIText() {
 	drawInfo("Simulation speed: " + std::to_string(simulationSpeed) + " (" + std::to_string((int)simulationSpeedExponent) + ")");
 	drawBlank();
 
-	currentFont = microFont;
+	currentFontSize = FONT_SIZE_SMALL;
 	drawInfo("RadialG: ", &gravityRadialForce);
 	drawInfo("VerticalG: ", &gravityVerticalForce);
 	drawInfo("DefRest: ", &defaultRestitution);
 
 	if(pause) {
-		currentFont = bigFont;
-		drawText((mainWindow.getWidth() - getStringWidth("PAUSE", bigFont)) / 2,
-				 (mainWindow.getHeight() - bigFont.getSize()) / 2, "PAUSE");
+		currentFontSize = FONT_SIZE_BIG;
+		drawText(0, 0, WINDOW_SNAP_H_CENTER | WINDOW_SNAP_V_CENTER, "PAUSE");
 	}
 
 }
 
 void Simulation::drawOption(std::string text, bool* option) {
 	currentTextColor = getBoolColor(*option);
-	drawText(mainWindow.getWidth() - getStringWidth(text, currentFont), textDrawOffset, text);
-	textDrawOffset += currentFont.getSize();
+	drawText(0, textDrawOffset, WINDOW_SNAP_H_RIGHT, text);
+	textDrawOffset += currentFontSize;
 }
 
 void Simulation::drawInfo(std::string text) {
-	drawText(mainWindow.getWidth() - getStringWidth(text, currentFont), textDrawOffset, text);
-	textDrawOffset += currentFont.getSize();
+	drawText(0, textDrawOffset, WINDOW_SNAP_H_RIGHT, text);
+	textDrawOffset += currentFontSize;
 }
 
 void Simulation::drawInfo(std::string text, double* parameter) {
@@ -204,68 +180,72 @@ void Simulation::drawInfo(std::string text, double* parameter) {
 }
 
 void Simulation::drawBlank() {
-	textDrawOffset += currentFont.getSize();
+	textDrawOffset += currentFontSize;
 }
 
 
 void Simulation::handleEvents() {
-	SDL_Event e;
-	while(SDL_PollEvent(&e) != 0) {
-		switch(e.type) {
-			case SDL_QUIT:						exit(EXIT_SUCCESS);			break;
-			case SDL_KEYUP: case SDL_KEYDOWN:	handleKeyboard(e);			break;
-			case SDL_MOUSEBUTTONDOWN: 
-			case SDL_MOUSEBUTTONUP:
-			case SDL_MOUSEMOTION: 
-			case SDL_MOUSEWHEEL:				handleMouse(e);				break;
-			case SDL_WINDOWEVENT:				mainWindow.handleEvent(e);	break;
+	sf::Event event;
+	while(mainWindow.pollEvent(event)) {
+		switch(event.type) {
+
+			case sf::Event::Closed:					exit(EXIT_SUCCESS);			break;
+
+			case sf::Event::KeyPressed:
+			case sf::Event::KeyReleased:			handleKeyboard(event);		break;
+
+			case sf::Event::MouseButtonPressed: 
+			case sf::Event::MouseButtonReleased:
+			case sf::Event::MouseMoved: 
+			case sf::Event::MouseWheelScrolled:		handleMouse(event);			break;
+
 		}
 	}
 }
 
-void Simulation::handleKeyboard(SDL_Event e) {
-	if(e.type == SDL_KEYDOWN) {
-		switch(e.key.keysym.scancode) {
-			case SDL_SCANCODE_ESCAPE:		exit(EXIT_SUCCESS);										break;
-			case SDL_SCANCODE_SPACE:		pause = !pause;											break;
-			case SDL_SCANCODE_1:			collisionsEnabled = !collisionsEnabled;					break;
-			case SDL_SCANCODE_2:			gravityRadialEnabled = !gravityRadialEnabled;			break;
-			case SDL_SCANCODE_3:			gravityVerticalEnabled = !gravityVerticalEnabled;		break;
-			case SDL_SCANCODE_4:			backgroundFrictionEnabled = !backgroundFrictionEnabled; break;
-			case SDL_SCANCODE_5:			springsEnabled = !springsEnabled;						break;
-			case SDL_SCANCODE_KP_PLUS:		changeSimulationSpeed(1);								break;
-			case SDL_SCANCODE_KP_MINUS:		changeSimulationSpeed(-1);								break;
-			case SDL_SCANCODE_F2:			uiEnabled = !uiEnabled;									break;
-			case SDL_SCANCODE_C:			nextCollisionType();									break;
-			case SDL_SCANCODE_UP:			bumpAll(0, -bumpSpeed);									break;
-			case SDL_SCANCODE_DOWN:			bumpAll(0,  bumpSpeed);									break;
-			case SDL_SCANCODE_LEFT:			bumpAll(-bumpSpeed, 0);									break;
-			case SDL_SCANCODE_RIGHT:		bumpAll( bumpSpeed, 0);									break;
-			case SDL_SCANCODE_LEFTBRACKET:	gravityRadialForce -= gravityIncrement;					break;
-			case SDL_SCANCODE_RIGHTBRACKET:	gravityRadialForce += gravityIncrement;					break;
+void Simulation::handleKeyboard(sf::Event event) {
+	if(event.type == sf::Event::KeyPressed) {
+		switch(event.key.code) {
+			case sf::Keyboard::Escape:		exit(EXIT_SUCCESS);										break;
+			case sf::Keyboard::Space:		pause = !pause;											break;
+			case sf::Keyboard::Num1:		collisionsEnabled = !collisionsEnabled;					break;
+			case sf::Keyboard::Num2:		gravityRadialEnabled = !gravityRadialEnabled;			break;
+			case sf::Keyboard::Num3:		gravityVerticalEnabled = !gravityVerticalEnabled;		break;
+			case sf::Keyboard::Num4:		backgroundFrictionEnabled = !backgroundFrictionEnabled; break;
+			case sf::Keyboard::Num5:		springsEnabled = !springsEnabled;						break;
+			case sf::Keyboard::Add:			changeSimulationSpeed(1);								break;
+			case sf::Keyboard::Subtract:	changeSimulationSpeed(-1);								break;
+			case sf::Keyboard::F2:			uiEnabled = !uiEnabled;									break;
+			case sf::Keyboard::C:			nextCollisionType();									break;
+			case sf::Keyboard::Up:			bumpAll(0, -bumpSpeed);									break;
+			case sf::Keyboard::Down:		bumpAll(0,  bumpSpeed);									break;
+			case sf::Keyboard::Left:		bumpAll(-bumpSpeed, 0);									break;
+			case sf::Keyboard::Right:		bumpAll( bumpSpeed, 0);									break;
+			case sf::Keyboard::LBracket:	gravityRadialForce -= gravityIncrement;					break;
+			case sf::Keyboard::RBracket:	gravityRadialForce += gravityIncrement;					break;
 		}
 	}
 }
 
-void Simulation::handleMouse(SDL_Event e) {
-	if(e.type == SDL_MOUSEBUTTONDOWN) {
-		if(e.button.button == SDL_BUTTON_MIDDLE) {
-			int mouseX, mouseY;
-			SDL_GetMouseState(&mouseX, &mouseY);
+void Simulation::handleMouse(sf::Event event) {
+	if(event.type == sf::Event::MouseButtonPressed) {
+		if(event.mouseButton.button == sf::Mouse::Button::Middle) {
+			int mouseX = sf::Mouse::getPosition().x;
+			int mouseY = sf::Mouse::getPosition().y;
 			mousePrevX = mouseX;
 			mousePrevY = mouseY;
 			isWheelDown = true;
 		}
 	}
-	if(e.type == SDL_MOUSEBUTTONUP) {
-		if(e.button.button == SDL_BUTTON_MIDDLE) {
+	if(event.type == sf::Event::MouseButtonReleased) {
+		if(event.mouseButton.button == sf::Mouse::Button::Middle) {
 			isWheelDown = false;
 		}
 	}
-	if(e.type == SDL_MOUSEMOTION) {
-		int mouseX, mouseY;
+	if(event.type == sf::Event::MouseMoved) {
 		if(isWheelDown) {
-			SDL_GetMouseState(&mouseX, &mouseY);
+			int mouseX = sf::Mouse::getPosition().x;
+			int mouseY = sf::Mouse::getPosition().y;
 			offsetX += mouseX - mousePrevX;
 			offsetY += mouseY - mousePrevY;
 			mousePrevX = mouseX;
@@ -344,20 +324,36 @@ void Simulation::processSprings() {
 	}
 }
 
-void Simulation::drawText(int x, int y, std::string str) {
-	LTexture textTexture;
-	textTexture.loadFromRenderedText(str, { currentTextColor.red, currentTextColor.green, currentTextColor.blue, 255 },
-										currentFont.getSDLFont(), false);
-	textTexture.render(x, y);
+void Simulation::drawText(int x, int y, int snap, std::string str) {
+	sf::Text text(str, font, currentFontSize);
+	text.setFillColor(currentTextColor);
+	if(snap == WINDOW_SNAP_OFF) {
+		x = 0;
+		y = 0;
+	}
+	if(snap & WINDOW_SNAP_H_LEFT) {
+		x = 0;
+	}
+	if(snap & WINDOW_SNAP_H_CENTER) {
+		x = mainWindow.getSize().x / 2 - text.getLocalBounds().width / 2;
+	}
+	if(snap & WINDOW_SNAP_H_RIGHT) {
+		x = mainWindow.getSize().x - text.getLocalBounds().width;
+	}
+	if(snap & WINDOW_SNAP_V_TOP) {
+		y = 0;
+	}
+	if(snap & WINDOW_SNAP_V_CENTER) {
+		y = mainWindow.getSize().y / 2 - text.getLocalBounds().height / 2;
+	}
+	if(snap & WINDOW_SNAP_V_BOTTOM) {
+		y = mainWindow.getSize().y - text.getLocalBounds().height;
+	}
+	text.setPosition(x, y);
+	mainWindow.draw(text);
 }
 
-int Simulation::getStringWidth(std::string str, utils::Font& font) {
-	int w;
-	TTF_SizeText(font.getSDLFont(), str.c_str(), &w, NULL);
-	return w;
-}
-
-utils::Color Simulation::getBoolColor(bool var) {
+sf::Color Simulation::getBoolColor(bool var) {
 	if(var)
 		return { 0, 255, 0 };
 	else
@@ -365,16 +361,16 @@ utils::Color Simulation::getBoolColor(bool var) {
 }
 
 void Simulation::updateFpsCount() {
-	int currentTime = SDL_GetTicks();
+	int millisecondsPassed = clock.getElapsedTime().asMilliseconds();
+	clock.restart();
 	fpsCount++;
-	if(currentTime - lastFpsTime > 1000) {
+	if(millisecondsPassed > 1000) {
 		fps = fpsCount;
 		fpsCount = 0;
-		lastFpsTime = currentTime;
 	}
 }
 
-Ball* Simulation::addBall(double x, double y, double radius, double speedX, double speedY, utils::Color color, bool isActive) {
+Ball* Simulation::addBall(double x, double y, double radius, double speedX, double speedY, sf::Color color, bool isActive) {
 	Ball* ball = new Ball(x, y, radius, speedX, speedY, color, isActive);
 	objects.push_back(ball);
 	ball->addToRigidBodyWorld(dynamicsWorld);
@@ -434,11 +430,11 @@ void Simulation::generateSystem(double centerX, double centerY, double centerRad
 		double distanceToCenter = i * gap;
 		double velocity = sqrt(gravityRadialForce * center->getMass() / distanceToCenter);
 		addBall(
-			cos(angle * M_PI / 180) * distanceToCenter + centerX,
-			sin(angle * M_PI / 180) * distanceToCenter + centerY,
+			cos(angle * PI / 180) * distanceToCenter + centerX,
+			sin(angle * PI / 180) * distanceToCenter + centerY,
 			moonRadius,
-			cos((angle + 90) * M_PI / 180) * velocity,
-			sin((angle + 90) * M_PI / 180) * velocity,
+			cos((angle + 90) * PI / 180) * velocity,
+			sin((angle + 90) * PI / 180) * velocity,
 			utils::randomColor()
 		);
 	}
