@@ -362,11 +362,11 @@ sf::Color Simulation::getBoolColor(bool var) {
 
 void Simulation::updateFpsCount() {
 	int millisecondsPassed = clock.getElapsedTime().asMilliseconds();
-	clock.restart();
 	fpsCount++;
 	if(millisecondsPassed > 1000) {
 		fps = fpsCount;
 		fpsCount = 0;
+		clock.restart();
 	}
 }
 
