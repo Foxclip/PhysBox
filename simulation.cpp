@@ -33,6 +33,9 @@ void Simulation::initSFML() {
 	mainWindow.create(sf::VideoMode::getFullscreenModes()[0], "SFML", sf::Style::Fullscreen, settings);
 	mainWindow.setVerticalSyncEnabled(true);
 
+	view.reset(sf::FloatRect(0, 0, mainWindow.getSize().x, mainWindow.getSize().y));
+	mainWindow.setView(view);
+
 }
 
 void Simulation::initBullet() {
@@ -86,15 +89,18 @@ void Simulation::close() {
 }
 
 void Simulation::render() {
+	mainWindow.setView(view);
 	mainWindow.clear(sf::Color::Black);
 	drawSprings();
 	for(SimObject* object: objects) {
 		object->render();
 	}
+	mainWindow.setView(mainWindow.getDefaultView());
 	if(uiEnabled) {
 		drawUIText();
 	}
 	mainWindow.display();
+	mainWindow.setView(view);
 }
 
 void Simulation::drawSprings() {
@@ -230,10 +236,7 @@ void Simulation::handleKeyboard(sf::Event event) {
 void Simulation::handleMouse(sf::Event event) {
 	if(event.type == sf::Event::MouseButtonPressed) {
 		if(event.mouseButton.button == sf::Mouse::Button::Middle) {
-			int mouseX = sf::Mouse::getPosition().x;
-			int mouseY = sf::Mouse::getPosition().y;
-			mousePrevX = mouseX;
-			mousePrevY = mouseY;
+			mousePrev = mainWindow.mapPixelToCoords(sf::Mouse::getPosition(mainWindow), mainWindow.getDefaultView());
 			isWheelDown = true;
 		}
 	}
@@ -244,13 +247,14 @@ void Simulation::handleMouse(sf::Event event) {
 	}
 	if(event.type == sf::Event::MouseMoved) {
 		if(isWheelDown) {
-			int mouseX = sf::Mouse::getPosition().x;
-			int mouseY = sf::Mouse::getPosition().y;
-			offsetX += mouseX - mousePrevX;
-			offsetY += mouseY - mousePrevY;
-			mousePrevX = mouseX;
-			mousePrevY = mouseY;
+			sf::Vector2f mousePos = mainWindow.mapPixelToCoords(sf::Mouse::getPosition(mainWindow), mainWindow.getDefaultView());
+			sf::Vector2f delta(mousePrev.x - mousePos.x, mousePrev.y - mousePos.y);
+			view.setCenter(view.getCenter() + delta*(view.getSize().x/mainWindow.getDefaultView().getSize().x));
+			mousePrev = mousePos;
 		}
+	}
+	if(event.type == sf::Event::MouseWheelScrolled) {
+		view.zoom(pow(mouseWheelzoomFactor, -event.mouseWheelScroll.delta));
 	}
 }
 

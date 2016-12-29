@@ -44,10 +44,10 @@ public:
 
 	const double SIMULATION_SPEED_BASE = 4;
 	int simulationSpeedExponent = 0;
+	double mouseWheelzoomFactor = 1.1;
 
 	bool isWheelDown = false;
-	int mousePrevX = 0, mousePrevY = 0;
-	double offsetX = 0, offsetY = 0;
+	sf::Vector2f mousePrev;
 
 	std::vector<SimObject*> objects;
 	std::vector<Plane*> planes;
@@ -64,6 +64,7 @@ public:
 
 private:
 
+	sf::View view;
 	btDynamicsWorld* dynamicsWorld;
 	double time = 0;
 	sf::Clock clock;
