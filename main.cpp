@@ -21,10 +21,6 @@ int main(int argc, char* args[]) {
 								utils::randomHSVColor(100, 100)
 							  );
 		}
-		simulation.addPlane(Plane::POS_LEFT);
-		simulation.addPlane(Plane::POS_RIGHT);
-		simulation.addPlane(Plane::POS_TOP);
-		simulation.addPlane(Plane::POS_BOTTOM);
 		simulation.runSimulation();
 	}
 

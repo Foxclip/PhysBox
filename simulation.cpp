@@ -268,14 +268,10 @@ void Simulation::processPhysics() {
 	} else {
 		dynamicsWorld->setGravity(btVector3(0, 0, 0));
 	}
-	for(SimObject* object: objects) {
-		object->setRestitution(defaultRestitution);
-		object->setFriction(defaultFriction);
-	}
-	for(Plane* plane: planes) {
-		plane->setRestitution(defaultRestitution);
-		plane->setFriction(defaultFriction);
-	}
+	//for(SimObject* object: objects) {
+	//	object->setRestitution(defaultRestitution);
+	//	object->setFriction(defaultFriction);
+	//}
 	dynamicsWorld->stepSimulation(simulationSpeed * SECONDS_PER_FRAME, 100);
 	time += simulationSpeed * SECONDS_PER_FRAME;
 }
