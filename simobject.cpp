@@ -290,3 +290,66 @@ void Polygon::render() {
 	renderShape->setRotation(getRotation() * 180 / PI - 90);
 	mainWindow.draw(*renderShape);
 }
+
+Track::Track(int pointCount, double distanceBetweenPoints, double thickness, double bottomLimit, double topLimit) {
+
+	std::vector<Point> trackPoints;
+	for(int i = 0; i < pointCount; i++) {
+		trackPoints.push_back({
+			i * distanceBetweenPoints,
+			utils::randomBetween(bottomLimit, topLimit)
+		});
+	}
+
+	btCompoundShape* shape = new btCompoundShape();
+
+	for(int i = 1; i < pointCount; i++) {
+
+		btConvexHullShape* convex    = new btConvexHullShape();
+		convex->addPoint(btVector3(trackPoints[i    ].x,	 trackPoints[i	  ].y,			   -10));
+		convex->addPoint(btVector3(trackPoints[i    ].x,	 trackPoints[i    ].y,				10));
+		convex->addPoint(btVector3(trackPoints[i - 1].x,	 trackPoints[i - 1].y,			   -10));
+		convex->addPoint(btVector3(trackPoints[i - 1].x,	 trackPoints[i - 1].y,				10));
+		convex->addPoint(btVector3(trackPoints[i - 1].x,	 trackPoints[i - 1].y + thickness, -10));
+		convex->addPoint(btVector3(trackPoints[i - 1].x,	 trackPoints[i - 1].y + thickness,  10));
+		convex->addPoint(btVector3(trackPoints[i	].x,	 trackPoints[i	  ].y + thickness, -10));
+		convex->addPoint(btVector3(trackPoints[i	].x,	 trackPoints[i	  ].y + thickness,  10));
+		btTransform transform;
+		transform.setIdentity();
+		shape->addChildShape(transform, convex);
+
+		sf::ConvexShape segment;
+		segment.setPointCount(4);
+		segment.setPoint(0, sf::Vector2f(trackPoints[i	  ].x, trackPoints[i    ].y            ));
+		segment.setPoint(1, sf::Vector2f(trackPoints[i - 1].x, trackPoints[i - 1].y            ));
+		segment.setPoint(2, sf::Vector2f(trackPoints[i - 1].x, trackPoints[i - 1].y + thickness));
+		segment.setPoint(3, sf::Vector2f(trackPoints[i	  ].x, trackPoints[i    ].y + thickness));
+		segment.setPosition(sf::Vector2f(0, 0));
+		//segment.setFillColor(sf::Color::White);
+		segment.setFillColor(utils::randomColor());
+		renderSegments.push_back(segment);
+
+	}
+
+	btDefaultMotionState* mState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 1000, 0)));
+	double mass = 0;
+	btVector3 inertia(0, 0, 0);
+	shape->calculateLocalInertia(mass, inertia);
+	btRigidBody::btRigidBodyConstructionInfo ci(mass, mState, shape, inertia);
+	rigidBody = new btRigidBody(ci);
+	rigidBody->setActivationState(DISABLE_DEACTIVATION);
+	rigidBody->setRestitution(defaultRestitution);
+	rigidBody->setDamping(0, 0);
+	rigidBody->setFriction(defaultFriction);
+
+	objectType = OBJECT_TYPE_TRACK;
+
+}
+
+void Track::render() {
+	for(sf::ConvexShape segment : renderSegments) {
+		segment.setPosition(getX(), getY());
+		segment.setRotation(getRotation() * 180 / PI - 90);
+		mainWindow.draw(segment);
+	}
+}

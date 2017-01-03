@@ -28,10 +28,11 @@ int main(int argc, char* args[]) {
 			);
 		}
 
-		simulation.addPlane(Plane::POS_TOP);
-		simulation.addPlane(Plane::POS_BOTTOM);
-		simulation.addPlane(Plane::POS_LEFT);
-		simulation.addPlane(Plane::POS_RIGHT);
+		//simulation.addPlane(Plane::POS_TOP);
+		//simulation.addPlane(Plane::POS_BOTTOM);
+		//simulation.addPlane(Plane::POS_LEFT);
+		//simulation.addPlane(Plane::POS_RIGHT);
+		simulation.addTrack(10, 200, 50, -20, 20);
 
 		simulation.runSimulation();
 

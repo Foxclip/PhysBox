@@ -58,6 +58,7 @@ public:
 	void resetSimulation();
 	Ball* addBall(double x, double y, double radius, double speedX, double speedY, sf::Color color, bool isActive = true);
 	Polygon* addPolygon(double x, double y, double speedX, double speedY, std::vector<Point> points, sf::Color color, bool isActive = true);
+	Track* addTrack(int pointCount, double distanceBetweenPoints, double thickness, double bottomLimit, double topLimit);
 	Plane* addPlane(Plane::PlaneSide side);
 	void deleteAllObjects();
 	void deleteObject(SimObject* object);

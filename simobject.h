@@ -6,7 +6,8 @@
 
 enum ObjectType {
 	OBJECT_TYPE_BALL,
-	OBJECT_TYPE_POLYGON
+	OBJECT_TYPE_POLYGON,
+	OBJECT_TYPE_TRACK
 };
 
 enum CollisionType {
@@ -89,5 +90,15 @@ public:
 
 private:
 	sf::ConvexShape* renderShape;
+
+};
+
+class Track : public SimObject {
+public:
+	Track(int pointCount, double distanceBetweenPoints, double thickness, double bottomLimit, double topLimit);
+	void render();
+
+private:
+	std::vector<sf::ConvexShape> renderSegments;
 
 };

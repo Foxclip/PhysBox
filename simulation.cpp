@@ -384,6 +384,13 @@ Polygon* Simulation::addPolygon(double x, double y, double speedX, double speedY
 	return polygon;
 }
 
+Track* Simulation::addTrack(int pointCount, double distanceBetweenPoints, double thickness, double bottomLimit, double topLimit) {
+	Track* track = new Track(pointCount, distanceBetweenPoints, thickness, bottomLimit, topLimit);
+	objects.push_back(track);
+	track->addToRigidBodyWorld(dynamicsWorld);
+	return track;
+}
+
 Plane* Simulation::addPlane(Plane::PlaneSide side) {
 	Plane* plane = new Plane(side);
 	planes.push_back(plane);
