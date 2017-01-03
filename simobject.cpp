@@ -233,10 +233,23 @@ void Plane::render() {
 
 Polygon::Polygon(double x, double y, double speedX, double speedY, std::vector<Point> points, sf::Color color, bool isActive) {
 
-	btConvexHullShape* shape = new btConvexHullShape();
+	btCompoundShape* shape = new btCompoundShape();
 	for(int i = 0; i < points.size(); i++) {
-		shape->addPoint(btVector3(points[i].x, points[i].y, -10));
-		shape->addPoint(btVector3(points[i].x, points[i].y,  10));
+		btConvexHullShape* convex = new btConvexHullShape();
+		convex->addPoint(btVector3(0, 0, -10));
+		convex->addPoint(btVector3(0, 0,  10));
+		convex->addPoint(btVector3(points[i].x, points[i].y, -10));
+		convex->addPoint(btVector3(points[i].x, points[i].y,  10));
+		if(i < points.size() - 1) {
+			convex->addPoint(btVector3(points[i + 1].x, points[i + 1].y, -10));
+			convex->addPoint(btVector3(points[i + 1].x, points[i + 1].y,  10));
+		} else {
+			convex->addPoint(btVector3(points[0].x, points[0].y, -10));
+			convex->addPoint(btVector3(points[0].x, points[0].y,  10));
+		}
+		btTransform transform;
+		transform.setIdentity();
+		shape->addChildShape(transform, convex);
 	}
 
 	btDefaultMotionState* mState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(x, y, 0)));
