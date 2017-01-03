@@ -377,6 +377,13 @@ Ball* Simulation::addBall(double x, double y, double radius, double speedX, doub
 	return ball;
 }
 
+Polygon* Simulation::addPolygon(double x, double y, double speedX, double speedY, std::vector<Point> points, sf::Color color, bool isActive) {
+	Polygon* polygon = new Polygon(x, y, speedX, speedY, points, color, isActive);
+	objects.push_back(polygon);
+	polygon->addToRigidBodyWorld(dynamicsWorld);
+	return polygon;
+}
+
 Plane* Simulation::addPlane(Plane::PlaneSide side) {
 	Plane* plane = new Plane(side);
 	planes.push_back(plane);

@@ -21,7 +21,21 @@ int main(int argc, char* args[]) {
 								utils::randomHSVColor(100, 100)
 							  );
 		}
+
+		std::vector<Point> points;
+		points.push_back({-5, -5});
+		points.push_back({-5,  5});
+		points.push_back({ 5,  5});
+		points.push_back({ 5, -5});
+		simulation.addPolygon(500, 500, 0, 0, points, sf::Color::White, true);
+
+		simulation.addPlane(Plane::POS_TOP);
+		simulation.addPlane(Plane::POS_BOTTOM);
+		simulation.addPlane(Plane::POS_LEFT);
+		simulation.addPlane(Plane::POS_RIGHT);
+
 		simulation.runSimulation();
+
 	}
 
 	return 0;

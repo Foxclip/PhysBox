@@ -5,7 +5,8 @@
 #include <btBulletDynamicsCommon.h>
 
 enum ObjectType {
-	OBJECT_TYPE_BALL
+	OBJECT_TYPE_BALL,
+	OBJECT_TYPE_POLYGON
 };
 
 enum CollisionType {
@@ -13,6 +14,10 @@ enum CollisionType {
 	COLLISION_TYPE_MERGE,
 	COLLISION_TYPES_NUM
 };
+
+typedef struct _point {
+	double x, y;
+} Point;
 
 static double defaultRestitution;
 static double defaultFriction;
@@ -74,5 +79,15 @@ public:
 	};
 	Plane(PlaneSide side);
 	void render();
+
+};
+
+class Polygon: public SimObject {
+public:
+	Polygon(double x, double y, double speedX, double speedY, std::vector<Point> points, sf::Color color, bool isActive = true);
+	void render();
+
+private:
+	sf::ConvexShape* renderShape;
 
 };

@@ -229,3 +229,58 @@ Plane::Plane(PlaneSide side) {
 void Plane::render() {
 }
 
+Polygon::Polygon(double x, double y, double speedX, double speedY, std::vector<Point> points, sf::Color color, bool isActive) {
+
+	btCompoundShape* shape = new btCompoundShape();
+	for(int i = 0; i < points.size(); i++) {
+		btConvexHullShape* convex = new btConvexHullShape();
+		convex->addPoint(btVector3(0, 0, 0));
+		convex->addPoint(btVector3(points[i].x, points[i].y, 0));
+		if(i < points.size() - 1) {
+			convex->addPoint(btVector3(points[i + 1].x, points[i + 1].y, 0));
+		} else {
+			convex->addPoint(btVector3(points[0].x, points[0].y, 0));
+		}
+		btTransform transform;
+		transform.setIdentity();
+		shape->addChildShape(transform, convex);
+	}
+
+	btDefaultMotionState* mState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(x, y, 0)));
+	double mass;
+	if(isActive) {
+		mass = 1;
+	} else {
+		mass = 0;
+	}
+	btVector3 inertia(0, 0, 0);
+	shape->calculateLocalInertia(mass, inertia);
+	btRigidBody::btRigidBodyConstructionInfo ci(mass, mState, shape, inertia);
+	rigidBody = new btRigidBody(ci);
+	rigidBody->setActivationState(DISABLE_DEACTIVATION);
+	rigidBody->setRestitution(defaultRestitution);
+	rigidBody->setDamping(0, 0);
+	rigidBody->setFriction(defaultFriction);
+
+	setVelX(speedX);
+	setVelY(speedY);
+
+	this->color = color;
+	this->isActive = isActive;
+	objectType = OBJECT_TYPE_POLYGON;
+
+	renderShape = new sf::ConvexShape();
+	renderShape->setPointCount(points.size());
+	for(int i = 0; i < points.size(); i++) {
+		renderShape->setPoint(i, sf::Vector2f(points[i].x, points[i].y));
+	}
+	renderShape->setPosition(sf::Vector2f(x, y));
+	renderShape->setFillColor(color);
+
+}
+
+void Polygon::render() {
+	renderShape->setPosition(getX(), getY());
+	renderShape->setRotation(getRotation() * 180 / PI);
+	mainWindow.draw(*renderShape);
+}
