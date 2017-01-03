@@ -11,23 +11,33 @@ int main(int argc, char* args[]) {
 	double radius = cfg.lookup("radius");
 	while(true) {
 		simulation.resetSimulation();
-		for(int i = 0; i < numberOfObjects; i++) {
-			simulation.addBall(
-								utils::randomBetween(0, mainWindow.getSize().x),
-								utils::randomBetween(0, mainWindow.getSize().y),
-								radius,
-								utils::randomBetween(0, 0),
-								utils::randomBetween(0, 0),
-								utils::randomHSVColor(100, 100)
-							  );
-		}
+		//for(int i = 0; i < numberOfObjects; i++) {
+		//	simulation.addBall(
+		//						utils::randomBetween(0, mainWindow.getSize().x),
+		//						utils::randomBetween(0, mainWindow.getSize().y),
+		//						radius,
+		//						utils::randomBetween(0, 0),
+		//						utils::randomBetween(0, 0),
+		//						utils::randomHSVColor(100, 100)
+		//					  );
+		//}
 
-		std::vector<Point> points;
-		points.push_back({-5, -5});
-		points.push_back({-5,  5});
-		points.push_back({ 5,  5});
-		points.push_back({ 5, -5});
-		simulation.addPolygon(500, 500, 0, 0, points, sf::Color::White, true);
+		for(int i = 0; i < numberOfObjects; i++) {
+			std::vector<Point> points;
+			points.push_back({-5, -5});
+			points.push_back({-5,  5});
+			points.push_back({ 5,  5});
+			points.push_back({ 5, -5});
+			points.push_back({ 0,-10});
+			simulation.addPolygon(
+				utils::randomBetween(0, mainWindow.getSize().x),
+				utils::randomBetween(0, mainWindow.getSize().y),
+				utils::randomBetween(0, 0),
+				utils::randomBetween(0, 0),
+				points,
+				utils::randomHSVColor(100, 100)
+			);
+		}
 
 		simulation.addPlane(Plane::POS_TOP);
 		simulation.addPlane(Plane::POS_BOTTOM);

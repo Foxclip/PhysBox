@@ -4,6 +4,8 @@
 
 
 void SimObject::addToRigidBodyWorld(btDynamicsWorld* world) {
+	rigidBody->setLinearFactor(btVector3(1, 1, 0));
+	rigidBody->setAngularFactor(btVector3(0, 0, 1));
 	world->addRigidBody(rigidBody);
 }
 
@@ -168,7 +170,7 @@ void Ball::render() {
 	circle.setOrigin(radius, radius);
 	circle.setFillColor(color);
 	circle.setPosition(getX(), getY());
-	circle.setRotation(getRotation() * 180 / PI);
+	circle.setRotation(getRotation() * 180 / PI - 90);
 	mainWindow.draw(circle);
 }
 
@@ -231,19 +233,10 @@ void Plane::render() {
 
 Polygon::Polygon(double x, double y, double speedX, double speedY, std::vector<Point> points, sf::Color color, bool isActive) {
 
-	btCompoundShape* shape = new btCompoundShape();
+	btConvexHullShape* shape = new btConvexHullShape();
 	for(int i = 0; i < points.size(); i++) {
-		btConvexHullShape* convex = new btConvexHullShape();
-		convex->addPoint(btVector3(0, 0, 0));
-		convex->addPoint(btVector3(points[i].x, points[i].y, 0));
-		if(i < points.size() - 1) {
-			convex->addPoint(btVector3(points[i + 1].x, points[i + 1].y, 0));
-		} else {
-			convex->addPoint(btVector3(points[0].x, points[0].y, 0));
-		}
-		btTransform transform;
-		transform.setIdentity();
-		shape->addChildShape(transform, convex);
+		shape->addPoint(btVector3(points[i].x, points[i].y, -10));
+		shape->addPoint(btVector3(points[i].x, points[i].y,  10));
 	}
 
 	btDefaultMotionState* mState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(x, y, 0)));
@@ -281,6 +274,6 @@ Polygon::Polygon(double x, double y, double speedX, double speedY, std::vector<P
 
 void Polygon::render() {
 	renderShape->setPosition(getX(), getY());
-	renderShape->setRotation(getRotation() * 180 / PI);
+	renderShape->setRotation(getRotation() * 180 / PI - 90);
 	mainWindow.draw(*renderShape);
 }
