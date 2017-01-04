@@ -16,10 +16,6 @@ enum CollisionType {
 	COLLISION_TYPES_NUM
 };
 
-typedef struct _point {
-	double x, y;
-} Point;
-
 class SimObject {
 
 public:

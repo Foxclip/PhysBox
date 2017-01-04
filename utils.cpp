@@ -80,6 +80,14 @@ double quaternionToEulerZ(double x, double y, double z, double w) {
 	return std::atan2(t0, t1);
 }
 
+Point polarToCartesian(double angle, double radius) {
+	angle *= PI / 180;
+	return {
+		radius * std::cos(angle),
+		radius * std::sin(angle)
+	};
+}
+
 	double randomBetween(double min, double max) {
 		return random() * (max - min) + min;
 	}

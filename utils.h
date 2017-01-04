@@ -3,6 +3,11 @@
 #include <string>
 #include <functional>
 #include <SFML/Graphics.hpp>
+#include "globals.h"
+
+typedef struct _point {
+	double x, y;
+} Point;
 
 namespace utils {
 
@@ -16,5 +21,6 @@ namespace utils {
 	std::string toString(double var, int precision);
 	double mapRange(double val, double min1, double max1, double min2, double max2, bool clamp = false);
 	double quaternionToEulerZ(double x, double y, double z, double w);
+	Point polarToCartesian(double angle, double radius);
 
 }
