@@ -308,26 +308,27 @@ Track::Track(int pointCount, double distanceBetweenPoints, double thickness, dou
 
 	for(int i = 1; i < pointCount; i++) {
 
-		btConvexHullShape* convex    = new btConvexHullShape();
-		convex->addPoint(btVector3(trackPoints[i    ].x,	 trackPoints[i	  ].y,			   -10));
-		convex->addPoint(btVector3(trackPoints[i    ].x,	 trackPoints[i    ].y,				10));
-		convex->addPoint(btVector3(trackPoints[i - 1].x,	 trackPoints[i - 1].y,			   -10));
-		convex->addPoint(btVector3(trackPoints[i - 1].x,	 trackPoints[i - 1].y,				10));
-		convex->addPoint(btVector3(trackPoints[i - 1].x,	 trackPoints[i - 1].y + thickness, -10));
-		convex->addPoint(btVector3(trackPoints[i - 1].x,	 trackPoints[i - 1].y + thickness,  10));
-		convex->addPoint(btVector3(trackPoints[i	].x,	 trackPoints[i	  ].y + thickness, -10));
-		convex->addPoint(btVector3(trackPoints[i	].x,	 trackPoints[i	  ].y + thickness,  10));
+		btConvexHullShape* convex = new btConvexHullShape();
+		convex->addPoint(btVector3(0,						 0,													 -10));
+		convex->addPoint(btVector3(0,						 0,													  10));
+		convex->addPoint(btVector3(-distanceBetweenPoints,	 trackPoints[i - 1].y - trackPoints[i].y,			 -10));
+		convex->addPoint(btVector3(-distanceBetweenPoints,	 trackPoints[i - 1].y - trackPoints[i].y,			  10));
+		convex->addPoint(btVector3(-distanceBetweenPoints,	 trackPoints[i - 1].y - trackPoints[i].y + thickness,-10));
+		convex->addPoint(btVector3(-distanceBetweenPoints,	 trackPoints[i - 1].y - trackPoints[i].y + thickness, 10));
+		convex->addPoint(btVector3(0,						 thickness,											 -10));
+		convex->addPoint(btVector3(0,						 thickness,											  10));
 		btTransform transform;
 		transform.setIdentity();
+		transform.setOrigin(btVector3(trackPoints[i].x, trackPoints[i].y, 0));
 		shape->addChildShape(transform, convex);
 
 		sf::ConvexShape segment;
 		segment.setPointCount(4);
-		segment.setPoint(0, sf::Vector2f(trackPoints[i	  ].x, trackPoints[i    ].y            ));
-		segment.setPoint(1, sf::Vector2f(trackPoints[i - 1].x, trackPoints[i - 1].y            ));
-		segment.setPoint(2, sf::Vector2f(trackPoints[i - 1].x, trackPoints[i - 1].y + thickness));
-		segment.setPoint(3, sf::Vector2f(trackPoints[i	  ].x, trackPoints[i    ].y + thickness));
-		segment.setPosition(sf::Vector2f(0, 0));
+		segment.setPoint(0, sf::Vector2f(0,						 0));
+		segment.setPoint(1, sf::Vector2f(-distanceBetweenPoints, trackPoints[i - 1].y - trackPoints[i].y));
+		segment.setPoint(2, sf::Vector2f(-distanceBetweenPoints, trackPoints[i - 1].y - trackPoints[i].y + thickness));
+		segment.setPoint(3, sf::Vector2f(0,						 thickness));
+		segment.setPosition(sf::Vector2f(trackPoints[i].x, trackPoints[i].y));
 		segment.setFillColor(utils::randomColor());
 		renderSegments.push_back(segment);
 
@@ -350,7 +351,7 @@ Track::Track(int pointCount, double distanceBetweenPoints, double thickness, dou
 
 void Track::render() {
 	for(sf::ConvexShape segment : renderSegments) {
-		segment.setPosition(getX(), getY());
+		segment.setPosition(segment.getPosition().x + getX(), segment.getPosition().y + getY());
 		segment.setRotation(getRotation() * 180 / PI - 90);
 		mainWindow.draw(segment);
 	}
