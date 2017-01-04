@@ -20,9 +20,6 @@ typedef struct _point {
 	double x, y;
 } Point;
 
-static double defaultRestitution;
-static double defaultFriction;
-
 class SimObject {
 
 public:

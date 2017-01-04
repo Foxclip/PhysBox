@@ -8,7 +8,6 @@ int main(int argc, char* args[]) {
 	libconfig::Config cfg;
 	cfg.readFile("startup.cfg");
 	int numberOfObjects = cfg.lookup("numberOfObjects");
-	double radius = cfg.lookup("radius");
 	while(true) {
 		simulation.resetSimulation();
 		for(int i = 0; i < numberOfObjects; i++) {

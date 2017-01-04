@@ -1,7 +1,10 @@
 #include "simobject.h"
 #include "globals.h"
 #include <algorithm>
+#include <iostream>
 
+double defaultRestitution;
+double defaultFriction;
 
 void SimObject::addToRigidBodyWorld(btDynamicsWorld* world) {
 	rigidBody->setLinearFactor(btVector3(1, 1, 0));
@@ -325,7 +328,6 @@ Track::Track(int pointCount, double distanceBetweenPoints, double thickness, dou
 		segment.setPoint(2, sf::Vector2f(trackPoints[i - 1].x, trackPoints[i - 1].y + thickness));
 		segment.setPoint(3, sf::Vector2f(trackPoints[i	  ].x, trackPoints[i    ].y + thickness));
 		segment.setPosition(sf::Vector2f(0, 0));
-		//segment.setFillColor(sf::Color::White);
 		segment.setFillColor(utils::randomColor());
 		renderSegments.push_back(segment);
 
