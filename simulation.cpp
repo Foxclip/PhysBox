@@ -158,6 +158,8 @@ void Simulation::drawUIText() {
 	drawInfo("Simulation speed: " + std::to_string(simulationSpeed) + " (" + std::to_string((int)simulationSpeedExponent) + ")");
 	drawBlank();
 
+	drawText(300, 0, WINDOW_SNAP_V_TOP, "Zoom: " + utils::toString(mainWindow.getDefaultView().getSize().x / view.getSize().x, 10));
+
 	currentFontSize = FONT_SIZE_SMALL;
 	drawInfo("RadialG: ", &gravityRadialForce);
 	drawInfo("VerticalG: ", &gravityVerticalForce);
@@ -366,32 +368,33 @@ void Simulation::updateFpsCount() {
 	}
 }
 
-Ball* Simulation::addBall(double x, double y, double radius, double speedX, double speedY, sf::Color color, bool isActive) {
+void Simulation::addBall(double x, double y, double radius, double speedX, double speedY, sf::Color color, bool isActive) {
 	Ball* ball = new Ball(x, y, radius, speedX, speedY, color, isActive);
 	objects.push_back(ball);
 	ball->addToRigidBodyWorld(dynamicsWorld);
-	return ball;
 }
 
-Polygon* Simulation::addPolygon(double x, double y, double speedX, double speedY, std::vector<Point> points, sf::Color color, bool isActive) {
+void Simulation::addPolygon(double x, double y, double speedX, double speedY, std::vector<Point> points, sf::Color color, bool isActive) {
 	Polygon* polygon = new Polygon(x, y, speedX, speedY, points, color, isActive);
 	objects.push_back(polygon);
 	polygon->addToRigidBodyWorld(dynamicsWorld);
-	return polygon;
 }
 
-Track* Simulation::addTrack(int pointCount, double distanceBetweenPoints, double thickness, double bottomLimit, double topLimit) {
+void Simulation::addRandomPolygon(double x, double y, double speedX, double speedY, int vertexCount, double minLength, double maxLength, sf::Color color, bool isActive) {
+	std::vector<Point> points = utils::generateRandomTriangleFan(vertexCount, minLength, maxLength);
+	addPolygon(x, y, speedX, speedY, points, color, isActive);
+}
+
+void Simulation::addTrack(int pointCount, double distanceBetweenPoints, double thickness, double bottomLimit, double topLimit) {
 	Track* track = new Track(pointCount, distanceBetweenPoints, thickness, bottomLimit, topLimit);
 	objects.push_back(track);
 	track->addToRigidBodyWorld(dynamicsWorld);
-	return track;
 }
 
-Plane* Simulation::addPlane(Plane::PlaneSide side) {
+void Simulation::addPlane(Plane::PlaneSide side) {
 	Plane* plane = new Plane(side);
 	planes.push_back(plane);
 	plane->addToRigidBodyWorld(dynamicsWorld);
-	return plane;
 }
 
 void Simulation::changeSimulationSpeed(int change) {
@@ -431,21 +434,4 @@ void Simulation::deleteAllObjects() {
 void Simulation::deleteObject(SimObject* object) {
 	delete object;
 	objects.erase(std::remove(objects.begin(), objects.end(), object), objects.end());
-}
-
-void Simulation::generateSystem(double centerX, double centerY, double centerRadius, double moonRadius, int moonCount, double gap) {
-	Ball* center = addBall(centerX, centerY, centerRadius, 0, 0, { 255, 255, 0 });
-	for(int i = 1; i <= moonCount; i++) {
-		double angle = utils::randomBetween(0, 360);
-		double distanceToCenter = i * gap;
-		double velocity = sqrt(gravityRadialForce * center->getMass() / distanceToCenter);
-		addBall(
-			cos(angle * PI / 180) * distanceToCenter + centerX,
-			sin(angle * PI / 180) * distanceToCenter + centerY,
-			moonRadius,
-			cos((angle + 90) * PI / 180) * velocity,
-			sin((angle + 90) * PI / 180) * velocity,
-			utils::randomColor()
-		);
-	}
 }

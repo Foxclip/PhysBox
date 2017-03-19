@@ -22,5 +22,6 @@ namespace utils {
 	double mapRange(double val, double min1, double max1, double min2, double max2, bool clamp = false);
 	double quaternionToEulerZ(double x, double y, double z, double w);
 	Point polarToCartesian(double angle, double radius);
+	std::vector<Point> generateRandomTriangleFan(int vertexCount, double minLength, double maxLength);
 
 }

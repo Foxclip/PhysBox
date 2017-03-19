@@ -56,13 +56,13 @@ public:
 	~Simulation();
 	double runSimulation();
 	void resetSimulation();
-	Ball* addBall(double x, double y, double radius, double speedX, double speedY, sf::Color color, bool isActive = true);
-	Polygon* addPolygon(double x, double y, double speedX, double speedY, std::vector<Point> points, sf::Color color, bool isActive = true);
-	Track* addTrack(int pointCount, double distanceBetweenPoints, double thickness, double bottomLimit, double topLimit);
-	Plane* addPlane(Plane::PlaneSide side);
+	void addBall(double x, double y, double radius, double speedX, double speedY, sf::Color color, bool isActive = true);
+	void addPolygon(double x, double y, double speedX, double speedY, std::vector<Point> points, sf::Color color, bool isActive = true);
+	void addRandomPolygon(double x, double y, double speedX, double speedY, int vertexCount, double minLength, double maxLength, sf::Color color, bool isActive = true);
+	void addTrack(int pointCount, double distanceBetweenPoints, double thickness, double bottomLimit, double topLimit);
+	void addPlane(Plane::PlaneSide side);
 	void deleteAllObjects();
 	void deleteObject(SimObject* object);
-	void generateSystem(double centerX, double centerY, double centerRadius, double moonRadius, int moonCount, double gap);
 
 private:
 

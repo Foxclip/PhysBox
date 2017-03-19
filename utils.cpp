@@ -88,6 +88,14 @@ Point polarToCartesian(double angle, double radius) {
 	};
 }
 
+std::vector<Point> generateRandomTriangleFan(int vertexCount, double minLength, double maxLength) {
+	std::vector<Point> points;
+	for(int i = 0; i < vertexCount; i++) {
+		points.push_back(utils::polarToCartesian(i * 360 / vertexCount, utils::randomBetween(minLength, maxLength)));
+	}
+	return points;
+}
+
 	double randomBetween(double min, double max) {
 		return random() * (max - min) + min;
 	}
