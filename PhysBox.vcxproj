@@ -73,8 +73,8 @@
     <LibraryPath>C:\Bullet\lib;C:\LibConfig\Debug;C:\SDL\lib\win32;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>C:\LibConfig\lib;C:\SFML-2.4.1\include;C:\Bullet\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Bullet\lib;C:\LibConfig\Debug;C:\SFML-2.4.1\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>E:\Libs\LibConfig\lib;E:\Libs\SFML-2.4.1\include;E:\Libs\Bullet\include;$(IncludePath)</IncludePath>
+    <LibraryPath>E:\Libs\Bullet\lib;E:\Libs\LibConfig\Debug;E:\Libs\SFML-2.4.1\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
