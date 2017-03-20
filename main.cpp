@@ -11,7 +11,9 @@ int main(int argc, char* args[]) {
 
 	while(true) {
 		simulation.resetSimulation();
-		simulation.addRandomPolygon(500, 0, 0, 0, 8, 10, 50, utils::randomColor());
+		for(int i = 0; i < 10; i++) {
+			simulation.addRandomPolygon(utils::randomBetween(0, 1000), utils::randomBetween(-200, 200), 0, 0, 8, 10, 50, utils::randomColor());
+		}
 		simulation.addTrack(100, 200, 50, -200, 200);
 		simulation.runSimulation();
 	}

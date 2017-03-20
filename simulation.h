@@ -67,7 +67,6 @@ public:
 private:
 
 	sf::View view;
-	btDynamicsWorld* dynamicsWorld;
 	double time = 0;
 	sf::Clock clock;
 	bool pause = true;

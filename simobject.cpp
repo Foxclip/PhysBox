@@ -139,6 +139,11 @@ ObjectType SimObject::getObjectType() {
 	return objectType;
 }
 
+void SimObject::addSphericalConstraint(SimObject* object1, SimObject* object2) {
+	btPoint2PointConstraint* constraint = new btPoint2PointConstraint(*object1->rigidBody, *object2->rigidBody, btVector3(100, 0, 0), btVector3(0, 100, 0));
+	dynamicsWorld->addConstraint(constraint, true);
+}
+
 Ball::Ball(double x, double y, double radius, double speedX, double speedY, sf::Color color, bool isActive) {
 	
 	btCollisionShape* shape = new btSphereShape(radius);

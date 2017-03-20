@@ -16,6 +16,8 @@ enum CollisionType {
 	COLLISION_TYPES_NUM
 };
 
+btDynamicsWorld* dynamicsWorld;
+
 class SimObject {
 
 public:
@@ -43,6 +45,7 @@ public:
 	double getMass();
 	void setMass(double mass);
 	ObjectType getObjectType();
+	void addSphericalConstraint(SimObject* object1, SimObject* object2);
 
 protected:
 	btRigidBody* rigidBody;
@@ -86,7 +89,7 @@ private:
 
 };
 
-class Track : public SimObject {
+class Track: public SimObject {
 public:
 	Track(int pointCount, double distanceBetweenPoints, double thickness, double bottomLimit, double topLimit);
 	void render();
