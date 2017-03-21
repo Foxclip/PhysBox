@@ -60,6 +60,7 @@ public:
 	Polygon* addPolygon(double x, double y, double speedX, double speedY, std::vector<Point> points, sf::Color color, bool isActive = true);
 	void addPolygonVehicle(double x, double y, double speedX, double speedY, std::vector<Point> points, std::vector<Wheel> wheels, sf::Color color);
 	Polygon* addRandomPolygon(double x, double y, double speedX, double speedY, int vertexCount, double minLength, double maxLength, sf::Color color, bool isActive = true);
+	void addRandomPolygonVehicle(double x, double y, double speedX, double speedY, int vertexCount, double minLength, double maxLength, int minWheels, int maxWheels, sf::Color color);
 	void addTrack(int pointCount, double distanceBetweenPoints, double thickness, double bottomLimit, double topLimit);
 	void addPlane(Plane::PlaneSide side);
 	void deleteAllObjects();

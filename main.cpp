@@ -11,17 +11,18 @@ int main(int argc, char* args[]) {
 
 	while(true) {
 		simulation.resetSimulation();
-		simulation.addTrack(100, 200, 50, -50, 50);
+		simulation.addTrack(100, 200, 50, -100, 100);
 
-		std::vector<Point> points;
-		points.push_back({-100, -50});
-		points.push_back({100, -50});
-		points.push_back({100, 50});
-		points.push_back({-100, 50});
-		std::vector<Wheel> wheels;
-		wheels.push_back({50, {-100, 100}});
-		wheels.push_back({50, {100, 100}});
-		simulation.addPolygonVehicle(500, 0, 0, 0, points, wheels, sf::Color::Green);
+		//std::vector<Point> points;
+		//points.push_back({-100, -50});
+		//points.push_back({100, -50});
+		//points.push_back({100, 50});
+		//points.push_back({-100, 50});
+		//std::vector<Wheel> wheels;
+		//wheels.push_back({50, {-100, 100}});
+		//wheels.push_back({50, {100, 100}});
+		//simulation.addPolygonVehicle(600, 0, 0, 0, points, wheels, sf::Color::Green);
+		//simulation.addPolygonVehicle(500, 300, 0, 0, points, wheels, sf::Color::Blue);
 
 		//Polygon* polygon1 = simulation.addRandomPolygon(500, -200, 0, 0, 8, 10, 50, sf::Color::Red);
 		//Polygon* polygon2 = simulation.addRandomPolygon(1000, 0, 0, 0, 8, 10, 50, sf::Color::Green);
@@ -31,6 +32,10 @@ int main(int argc, char* args[]) {
 		////simulation.addSphericalConstraint(polygon3, polygon1);
 		//simulation.addHingeConstraint(polygon1, polygon2);
 		//simulation.addSpringConstraint(polygon1, polygon2);
+
+		for(int i = 0; i < 500; i++) {
+			simulation.addRandomPolygonVehicle(500, 0, 0, 0, 8, 10, 50, 0, 5, utils::randomColor());
+		}
 
 		simulation.runSimulation();
 	}

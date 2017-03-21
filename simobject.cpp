@@ -6,10 +6,10 @@
 double defaultRestitution;
 double defaultFriction;
 
-void SimObject::addToRigidBodyWorld(btDynamicsWorld* world) {
+void SimObject::addToRigidBodyWorld(btDynamicsWorld* world, CollisionGroup collisionGroup, int collidesWith) {
 	rigidBody->setLinearFactor(btVector3(1, 1, 0));
 	rigidBody->setAngularFactor(btVector3(0, 0, 1));
-	world->addRigidBody(rigidBody);
+	world->addRigidBody(rigidBody, collisionGroup, collidesWith);
 }
 
 btRigidBody* SimObject::getRigidBody() {
@@ -162,7 +162,7 @@ Ball::Ball(double x, double y, double radius, double speedX, double speedY, sf::
 	rigidBody->setDamping(0, 0);
 	rigidBody->setFriction(defaultFriction);
 
-	motorTorque = 10000;
+	motorTorque = 100000;
 	motorSpeed = 10;
 
 	setVelX(speedX);
@@ -188,11 +188,13 @@ Ball::Ball(double x, double y, double radius, double speedX, double speedY, sf::
 
 void Ball::render() {
 	mainShape->setOrigin(radius, radius);
-	mainShape->setFillColor(color);
+	mainShape->setFillColor(sf::Color::Transparent);
+	mainShape->setOutlineThickness(-1);
+	mainShape->setOutlineColor(color);
 	mainShape->setPosition(getX(), getY());
 	mainShape->setRotation(getRotation() * 180 / PI - 90);
 	mainWindow.draw(*mainShape);
-	segmentShape->setFillColor(sf::Color::Black);
+	segmentShape->setFillColor(color);
 	segmentShape->setPosition(getX(), getY());
 	segmentShape->setRotation(getRotation() * 180 / PI - 90);
 	mainWindow.draw(*segmentShape);
@@ -381,9 +383,10 @@ void Track::render() {
 	}
 }
 
-PolygonVehicle::PolygonVehicle(double x, double y, double speedX, double speedY, std::vector<Point> points, std::vector<Wheel> wheels, sf::Color color) {
+PolygonVehicle::PolygonVehicle(double x, double y, double speedX, double speedY, std::vector<Point> points, std::vector<Wheel> wheels, sf::Color color, sf::Color wheelColor) {
 
 	Polygon::Polygon(x, y, speedX, speedY, points, color, true);
 	objectType = OBJECT_TYPE_POLYGONVEHICLE;
+	this->wheelColor = wheelColor;
 
 }

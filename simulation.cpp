@@ -44,7 +44,7 @@ void Simulation::initBullet() {
 	btCollisionDispatcher* dispatcher = new btCollisionDispatcher(collisionConfiguration);
 	btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver();
 	dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
-	dynamicsWorld->getSolverInfo().m_numIterations = 2000;
+	//dynamicsWorld->getSolverInfo().m_numIterations = 2000;
 	dynamicsWorld->setGravity(btVector3(0, gravityVerticalForce, 0));
 }
 
@@ -377,14 +377,14 @@ void Simulation::updateFpsCount() {
 Ball* Simulation::addBall(double x, double y, double radius, double speedX, double speedY, sf::Color color, bool isActive) {
 	Ball* ball = new Ball(x, y, radius, speedX, speedY, color, isActive);
 	objects.push_back(ball);
-	ball->addToRigidBodyWorld(dynamicsWorld);
+	ball->addToRigidBodyWorld(dynamicsWorld, COLLISION_GROUP_WHEELS, COLLISION_GROUP_TRACK);
 	return ball;
 }
 
 Polygon* Simulation::addPolygon(double x, double y, double speedX, double speedY, std::vector<Point> points, sf::Color color, bool isActive) {
 	Polygon* polygon = new Polygon(x, y, speedX, speedY, points, color, isActive);
 	objects.push_back(polygon);
-	polygon->addToRigidBodyWorld(dynamicsWorld);
+	polygon->addToRigidBodyWorld(dynamicsWorld, COLLISION_GROUP_POLYGONS, COLLISION_GROUP_TRACK);
 	return polygon;
 }
 
@@ -401,16 +401,32 @@ Polygon* Simulation::addRandomPolygon(double x, double y, double speedX, double 
 	return addPolygon(x, y, speedX, speedY, points, color, isActive);
 }
 
+void Simulation::addRandomPolygonVehicle(double x, double y, double speedX, double speedY, int vertexCount, double minLength, double maxLength, int minWheels, int maxWheels, sf::Color color) {
+
+	std::vector<Wheel> wheels;
+	int wheelNumber = utils::randomBetween(minWheels, maxWheels);
+	for(int i = 0; i < wheelNumber; i++) {
+		wheels.push_back(
+		{
+			utils::randomBetween(5, 50),
+			{utils::randomBetween(-50, 50), utils::randomBetween(-50, 50)}
+		}
+		);
+	}
+	addPolygonVehicle(x, y, speedX, speedY, utils::generateRandomTriangleFan(vertexCount, minLength, maxLength), wheels, color);
+
+}
+
 void Simulation::addTrack(int pointCount, double distanceBetweenPoints, double thickness, double bottomLimit, double topLimit) {
 	Track* track = new Track(pointCount, distanceBetweenPoints, thickness, bottomLimit, topLimit);
 	objects.push_back(track);
-	track->addToRigidBodyWorld(dynamicsWorld);
+	track->addToRigidBodyWorld(dynamicsWorld, COLLISION_GROUP_TRACK, (COLLISION_GROUP_WHEELS | COLLISION_GROUP_POLYGONS));
 }
 
 void Simulation::addPlane(Plane::PlaneSide side) {
 	Plane* plane = new Plane(side);
 	planes.push_back(plane);
-	plane->addToRigidBodyWorld(dynamicsWorld);
+	plane->addToRigidBodyWorld(dynamicsWorld, COLLISION_GROUP_NOTHING, COLLISION_GROUP_NOTHING);
 }
 
 void Simulation::changeSimulationSpeed(int change) {
@@ -462,7 +478,7 @@ void Simulation::addHingeConstraint(SimObject* object1, SimObject* object2) {
 	btHingeConstraint* constraint = new btHingeConstraint(
 		*object1->getRigidBody(), *object2->getRigidBody(),
 		btVector3(object2->getX() - object1->getX(), object2->getY() - object1->getY(), 0), btVector3(0, 0, 0), btVector3(0, 0, 1), btVector3(0, 0, 1));
-	constraint->enableAngularMotor(true, -10, 50);
+	//constraint->enableAngularMotor(true, -10, 50);
 	dynamicsWorld->addConstraint(constraint, true);
 }
 
@@ -478,8 +494,8 @@ void Simulation::addSpringConstraint(SimObject* object1, SimObject* object2) {
 	constraint->enableSpring(1, true);
 	constraint->setStiffness(1, 1000);
 	constraint->setDamping(1, 5);
-	constraint->setLinearLowerLimit(btVector3(-1000, -1000, 0));
-	constraint->setLinearUpperLimit(btVector3(1000, 1000, 0));
+	constraint->setLinearLowerLimit(btVector3(-100, -100, 0));
+	constraint->setLinearUpperLimit(btVector3(100, 100, 0));
 	//constraint->enableMotor(5, true);
 	constraint->setMaxMotorForce(5, 100);
 	constraint->setTargetVelocity(5, -10);

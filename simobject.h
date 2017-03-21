@@ -17,8 +17,15 @@ enum CollisionType {
 	COLLISION_TYPES_NUM
 };
 
+enum CollisionGroup {
+	COLLISION_GROUP_NOTHING = 0,
+	COLLISION_GROUP_TRACK = 1,
+	COLLISION_GROUP_POLYGONS = 2,
+	COLLISION_GROUP_WHEELS = 4
+};
+
 typedef struct _wheel {
-	int radius;
+	double radius;
 	Point position;
 } Wheel;
 
@@ -31,7 +38,7 @@ public:
 	bool isMarkedForDeletion = false;
 	double motorTorque = 0;
 	double motorSpeed = 0;
-	void addToRigidBodyWorld(btDynamicsWorld* world);
+	void addToRigidBodyWorld(btDynamicsWorld* world, CollisionGroup collisionGroup, int collidesWith);
 	btRigidBody* getRigidBody();
 	double getX();
 	double getY();
@@ -100,7 +107,10 @@ private:
 
 class PolygonVehicle: public Polygon {
 public:
-	PolygonVehicle(double x, double y, double speedX, double speedY, std::vector<Point> points, std::vector<Wheel> wheels, sf::Color color);
+	PolygonVehicle(double x, double y, double speedX, double speedY, std::vector<Point> points, std::vector<Wheel> wheels, sf::Color color, sf::Color wheelColor);
+
+private:
+	sf::Color wheelColor;
 
 };
 
