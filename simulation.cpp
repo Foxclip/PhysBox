@@ -271,6 +271,11 @@ void Simulation::processPhysics() {
 	} else {
 		dynamicsWorld->setGravity(btVector3(0, 0, 0));
 	}
+	for(SimObject* object: objects) {
+		if(object->getRigidBody()->getAngularVelocity().getZ() < object->motorSpeed) {
+			object->getRigidBody()->applyTorque(btVector3(0, 0, object->motorTorque));
+		}
+	}
 	dynamicsWorld->stepSimulation(simulationSpeed * SECONDS_PER_FRAME, 1000);
 	time += simulationSpeed * SECONDS_PER_FRAME;
 }
@@ -475,7 +480,7 @@ void Simulation::addSpringConstraint(SimObject* object1, SimObject* object2) {
 	constraint->setDamping(1, 5);
 	constraint->setLinearLowerLimit(btVector3(-1000, -1000, 0));
 	constraint->setLinearUpperLimit(btVector3(1000, 1000, 0));
-	constraint->enableMotor(5, true);
+	//constraint->enableMotor(5, true);
 	constraint->setMaxMotorForce(5, 100);
 	constraint->setTargetVelocity(5, -10);
 	dynamicsWorld->addConstraint(constraint, true);

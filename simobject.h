@@ -29,6 +29,8 @@ public:
 	std::vector<SimObject*> springConnections;
 	int incomingSpringConnectionsCount = 0;
 	bool isMarkedForDeletion = false;
+	double motorTorque = 0;
+	double motorSpeed = 0;
 	void addToRigidBodyWorld(btDynamicsWorld* world);
 	btRigidBody* getRigidBody();
 	double getX();

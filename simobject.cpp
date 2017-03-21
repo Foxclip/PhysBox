@@ -162,6 +162,9 @@ Ball::Ball(double x, double y, double radius, double speedX, double speedY, sf::
 	rigidBody->setDamping(0, 0);
 	rigidBody->setFriction(defaultFriction);
 
+	motorTorque = 10000;
+	motorSpeed = 10;
+
 	setVelX(speedX);
 	setVelY(speedY);
 
