@@ -68,6 +68,8 @@ public:
 private:
 	double radius;
 	double calculateMass(double rad);
+	sf::ConvexShape* segmentShape;
+	sf::CircleShape* mainShape;
 };
 
 class Plane: public SimObject {

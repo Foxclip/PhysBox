@@ -170,15 +170,29 @@ Ball::Ball(double x, double y, double radius, double speedX, double speedY, sf::
 	this->isActive = isActive;
 	objectType = OBJECT_TYPE_BALL;
 
+
+	mainShape = new sf::CircleShape(radius);
+	mainShape->setOrigin(radius, radius);
+
+	segmentShape = new sf::ConvexShape();
+	segmentShape->setPointCount(3);
+	double offset = 360/mainShape->getPointCount() / 2.0;
+	segmentShape->setPoint(0, sf::Vector2f(0, 0));
+	segmentShape->setPoint(1, sf::Vector2f(utils::polarToCartesian(offset, radius).x, utils::polarToCartesian(offset, radius).y));
+	segmentShape->setPoint(2, sf::Vector2f(utils::polarToCartesian(360/mainShape->getPointCount() + offset, radius).x, utils::polarToCartesian(360/mainShape->getPointCount() + offset, radius).y));
+
 }
 
 void Ball::render() {
-	sf::CircleShape circle(radius);
-	circle.setOrigin(radius, radius);
-	circle.setFillColor(color);
-	circle.setPosition(getX(), getY());
-	circle.setRotation(getRotation() * 180 / PI - 90);
-	mainWindow.draw(circle);
+	mainShape->setOrigin(radius, radius);
+	mainShape->setFillColor(color);
+	mainShape->setPosition(getX(), getY());
+	mainShape->setRotation(getRotation() * 180 / PI - 90);
+	mainWindow.draw(*mainShape);
+	segmentShape->setFillColor(sf::Color::Black);
+	segmentShape->setPosition(getX(), getY());
+	segmentShape->setRotation(getRotation() * 180 / PI - 90);
+	mainWindow.draw(*segmentShape);
 }
 
 double Ball::calculateMass(double rad) {
