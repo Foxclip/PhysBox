@@ -44,6 +44,7 @@ void Simulation::initBullet() {
 	btCollisionDispatcher* dispatcher = new btCollisionDispatcher(collisionConfiguration);
 	btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver();
 	dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
+	dynamicsWorld->getSolverInfo().m_numIterations = 2000;
 	dynamicsWorld->setGravity(btVector3(0, gravityVerticalForce, 0));
 }
 
@@ -270,7 +271,7 @@ void Simulation::processPhysics() {
 	} else {
 		dynamicsWorld->setGravity(btVector3(0, 0, 0));
 	}
-	dynamicsWorld->stepSimulation(simulationSpeed * SECONDS_PER_FRAME, 100);
+	dynamicsWorld->stepSimulation(simulationSpeed * SECONDS_PER_FRAME, 1000);
 	time += simulationSpeed * SECONDS_PER_FRAME;
 }
 
@@ -368,21 +369,31 @@ void Simulation::updateFpsCount() {
 	}
 }
 
-void Simulation::addBall(double x, double y, double radius, double speedX, double speedY, sf::Color color, bool isActive) {
+Ball* Simulation::addBall(double x, double y, double radius, double speedX, double speedY, sf::Color color, bool isActive) {
 	Ball* ball = new Ball(x, y, radius, speedX, speedY, color, isActive);
 	objects.push_back(ball);
 	ball->addToRigidBodyWorld(dynamicsWorld);
+	return ball;
 }
 
-void Simulation::addPolygon(double x, double y, double speedX, double speedY, std::vector<Point> points, sf::Color color, bool isActive) {
+Polygon* Simulation::addPolygon(double x, double y, double speedX, double speedY, std::vector<Point> points, sf::Color color, bool isActive) {
 	Polygon* polygon = new Polygon(x, y, speedX, speedY, points, color, isActive);
 	objects.push_back(polygon);
 	polygon->addToRigidBodyWorld(dynamicsWorld);
+	return polygon;
 }
 
-void Simulation::addRandomPolygon(double x, double y, double speedX, double speedY, int vertexCount, double minLength, double maxLength, sf::Color color, bool isActive) {
+void Simulation::addPolygonVehicle(double x, double y, double speedX, double speedY, std::vector<Point> points, std::vector<Wheel> wheels, sf::Color color) {
+	Polygon* newPolygon = addPolygon(x, y, speedX, speedY, points, color);
+	for(Wheel wheel: wheels) {
+		Ball* newWheel = addBall(x + wheel.position.x, y + wheel.position.y, wheel.radius, speedX, speedY, color);
+		addSpringConstraint(newPolygon, newWheel);
+	}
+}
+
+Polygon* Simulation::addRandomPolygon(double x, double y, double speedX, double speedY, int vertexCount, double minLength, double maxLength, sf::Color color, bool isActive) {
 	std::vector<Point> points = utils::generateRandomTriangleFan(vertexCount, minLength, maxLength);
-	addPolygon(x, y, speedX, speedY, points, color, isActive);
+	return addPolygon(x, y, speedX, speedY, points, color, isActive);
 }
 
 void Simulation::addTrack(int pointCount, double distanceBetweenPoints, double thickness, double bottomLimit, double topLimit) {
@@ -434,4 +445,38 @@ void Simulation::deleteAllObjects() {
 void Simulation::deleteObject(SimObject* object) {
 	delete object;
 	objects.erase(std::remove(objects.begin(), objects.end(), object), objects.end());
+}
+
+void Simulation::addSphericalConstraint(SimObject* object1, SimObject* object2) {
+	btPoint2PointConstraint* constraint = new btPoint2PointConstraint(
+		*object1->getRigidBody(), *object2->getRigidBody(), btVector3(object2->getX() - object1->getX(), object2->getY() - object1->getY(), 0), btVector3(0, 0, 0));
+	dynamicsWorld->addConstraint(constraint, false);
+}
+
+void Simulation::addHingeConstraint(SimObject* object1, SimObject* object2) {
+	btHingeConstraint* constraint = new btHingeConstraint(
+		*object1->getRigidBody(), *object2->getRigidBody(),
+		btVector3(object2->getX() - object1->getX(), object2->getY() - object1->getY(), 0), btVector3(0, 0, 0), btVector3(0, 0, 1), btVector3(0, 0, 1));
+	constraint->enableAngularMotor(true, -10, 50);
+	dynamicsWorld->addConstraint(constraint, true);
+}
+
+void Simulation::addSpringConstraint(SimObject* object1, SimObject* object2) {
+	btTransform tr1, tr2;
+	tr1.setIdentity();
+	tr2.setIdentity();
+	tr1.setOrigin(btVector3(object2->getX() - object1->getX(), object2->getY() - object1->getY(), 0));
+	btGeneric6DofSpring2Constraint* constraint = new btGeneric6DofSpring2Constraint(*object1->getRigidBody(), *object2->getRigidBody(), tr1, tr2);
+	constraint->enableSpring(0, true);
+	constraint->setStiffness(0, 10000);
+	constraint->setDamping(0, 50);
+	constraint->enableSpring(1, true);
+	constraint->setStiffness(1, 1000);
+	constraint->setDamping(1, 5);
+	constraint->setLinearLowerLimit(btVector3(-1000, -1000, 0));
+	constraint->setLinearUpperLimit(btVector3(1000, 1000, 0));
+	constraint->enableMotor(5, true);
+	constraint->setMaxMotorForce(5, 100);
+	constraint->setTargetVelocity(5, -10);
+	dynamicsWorld->addConstraint(constraint, true);
 }

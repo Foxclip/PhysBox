@@ -56,17 +56,22 @@ public:
 	~Simulation();
 	double runSimulation();
 	void resetSimulation();
-	void addBall(double x, double y, double radius, double speedX, double speedY, sf::Color color, bool isActive = true);
-	void addPolygon(double x, double y, double speedX, double speedY, std::vector<Point> points, sf::Color color, bool isActive = true);
-	void addRandomPolygon(double x, double y, double speedX, double speedY, int vertexCount, double minLength, double maxLength, sf::Color color, bool isActive = true);
+	Ball* addBall(double x, double y, double radius, double speedX, double speedY, sf::Color color, bool isActive = true);
+	Polygon* addPolygon(double x, double y, double speedX, double speedY, std::vector<Point> points, sf::Color color, bool isActive = true);
+	void addPolygonVehicle(double x, double y, double speedX, double speedY, std::vector<Point> points, std::vector<Wheel> wheels, sf::Color color);
+	Polygon* addRandomPolygon(double x, double y, double speedX, double speedY, int vertexCount, double minLength, double maxLength, sf::Color color, bool isActive = true);
 	void addTrack(int pointCount, double distanceBetweenPoints, double thickness, double bottomLimit, double topLimit);
 	void addPlane(Plane::PlaneSide side);
 	void deleteAllObjects();
 	void deleteObject(SimObject* object);
+	void addSphericalConstraint(SimObject* object1, SimObject* object2);
+	void addHingeConstraint(SimObject* object1, SimObject* object2);
+	void addSpringConstraint(SimObject* object1, SimObject* object2);
 
 private:
 
 	sf::View view;
+	btDynamicsWorld* dynamicsWorld;
 	double time = 0;
 	sf::Clock clock;
 	bool pause = true;

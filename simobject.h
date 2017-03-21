@@ -7,6 +7,7 @@
 enum ObjectType {
 	OBJECT_TYPE_BALL,
 	OBJECT_TYPE_POLYGON,
+	OBJECT_TYPE_POLYGONVEHICLE,
 	OBJECT_TYPE_TRACK
 };
 
@@ -16,7 +17,10 @@ enum CollisionType {
 	COLLISION_TYPES_NUM
 };
 
-btDynamicsWorld* dynamicsWorld;
+typedef struct _wheel {
+	int radius;
+	Point position;
+} Wheel;
 
 class SimObject {
 
@@ -26,6 +30,7 @@ public:
 	int incomingSpringConnectionsCount = 0;
 	bool isMarkedForDeletion = false;
 	void addToRigidBodyWorld(btDynamicsWorld* world);
+	btRigidBody* getRigidBody();
 	double getX();
 	double getY();
 	double getVelX();
@@ -45,7 +50,6 @@ public:
 	double getMass();
 	void setMass(double mass);
 	ObjectType getObjectType();
-	void addSphericalConstraint(SimObject* object1, SimObject* object2);
 
 protected:
 	btRigidBody* rigidBody;
@@ -81,11 +85,18 @@ public:
 
 class Polygon: public SimObject {
 public:
+	Polygon();
 	Polygon(double x, double y, double speedX, double speedY, std::vector<Point> points, sf::Color color, bool isActive = true);
 	void render();
 
 private:
 	sf::ConvexShape* renderShape;
+
+};
+
+class PolygonVehicle: public Polygon {
+public:
+	PolygonVehicle(double x, double y, double speedX, double speedY, std::vector<Point> points, std::vector<Wheel> wheels, sf::Color color);
 
 };
 

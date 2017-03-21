@@ -12,6 +12,10 @@ void SimObject::addToRigidBodyWorld(btDynamicsWorld* world) {
 	world->addRigidBody(rigidBody);
 }
 
+btRigidBody* SimObject::getRigidBody() {
+	return rigidBody;
+}
+
 double SimObject::getX() {
 	btTransform t;
 	rigidBody->getMotionState()->getWorldTransform(t);
@@ -139,18 +143,13 @@ ObjectType SimObject::getObjectType() {
 	return objectType;
 }
 
-void SimObject::addSphericalConstraint(SimObject* object1, SimObject* object2) {
-	btPoint2PointConstraint* constraint = new btPoint2PointConstraint(*object1->rigidBody, *object2->rigidBody, btVector3(100, 0, 0), btVector3(0, 100, 0));
-	dynamicsWorld->addConstraint(constraint, true);
-}
-
 Ball::Ball(double x, double y, double radius, double speedX, double speedY, sf::Color color, bool isActive) {
 	
 	btCollisionShape* shape = new btSphereShape(radius);
 	btDefaultMotionState* mState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(x, y, 0)));
 	double mass;
 	if(isActive) {
-		mass = calculateMass(radius);
+		mass = 1;
 	} else {
 		mass = 0;
 	}
@@ -237,6 +236,9 @@ Plane::Plane(PlaneSide side) {
 }
 
 void Plane::render() {
+}
+
+Polygon::Polygon() {
 }
 
 Polygon::Polygon(double x, double y, double speedX, double speedY, std::vector<Point> points, sf::Color color, bool isActive) {
@@ -360,4 +362,11 @@ void Track::render() {
 		segment.setRotation(getRotation() * 180 / PI - 90);
 		mainWindow.draw(segment);
 	}
+}
+
+PolygonVehicle::PolygonVehicle(double x, double y, double speedX, double speedY, std::vector<Point> points, std::vector<Wheel> wheels, sf::Color color) {
+
+	Polygon::Polygon(x, y, speedX, speedY, points, color, true);
+	objectType = OBJECT_TYPE_POLYGONVEHICLE;
+
 }
