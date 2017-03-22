@@ -143,6 +143,12 @@ ObjectType SimObject::getObjectType() {
 	return objectType;
 }
 
+void SimObject::deactivate() {
+	rigidBody->forceActivationState(WANTS_DEACTIVATION);
+	isActive = 0;
+	color = sf::Color(255, 255, 255, 16);
+}
+
 Ball::Ball(double x, double y, double radius, double speedX, double speedY, sf::Color color, bool isActive) {
 	
 	btCollisionShape* shape = new btSphereShape(radius);
@@ -315,6 +321,7 @@ Polygon::Polygon(double x, double y, double speedX, double speedY, std::vector<P
 }
 
 void Polygon::render() {
+	renderShape->setFillColor(color);
 	renderShape->setPosition(getX(), getY());
 	renderShape->setRotation(getRotation() * 180 / PI - 90);
 	mainWindow.draw(*renderShape);
@@ -383,10 +390,17 @@ void Track::render() {
 	}
 }
 
-PolygonVehicle::PolygonVehicle(double x, double y, double speedX, double speedY, std::vector<Point> points, std::vector<Wheel> wheels, sf::Color color, sf::Color wheelColor) {
-
-	Polygon::Polygon(x, y, speedX, speedY, points, color, true);
+PolygonVehicle::PolygonVehicle(double x, double y, double speedX, double speedY, std::vector<Point> points, sf::Color color): Polygon(x, y, speedX, speedY, points, color) {
 	objectType = OBJECT_TYPE_POLYGONVEHICLE;
-	this->wheelColor = wheelColor;
+}
 
+void PolygonVehicle::addWheel(Ball * wheel) {
+	wheels.push_back(wheel);
+}
+
+void PolygonVehicle::deactivate() {
+	Polygon::deactivate();
+	for(Ball* wheel: wheels) {
+		wheel->deactivate();
+	}
 }

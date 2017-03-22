@@ -45,6 +45,7 @@ public:
 	const double SIMULATION_SPEED_BASE = 4;
 	int simulationSpeedExponent = 0;
 	double mouseWheelzoomFactor = 1.1;
+	const double DEACTIVATION_TIME = 10;
 
 	bool isWheelDown = false;
 	sf::Vector2f mousePrev;

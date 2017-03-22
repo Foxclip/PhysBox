@@ -275,6 +275,15 @@ void Simulation::processPhysics() {
 		if(object->getRigidBody()->getAngularVelocity().getZ() < object->motorSpeed) {
 			object->getRigidBody()->applyTorque(btVector3(0, 0, object->motorTorque));
 		}
+		if(object->getObjectType() == OBJECT_TYPE_POLYGONVEHICLE) {
+			if(object->getX() > object->highestX) {
+				object->lastImprovementTime = time;
+				object->highestX = object->getX();
+			}
+			if(time - object->lastImprovementTime > DEACTIVATION_TIME) {
+				object->deactivate();
+			}
+		}
 	}
 	dynamicsWorld->stepSimulation(simulationSpeed * SECONDS_PER_FRAME, 1000);
 	time += simulationSpeed * SECONDS_PER_FRAME;
@@ -389,10 +398,13 @@ Polygon* Simulation::addPolygon(double x, double y, double speedX, double speedY
 }
 
 void Simulation::addPolygonVehicle(double x, double y, double speedX, double speedY, std::vector<Point> points, std::vector<Wheel> wheels, sf::Color color) {
-	Polygon* newPolygon = addPolygon(x, y, speedX, speedY, points, color);
+	PolygonVehicle* newPolygonVehicle = new PolygonVehicle(x, y, speedX, speedY, points, color);
+	objects.push_back(newPolygonVehicle);
+	newPolygonVehicle->addToRigidBodyWorld(dynamicsWorld, COLLISION_GROUP_POLYGONS, COLLISION_GROUP_TRACK);
 	for(Wheel wheel: wheels) {
 		Ball* newWheel = addBall(x + wheel.position.x, y + wheel.position.y, wheel.radius, speedX, speedY, color);
-		addSpringConstraint(newPolygon, newWheel);
+		newPolygonVehicle->addWheel(newWheel);
+		addSpringConstraint(newPolygonVehicle, newWheel);
 	}
 }
 

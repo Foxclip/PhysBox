@@ -33,7 +33,7 @@ int main(int argc, char* args[]) {
 		//simulation.addHingeConstraint(polygon1, polygon2);
 		//simulation.addSpringConstraint(polygon1, polygon2);
 
-		for(int i = 0; i < 500; i++) {
+		for(int i = 0; i < 100; i++) {
 			simulation.addRandomPolygonVehicle(500, 0, 0, 0, 8, 10, 50, 0, 5, utils::randomColor());
 		}
 
